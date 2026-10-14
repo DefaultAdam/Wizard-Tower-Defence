@@ -11,6 +11,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  checks: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -95,6 +96,7 @@ jobs:
           projectPath: ${{ steps.check.outputs.project_path }}
           unityVersion: ${{ env.UNITY_VERSION }}
           testMode: EditMode
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - if: steps.check.outputs.run_unity == 'true'
         uses: game-ci/unity-builder@v4
