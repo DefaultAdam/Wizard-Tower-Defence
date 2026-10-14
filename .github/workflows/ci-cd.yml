@@ -62,6 +62,16 @@ jobs:
     outputs:
       built: ${{ steps.check.outputs.run_unity }}
     steps:
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: true
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -102,6 +112,7 @@ jobs:
         name: Clean test artifacts
         run: |
           sudo rm -rf artifacts CodeCoverage
+          docker image prune -a -f || true
           git checkout -- .
 
       - if: steps.check.outputs.run_unity == 'true'
