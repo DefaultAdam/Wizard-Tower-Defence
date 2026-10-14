@@ -116,6 +116,7 @@ jobs:
           targetPlatform: WebGL
           buildsPath: build
           versioning: None
+          allowDirtyBuild: true
 
       - if: steps.check.outputs.run_unity == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
