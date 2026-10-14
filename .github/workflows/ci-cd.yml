@@ -99,6 +99,12 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - if: steps.check.outputs.run_unity == 'true'
+        name: Clean test artifacts
+        run: |
+          git checkout -- .
+          git clean -fd
+
+      - if: steps.check.outputs.run_unity == 'true'
         uses: game-ci/unity-builder@v4
         env:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
@@ -109,6 +115,7 @@ jobs:
           unityVersion: ${{ env.UNITY_VERSION }}
           targetPlatform: WebGL
           buildsPath: build
+          versioning: None
 
       - if: steps.check.outputs.run_unity == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
