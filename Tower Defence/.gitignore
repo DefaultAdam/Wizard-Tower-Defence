@@ -37,3 +37,9 @@ crashlytics-build.properties
 /[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Developer private testing scenes (only track the shared Main scene)
+*.unity
+*.unity.meta
+!**/Main.unity
+!**/Main.unity.meta
