@@ -1,0 +1,125 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UNITY_VERSION: "2023.1.22f1"
+
+jobs:
+  pr-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Forbidden folders
+        run: |
+          FORBIDDEN=$(git ls-files | grep -E '(^|/)(Library|Temp|Obj|Logs|UserSettings)/' || true)
+          [ -z "$FORBIDDEN" ] || { echo "$FORBIDDEN"; exit 1; }
+
+      - name: Merge conflicts
+        run: |
+          CONFLICTS=$(git grep -n -E '^(<<<<<<<|=======|>>>>>>>)' -- '*.cs' '*.unity' '*.prefab' '*.asset' '*.mat' || true)
+          [ -z "$CONFLICTS" ] || { echo "$CONFLICTS"; exit 1; }
+
+      - name: Unity version
+        run: |
+          PROJECT_FILE=$(find . -maxdepth 3 -path "*/ProjectSettings/ProjectVersion.txt" | head -n 1)
+          [ -z "$PROJECT_FILE" ] && exit 0
+          ACTUAL=$(grep "m_EditorVersion:" "$PROJECT_FILE" | awk '{print $2}' | tr -d '\r')
+          [ "$ACTUAL" = "$UNITY_VERSION" ] || exit 1
+
+      - name: Meta files
+        run: |
+          ASSETS_DIR=$(find . -maxdepth 2 -type d -name "Assets" | head -n 1)
+          [ -z "$ASSETS_DIR" ] && exit 0
+          ERR=0
+          while IFS= read -r -d '' item; do
+            [ -f "${item}.meta" ] || { echo "Missing: ${item}.meta"; ERR=1; }
+          done < <(find "$ASSETS_DIR" -mindepth 1 \( ! -name "*.meta" ! -path "*/.*" \) -print0)
+          while IFS= read -r -d '' meta; do
+            [ -e "${meta%.meta}" ] || { echo "Orphaned: $meta"; ERR=1; }
+          done < <(find "$ASSETS_DIR" -mindepth 1 -name "*.meta" ! -path "*/.*" -print0)
+          exit $ERR
+
+  build:
+    needs: pr-checks
+    runs-on: ubuntu-latest
+    outputs:
+      built: ${{ steps.check.outputs.run_unity }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - id: check
+        env:
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        run: |
+          PROJECT_FILE=$(find . -maxdepth 3 -path "*/ProjectSettings/ProjectVersion.txt" | head -n 1)
+          if [ -z "$PROJECT_FILE" ] || [ -z "$UNITY_SERIAL" ]; then
+            echo "run_unity=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "project_path=$(dirname "$(dirname "$PROJECT_FILE")")" >> $GITHUB_OUTPUT
+          echo "run_unity=true" >> $GITHUB_OUTPUT
+
+      - if: steps.check.outputs.run_unity == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.check.outputs.project_path }}/Library
+          key: Library-WebGL-${{ hashFiles(format('{0}/Assets/**', steps.check.outputs.project_path), format('{0}/Packages/**', steps.check.outputs.project_path), format('{0}/ProjectSettings/**', steps.check.outputs.project_path)) }}
+          restore-keys: Library-WebGL-
+
+      - if: steps.check.outputs.run_unity == 'true'
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: ${{ steps.check.outputs.project_path }}
+          unityVersion: ${{ env.UNITY_VERSION }}
+          testMode: EditMode
+
+      - if: steps.check.outputs.run_unity == 'true'
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: ${{ steps.check.outputs.project_path }}
+          unityVersion: ${{ env.UNITY_VERSION }}
+          targetPlatform: WebGL
+          buildsPath: build
+
+      - if: steps.check.outputs.run_unity == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/WebGL/WebGL
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.build.outputs.built == 'true'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
