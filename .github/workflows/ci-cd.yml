@@ -101,8 +101,8 @@ jobs:
       - if: steps.check.outputs.run_unity == 'true'
         name: Clean test artifacts
         run: |
+          sudo rm -rf artifacts CodeCoverage
           git checkout -- .
-          git clean -fd
 
       - if: steps.check.outputs.run_unity == 'true'
         uses: game-ci/unity-builder@v4
