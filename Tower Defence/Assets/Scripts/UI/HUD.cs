@@ -13,6 +13,10 @@ public class HUD : MonoBehaviour
     public Slider spSlider; // slider bar for fortress energy pool
     public GameObject gameOverPanel; // game over screen overlay
     public GameObject victoryPanel; // victory screen overlay
+    public GameObject inspectorPanel; // unit inspector panel overlay
+    public Text unitNameText; // text display for selected unit name
+    public Text unitLevelText; // text display for selected unit level tier
+    public Text unitStatsText; // text display for selected unit combat stats
     public int startingSP = 100; // starting fortress energy pool
     public int maxSP = 500; // maximum energy value for slider bar
     public int currentSP; // current fortress energy pool
@@ -44,6 +48,11 @@ public class HUD : MonoBehaviour
         if (victoryPanel != null)
         {
             victoryPanel.SetActive(false);
+        }
+
+        if (inspectorPanel != null)
+        {
+            inspectorPanel.SetActive(false);
         }
 
         UpdateSPText();
@@ -188,5 +197,38 @@ public class HUD : MonoBehaviour
     public void DeductSP(int amount)
     {
         ModifySP(-amount);
+    }
+
+    // display unit details in inspector panel
+    public void ShowUnitInspector(string unitName, string levelText, string statsText)
+    {
+        if (inspectorPanel != null)
+        {
+            inspectorPanel.SetActive(true);
+        }
+
+        if (unitNameText != null)
+        {
+            unitNameText.text = unitName;
+        }
+
+        if (unitLevelText != null)
+        {
+            unitLevelText.text = levelText;
+        }
+
+        if (unitStatsText != null)
+        {
+            unitStatsText.text = statsText;
+        }
+    }
+
+    // hide unit inspector panel
+    public void HideUnitInspector()
+    {
+        if (inspectorPanel != null)
+        {
+            inspectorPanel.SetActive(false);
+        }
     }
 }
