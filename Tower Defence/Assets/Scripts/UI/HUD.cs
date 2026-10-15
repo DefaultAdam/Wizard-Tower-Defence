@@ -4,6 +4,8 @@ using UnityEngine.UI;
 // heads up display for game stats and fortress energy
 public class HUD : MonoBehaviour
 {
+    public static HUD instance; // static reference to hud
+
     public Text spText; // text display for current skill points
     public Text milestoneText; // text display for current milestone tier
     public Slider spSlider; // slider bar for fortress energy pool
@@ -11,6 +13,12 @@ public class HUD : MonoBehaviour
     public int startingSP = 100; // starting fortress energy pool
     public int maxSP = 500; // maximum energy value for slider bar
     public int currentSP; // current fortress energy pool
+
+    // set instance on awake
+    void Awake()
+    {
+        instance = this;
+    }
 
     // initialise hud on start
     void Start()
@@ -110,5 +118,17 @@ public class HUD : MonoBehaviour
         UpdateMilestoneText();
         UpdateSPSlider();
         CheckGameOver();
+    }
+
+    // add sp to energy pool
+    public void AddSP(int amount)
+    {
+        ModifySP(amount);
+    }
+
+    // deduct sp from energy pool
+    public void DeductSP(int amount)
+    {
+        ModifySP(-amount);
     }
 }
