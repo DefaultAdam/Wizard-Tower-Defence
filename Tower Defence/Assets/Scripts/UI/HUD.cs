@@ -8,12 +8,16 @@ public class HUD : MonoBehaviour
 
     public Text spText; // text display for current skill points
     public Text milestoneText; // text display for current milestone tier
+    public Text waveText; // text display for current wave
+    public Text timerText; // text display for wave countdown timer
     public Slider spSlider; // slider bar for fortress energy pool
     public GameObject gameOverPanel; // game over screen overlay
     public GameObject victoryPanel; // victory screen overlay
     public int startingSP = 100; // starting fortress energy pool
     public int maxSP = 500; // maximum energy value for slider bar
     public int currentSP; // current fortress energy pool
+    public int currentWave = 1; // current wave number
+    public float waveTimer = 30f; // countdown timer for wave
 
     // set instance on awake
     void Awake()
@@ -44,6 +48,8 @@ public class HUD : MonoBehaviour
 
         UpdateSPText();
         UpdateMilestoneText();
+        UpdateWaveText();
+        UpdateTimerText();
     }
 
     // update sp text display
@@ -87,6 +93,39 @@ public class HUD : MonoBehaviour
         {
             milestoneText.text = "Milestone: None (Fortress Critical)";
         }
+    }
+
+    // update wave counter text
+    public void UpdateWaveText()
+    {
+        if (waveText != null)
+        {
+            waveText.text = "Wave: " + currentWave;
+        }
+    }
+
+    // update wave countdown timer text
+    public void UpdateTimerText()
+    {
+        if (timerText != null)
+        {
+            int seconds = Mathf.CeilToInt(waveTimer);
+            timerText.text = "Next Wave: " + seconds + "s";
+        }
+    }
+
+    // set wave number and refresh display
+    public void SetWave(int waveNumber)
+    {
+        currentWave = waveNumber;
+        UpdateWaveText();
+    }
+
+    // set wave timer and refresh display
+    public void SetTimer(float timeRemaining)
+    {
+        waveTimer = timeRemaining;
+        UpdateTimerText();
     }
 
     // update sp slider display
