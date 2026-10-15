@@ -6,13 +6,22 @@ public class HUD : MonoBehaviour
 {
     public Text spText; // text display for current skill points
     public Text milestoneText; // text display for current milestone tier
+    public Slider spSlider; // slider bar for fortress energy pool
     public int startingSP = 100; // starting fortress energy pool
+    public int maxSP = 500; // maximum energy value for slider bar
     public int currentSP; // current fortress energy pool
 
     // initialise hud on start
     void Start()
     {
         currentSP = startingSP;
+
+        if (spSlider != null)
+        {
+            spSlider.maxValue = maxSP;
+            spSlider.value = currentSP;
+        }
+
         UpdateSPText();
         UpdateMilestoneText();
     }
@@ -60,11 +69,21 @@ public class HUD : MonoBehaviour
         }
     }
 
+    // update sp slider display
+    public void UpdateSPSlider()
+    {
+        if (spSlider != null)
+        {
+            spSlider.value = currentSP;
+        }
+    }
+
     // modify sp and update display
     public void ModifySP(int amount)
     {
         currentSP += amount;
         UpdateSPText();
         UpdateMilestoneText();
+        UpdateSPSlider();
     }
 }
