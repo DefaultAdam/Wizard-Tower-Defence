@@ -11,4 +11,10 @@ public class Health : MonoBehaviour
     {
         currentHealth = maxHealth;
     }
+
+    // take damage from an attack
+    public void TakeDamage(float damage)
+    {
+        currentHealth -= damage;
+    }
 }
