@@ -24,5 +24,23 @@ public class Projectile : MonoBehaviour
         }
 
         transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
+
+        if (Vector3.Distance(transform.position, target.position) < 0.2f)
+        {
+            HitTarget();
+        }
+    }
+
+    // hit target and deal damage
+    void HitTarget()
+    {
+        Health targetHealth = target.GetComponent<Health>();
+
+        if (targetHealth != null)
+        {
+            targetHealth.TakeDamage(damage);
+        }
+
+        Destroy(gameObject);
     }
 }
