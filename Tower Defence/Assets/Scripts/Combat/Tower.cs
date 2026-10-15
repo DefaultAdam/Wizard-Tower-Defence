@@ -41,5 +41,23 @@ public class Tower : MonoBehaviour
                 currentTarget = enemy;
             }
         }
+
+        if (currentTarget != null)
+        {
+            Attack(currentTarget);
+        }
+    }
+
+    // attack target and reset cooldown
+    void Attack(GameObject target)
+    {
+        cooldownTimer = attackCooldown;
+
+        Health enemyHealth = target.GetComponent<Health>();
+
+        if (enemyHealth != null)
+        {
+            enemyHealth.TakeDamage(damage);
+        }
     }
 }
