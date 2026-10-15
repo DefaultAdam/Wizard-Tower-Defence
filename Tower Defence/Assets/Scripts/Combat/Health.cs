@@ -16,5 +16,16 @@ public class Health : MonoBehaviour
     public void TakeDamage(float damage)
     {
         currentHealth -= damage;
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    // destroy object when health reaches zero
+    void Die()
+    {
+        Destroy(gameObject);
     }
 }
