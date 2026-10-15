@@ -7,6 +7,7 @@ public class HUD : MonoBehaviour
     public Text spText; // text display for current skill points
     public Text milestoneText; // text display for current milestone tier
     public Slider spSlider; // slider bar for fortress energy pool
+    public GameObject gameOverPanel; // game over screen overlay
     public int startingSP = 100; // starting fortress energy pool
     public int maxSP = 500; // maximum energy value for slider bar
     public int currentSP; // current fortress energy pool
@@ -20,6 +21,11 @@ public class HUD : MonoBehaviour
         {
             spSlider.maxValue = maxSP;
             spSlider.value = currentSP;
+        }
+
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(false);
         }
 
         UpdateSPText();
@@ -78,12 +84,31 @@ public class HUD : MonoBehaviour
         }
     }
 
+    // check if fortress energy is depleted
+    public void CheckGameOver()
+    {
+        if (currentSP <= 0)
+        {
+            if (gameOverPanel != null)
+            {
+                gameOverPanel.SetActive(true);
+            }
+        }
+    }
+
     // modify sp and update display
     public void ModifySP(int amount)
     {
         currentSP += amount;
+
+        if (currentSP < 0)
+        {
+            currentSP = 0;
+        }
+
         UpdateSPText();
         UpdateMilestoneText();
         UpdateSPSlider();
+        CheckGameOver();
     }
 }
