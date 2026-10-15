@@ -7,6 +7,9 @@ public class Tower : MonoBehaviour
     public float attackCooldown = 1f; // seconds between attacks
     public float damage = 20f; // damage dealt per attack
 
+    public GameObject projectilePrefab; // projectile prefab to shoot
+    public Transform firePoint; // spawn point for projectiles
+
     private float cooldownTimer = 0f; // timer to track attack cooldown
     private GameObject currentTarget; // current target enemy
 
@@ -48,16 +51,28 @@ public class Tower : MonoBehaviour
         }
     }
 
-    // attack target and reset cooldown
+    // attack target by spawning a projectile
     void Attack(GameObject target)
     {
         cooldownTimer = attackCooldown;
 
-        Health enemyHealth = target.GetComponent<Health>();
-
-        if (enemyHealth != null)
+        if (projectilePrefab != null)
         {
-            enemyHealth.TakeDamage(damage);
+            Vector3 spawnPosition = transform.position;
+
+            if (firePoint != null)
+            {
+                spawnPosition = firePoint.position;
+            }
+
+            GameObject projectileObject = Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
+            Projectile projectile = projectileObject.GetComponent<Projectile>();
+
+            if (projectile != null)
+            {
+                projectile.damage = damage;
+                projectile.SetTarget(target.transform);
+            }
         }
     }
 }
