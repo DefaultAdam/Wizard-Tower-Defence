@@ -214,4 +214,11 @@ public class Tower : MonoBehaviour
             }
         }
     }
+
+    // draw attack range sphere in editor scene view
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
+    }
 }
