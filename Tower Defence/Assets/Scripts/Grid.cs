@@ -30,10 +30,10 @@ public class Grid : MonoBehaviour
         new Vector2Int(4, 1),
         new Vector2Int(4, 0),
         new Vector2Int(5, 0),
-        new Vector2Int(5, 1),
-        new Vector2Int(5, 2),
-        new Vector2Int(5, 3),
-        new Vector2Int(5, 4),
+        new Vector2Int(6, 0),
+        new Vector2Int(6, 1),
+        new Vector2Int(6, 2),
+        new Vector2Int(6, 3),
         new Vector2Int(6, 4),
         new Vector2Int(7, 4)
     };
@@ -52,7 +52,8 @@ public class Grid : MonoBehaviour
         new Vector2Int(13, 6),
         new Vector2Int(12, 6),
         new Vector2Int(11, 6),
-        new Vector2Int(10, 6)
+        new Vector2Int(10, 6),
+        new Vector2Int(9, 6)
     };
 
     private readonly Vector2Int[] rightPath =
@@ -65,16 +66,16 @@ public class Grid : MonoBehaviour
         new Vector2Int(14, 2),
         new Vector2Int(13, 2),
         new Vector2Int(13, 1),
-        new Vector2Int(13, 0),
-        new Vector2Int(12, 0),
-        new Vector2Int(11, 0),
-        new Vector2Int(10, 0),
+        new Vector2Int(12, 1),
+        new Vector2Int(11, 1),
         new Vector2Int(10, 1),
-        new Vector2Int(10, 2)
+        new Vector2Int(10, 2),
+        new Vector2Int(10, 3),
+        new Vector2Int(9, 3)
     };
 
-    public Vector2Int fortressMin = new Vector2Int(8, 3);
-    public Vector2Int fortressMax = new Vector2Int(10, 5);
+    public Vector2Int fortressMin = new Vector2Int(8, 4);
+    public Vector2Int fortressMax = new Vector2Int(9, 5);
 
     private void Awake()
     {
