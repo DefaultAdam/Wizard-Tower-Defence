@@ -100,6 +100,18 @@ public class Grid : MonoBehaviour
                 cells[x, y] = CellType.Fortress;
             }
         }
+
+        markPath(leftPath);
+        markPath(topPath);
+        markPath(rightPath);
+    }
+
+    private void markPath(Vector2Int[] path)
+    {
+        foreach (Vector2Int position in path)
+        {
+            cells[position.x, position.y] = CellType.Path;
+        }
     }
 
     
