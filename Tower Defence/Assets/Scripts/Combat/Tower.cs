@@ -19,6 +19,8 @@ public class Tower : MonoBehaviour
 
     public GameObject projectilePrefab; // projectile prefab to shoot
     public Transform firePoint; // spawn point for projectiles
+    public Transform towerHead; // rotating part of the tower
+    public float rotationSpeed = 10f; // rotation speed towards target
 
     private float cooldownTimer = 0f; // timer to track attack cooldown
     private GameObject currentTarget; // current target enemy
@@ -34,6 +36,11 @@ public class Tower : MonoBehaviour
         if (currentTarget == null)
         {
             FindTarget();
+        }
+
+        if (currentTarget != null)
+        {
+            RotateTowardsTarget();
         }
 
         if (cooldownTimer > 0f)
@@ -161,6 +168,26 @@ public class Tower : MonoBehaviour
         }
     }
 
+    // rotate tower to face current target
+    void RotateTowardsTarget()
+    {
+        Transform targetTransform = transform;
+
+        if (towerHead != null)
+        {
+            targetTransform = towerHead;
+        }
+
+        Vector3 direction = currentTarget.transform.position - targetTransform.position;
+        direction.y = 0f;
+
+        if (direction.magnitude > 0.01f)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            targetTransform.rotation = Quaternion.Lerp(targetTransform.rotation, lookRotation, rotationSpeed * Time.deltaTime);
+        }
+    }
+
     // attack target by spawning a projectile
     void Attack(GameObject target)
     {
@@ -169,13 +196,15 @@ public class Tower : MonoBehaviour
         if (projectilePrefab != null)
         {
             Vector3 spawnPosition = transform.position;
+            Quaternion spawnRotation = transform.rotation;
 
             if (firePoint != null)
             {
                 spawnPosition = firePoint.position;
+                spawnRotation = firePoint.rotation;
             }
 
-            GameObject projectileObject = Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
+            GameObject projectileObject = Instantiate(projectilePrefab, spawnPosition, spawnRotation);
             Projectile projectile = projectileObject.GetComponent<Projectile>();
 
             if (projectile != null)
