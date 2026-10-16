@@ -114,5 +114,24 @@ public class Grid : MonoBehaviour
         }
     }
 
-    
+    public Vector3 GetCellCenter(Vector2Int position)
+    {
+        return transform.position + new Vector3(
+            (position.x + 0.5f) * cellSize,
+            (position.y + 0.5f) * cellSize,
+            0f
+        );
+    }
+    public CellType GetCellType(Vector2Int position)
+    {
+        if (!IsInsideGrid(position))
+            return CellType.Used;
+
+        return cells[position.x, position.y];
+    }
+    public bool IsInsideGrid(Vector2Int position)
+    {
+        return position.x >= 0 && position.x < width
+            && position.y >= 0 && position.y < height;
+    }
 }
