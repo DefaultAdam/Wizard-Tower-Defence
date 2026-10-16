@@ -134,4 +134,39 @@ public class Grid : MonoBehaviour
         return position.x >= 0 && position.x < width
             && position.y >= 0 && position.y < height;
     }
+
+    private bool ContainsCell(Vector2Int[] path, Vector2Int position)
+    {
+        foreach (Vector2Int pathPosition in path)
+        {
+            if (pathPosition == position)
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool GetPathColor(Vector2Int position, out Color color)
+    {
+        if (ContainsCell(leftPath, position))
+        {
+            color = new Color(0.85f, 0.45f, 0.20f);
+            return true;
+        }
+
+        if (ContainsCell(topPath, position))
+        {
+            color = new Color(0.20f, 0.60f, 0.90f);
+            return true;
+        }
+
+        if (ContainsCell(rightPath, position))
+        {
+            color = new Color(0.65f, 0.35f, 0.85f);
+            return true;
+        }
+
+        color = Color.white;
+        return false;
+    }
 }
