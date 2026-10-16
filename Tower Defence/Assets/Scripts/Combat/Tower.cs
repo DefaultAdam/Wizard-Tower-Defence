@@ -1,11 +1,21 @@
 using UnityEngine;
 
+// targeting priority options
+public enum TargetPriority
+{
+    First,
+    Closest,
+    Strongest,
+    Weakest
+}
+
 // tower combat and attack script
 public class Tower : MonoBehaviour
 {
     public float attackRange = 5f; // attack range distance
     public float attackCooldown = 1f; // seconds between attacks
     public float damage = 20f; // damage dealt per attack
+    public TargetPriority targetPriority = TargetPriority.Closest; // targeting priority criteria
 
     public GameObject projectilePrefab; // projectile prefab to shoot
     public Transform firePoint; // spawn point for projectiles
@@ -62,12 +72,16 @@ public class Tower : MonoBehaviour
         return true;
     }
 
-    // find nearest enemy in range
+    // find best target based on priority criteria
     void FindTarget()
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        float shortestDistance = attackRange;
         currentTarget = null;
+
+        float bestDistance = attackRange;
+        float highestHealth = -1f;
+        float lowestHealth = float.MaxValue;
+        float furthestDistance = -1f;
 
         foreach (GameObject enemy in enemies)
         {
@@ -85,10 +99,64 @@ public class Tower : MonoBehaviour
 
             float distance = Vector3.Distance(transform.position, enemy.transform.position);
 
-            if (distance < shortestDistance)
+            if (distance > attackRange)
             {
-                shortestDistance = distance;
-                currentTarget = enemy;
+                continue;
+            }
+
+            if (targetPriority == TargetPriority.Closest)
+            {
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    currentTarget = enemy;
+                }
+            }
+            else if (targetPriority == TargetPriority.First)
+            {
+                Enemy enemyScript = enemy.GetComponent<Enemy>();
+                float progress = 0f;
+
+                if (enemyScript != null)
+                {
+                    progress = enemyScript.distanceTravelled;
+                }
+
+                if (progress > furthestDistance)
+                {
+                    furthestDistance = progress;
+                    currentTarget = enemy;
+                }
+            }
+            else if (targetPriority == TargetPriority.Strongest)
+            {
+                float currentHealth = 0f;
+
+                if (enemyHealth != null)
+                {
+                    currentHealth = enemyHealth.currentHealth;
+                }
+
+                if (currentHealth > highestHealth)
+                {
+                    highestHealth = currentHealth;
+                    currentTarget = enemy;
+                }
+            }
+            else if (targetPriority == TargetPriority.Weakest)
+            {
+                float currentHealth = float.MaxValue;
+
+                if (enemyHealth != null)
+                {
+                    currentHealth = enemyHealth.currentHealth;
+                }
+
+                if (currentHealth < lowestHealth)
+                {
+                    lowestHealth = currentHealth;
+                    currentTarget = enemy;
+                }
             }
         }
     }
