@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
@@ -9,6 +10,7 @@ public class EnemyMovement : MonoBehaviour
     public int pathNumber = 0;
     private Vector2Int[] path;
     private int nextGridNumber;
+    public float speed = 2f;
 
     private void Start()
     {
@@ -23,5 +25,22 @@ public class EnemyMovement : MonoBehaviour
 
         transform.position = grid.GetCellCenter(path[0]);
         nextGridNumber = 1;
+    }
+
+    private void Update()
+    {
+        if (nextGridNumber >= path.Length)
+        {
+            return;
+        }
+
+        Vector3 targetPosition = grid.GetCellCenter(path[nextGridNumber]);
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
+
+        if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
+        {
+            nextGridNumber++;
+        }
+
     }
 }
