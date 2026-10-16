@@ -83,6 +83,24 @@ public class Grid : MonoBehaviour
 
     private void GenerateGrid()
     {
+        cells = new CellType[width, height];
 
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                cells[x, y] = CellType.Free;
+            }
+        }
+
+        for (int x = fortressMin.x; x <= fortressMax.x; x++)
+        {
+            for (int y = fortressMin.y; y <= fortressMax.y; y++)
+            {
+                cells[x, y] = CellType.Fortress;
+            }
+        }
     }
+
+    
 }
