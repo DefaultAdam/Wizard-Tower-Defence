@@ -79,10 +79,10 @@ public class Tower : MonoBehaviour
         return true;
     }
 
-    // find best target based on priority criteria
+    // find best target in range using overlap sphere
     void FindTarget()
     {
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        Collider[] colliders = Physics.OverlapSphere(transform.position, attackRange);
         currentTarget = null;
 
         float bestDistance = attackRange;
@@ -90,13 +90,14 @@ public class Tower : MonoBehaviour
         float lowestHealth = float.MaxValue;
         float furthestDistance = -1f;
 
-        foreach (GameObject enemy in enemies)
+        foreach (Collider hitCollider in colliders)
         {
-            if (enemy == null)
+            if (hitCollider == null || !hitCollider.CompareTag("Enemy"))
             {
                 continue;
             }
 
+            GameObject enemy = hitCollider.gameObject;
             Health enemyHealth = enemy.GetComponent<Health>();
 
             if (enemyHealth != null && enemyHealth.isDead)
