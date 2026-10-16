@@ -72,4 +72,17 @@ public class Grid : MonoBehaviour
         new Vector2Int(10, 1),
         new Vector2Int(10, 2)
     };
+
+    public Vector2Int fortressMin = new Vector2Int(8, 3);
+    public Vector2Int fortressMax = new Vector2Int(10, 5);
+
+    private void Awake()
+    {
+        GenerateGrid();
+    }
+
+    private void GenerateGrid()
+    {
+
+    }
 }
