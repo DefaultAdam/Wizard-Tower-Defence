@@ -169,4 +169,52 @@ public class Grid : MonoBehaviour
         color = Color.white;
         return false;
     }
+
+    private bool IsFortressCell(Vector2Int position)
+    {
+        return position.x >= fortressMin.x
+            && position.x <= fortressMax.x
+            && position.y >= fortressMin.y
+            && position.y <= fortressMax.y;
+    }
+
+    private void OnDrawGizmos()
+    {
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                Vector2Int position = new Vector2Int(x, y);
+
+                if (IsFortressCell(position))
+                {
+                    Gizmos.color = Color.gray;
+                }
+                else
+                {
+                    Color pathColour;
+
+                    if (GetPathColor(position, out pathColour))
+                    {
+                        Gizmos.color = pathColour;
+                    }
+
+                    else
+                    {
+                        Gizmos.color =
+                            new Color(0.30f, 0.70f, 0.35f);
+                    }
+                }
+
+                Gizmos.DrawCube(
+                    GetCellCenter(position),
+                    new Vector3(
+                        cellSize * 0.96f,
+                        cellSize * 0.96f,
+                        0.1f
+                    )
+                );
+            }
+        }
+    }
 }
