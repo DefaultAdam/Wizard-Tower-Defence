@@ -218,4 +218,22 @@ public class Grid : MonoBehaviour
             }
         }
     }
+
+    public Vector2Int[] GetPath(int pathIndex)
+    {
+        switch (pathIndex)
+        {
+            case 0:
+                return leftPath;
+
+            case 1:
+                return topPath;
+
+            case 2:
+                return rightPath;
+
+            default:
+                return null;
+        }
+    }
 }
