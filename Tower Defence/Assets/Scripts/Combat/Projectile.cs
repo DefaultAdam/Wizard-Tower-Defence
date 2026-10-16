@@ -12,9 +12,14 @@ public class Projectile : MonoBehaviour
     public void SetTarget(Transform newTarget)
     {
         target = newTarget;
+
+        if (target != null)
+        {
+            transform.LookAt(target);
+        }
     }
 
-    // move toward target every frame
+    // move toward target and face trajectory every frame
     void Update()
     {
         if (target == null)
@@ -23,6 +28,7 @@ public class Projectile : MonoBehaviour
             return;
         }
 
+        transform.LookAt(target);
         transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
 
         if (Vector3.Distance(transform.position, target.position) < 0.2f)
