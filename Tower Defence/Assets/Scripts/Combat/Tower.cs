@@ -13,18 +13,53 @@ public class Tower : MonoBehaviour
     private float cooldownTimer = 0f; // timer to track attack cooldown
     private GameObject currentTarget; // current target enemy
 
-    // update cooldown timer every frame
+    // update target tracking and attack cooldown
     void Update()
     {
+        if (currentTarget != null && !IsTargetValid())
+        {
+            currentTarget = null;
+        }
+
+        if (currentTarget == null)
+        {
+            FindTarget();
+        }
+
         if (cooldownTimer > 0f)
         {
             cooldownTimer -= Time.deltaTime;
         }
 
-        if (cooldownTimer <= 0f)
+        if (cooldownTimer <= 0f && currentTarget != null)
         {
-            FindTarget();
+            Attack(currentTarget);
         }
+    }
+
+    // check if current target is alive and in range
+    bool IsTargetValid()
+    {
+        if (currentTarget == null)
+        {
+            return false;
+        }
+
+        Health enemyHealth = currentTarget.GetComponent<Health>();
+
+        if (enemyHealth != null && enemyHealth.isDead)
+        {
+            return false;
+        }
+
+        float distance = Vector3.Distance(transform.position, currentTarget.transform.position);
+
+        if (distance > attackRange)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     // find nearest enemy in range
@@ -36,6 +71,18 @@ public class Tower : MonoBehaviour
 
         foreach (GameObject enemy in enemies)
         {
+            if (enemy == null)
+            {
+                continue;
+            }
+
+            Health enemyHealth = enemy.GetComponent<Health>();
+
+            if (enemyHealth != null && enemyHealth.isDead)
+            {
+                continue;
+            }
+
             float distance = Vector3.Distance(transform.position, enemy.transform.position);
 
             if (distance < shortestDistance)
@@ -43,11 +90,6 @@ public class Tower : MonoBehaviour
                 shortestDistance = distance;
                 currentTarget = enemy;
             }
-        }
-
-        if (currentTarget != null)
-        {
-            Attack(currentTarget);
         }
     }
 
