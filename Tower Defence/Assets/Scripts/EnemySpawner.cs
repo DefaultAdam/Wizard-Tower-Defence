@@ -1,0 +1,42 @@
+using UnityEngine;
+
+// spawner for enemy waves along grid paths
+public class EnemySpawner : MonoBehaviour
+{
+    public GameObject enemyPrefab; // enemy prefab to spawn
+    public Grid grid; // reference to grid
+    public float timeBetweenWaves = 15f; // time between waves in seconds
+    public float spawnInterval = 1f; // seconds between individual enemy spawns
+    public int enemiesPerWave = 5; // number of enemies per wave
+    public int currentWave = 0; // current wave counter
+
+    private float waveTimer = 3f; // countdown timer to next wave
+    private float spawnTimer = 0f; // countdown timer to next enemy spawn
+
+    // initialise references on start
+    void Start()
+    {
+        if (grid == null)
+        {
+            grid = FindObjectOfType<Grid>();
+        }
+    }
+
+    // handle wave timers and enemy spawning
+    void Update()
+    {
+        waveTimer -= Time.deltaTime;
+
+        if (waveTimer <= 0f)
+        {
+            StartNextWave();
+        }
+    }
+
+    // begin next enemy wave
+    void StartNextWave()
+    {
+        currentWave++;
+        waveTimer = timeBetweenWaves;
+    }
+}
