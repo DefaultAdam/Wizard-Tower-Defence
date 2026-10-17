@@ -20,12 +20,23 @@ public class EnemySpawner : MonoBehaviour
         {
             grid = FindObjectOfType<Grid>();
         }
+
+        if (HUD.instance != null)
+        {
+            HUD.instance.SetWave(currentWave);
+            HUD.instance.SetTimer(waveTimer);
+        }
     }
 
     // handle wave timers and enemy spawning
     void Update()
     {
         waveTimer -= Time.deltaTime;
+
+        if (HUD.instance != null)
+        {
+            HUD.instance.SetTimer(waveTimer);
+        }
 
         if (waveTimer <= 0f)
         {
@@ -38,5 +49,10 @@ public class EnemySpawner : MonoBehaviour
     {
         currentWave++;
         waveTimer = timeBetweenWaves;
+
+        if (HUD.instance != null)
+        {
+            HUD.instance.SetWave(currentWave);
+        }
     }
 }
