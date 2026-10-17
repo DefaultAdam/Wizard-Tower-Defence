@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     public static GameManager instance; // static reference to game manager
 
     public GameObject pausePanel; // pause screen overlay
+    public string menuSceneName = "MainMenu"; // name of main menu scene
     public bool isPaused = false; // current pause state
 
     // set instance on awake
@@ -66,5 +67,12 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    // return to main menu scene and reset time scale
+    public void ReturnToMenu()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(menuSceneName);
     }
 }
