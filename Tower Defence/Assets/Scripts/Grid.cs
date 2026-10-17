@@ -236,4 +236,14 @@ public class Grid : MonoBehaviour
                 return null;
         }
     }
+
+    public Vector2Int convertWorldPosToCell(Vector3 worldPosition)
+    {
+        Vector3 localPosition = worldPosition - transform.position;
+
+        int x = Mathf.FloorToInt(localPosition.x / cellSize);
+        int y = Mathf.FloorToInt(localPosition.y / cellSize);
+
+        return new Vector2Int(x, y);
+    }
 }
