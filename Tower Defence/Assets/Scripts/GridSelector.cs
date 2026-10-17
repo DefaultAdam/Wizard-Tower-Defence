@@ -3,15 +3,15 @@ using UnityEngine;
 
 public class GridSelector : MonoBehaviour
 {
-    public Camera camera;
+    public Camera sceneCamera;
     public Grid grid;
     public LineRenderer highlight;
 
     private void Start()
     {
-        if (camera == null)
+        if (sceneCamera == null)
         {
-            camera = Camera.main;
+            sceneCamera = Camera.main;
         }
 
         highlight.positionCount = 5;
@@ -24,7 +24,7 @@ public class GridSelector : MonoBehaviour
 
     private void Update()
     {
-        Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+        Ray ray = sceneCamera.ScreenPointToRay(Input.mousePosition);
 
         Plane gridPlane = new Plane(
             Vector3.forward,
