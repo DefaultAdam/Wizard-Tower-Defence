@@ -12,6 +12,28 @@ public class GameManager : MonoBehaviour
         instance = this;
     }
 
+    // handle pause key input
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            TogglePause();
+        }
+    }
+
+    // toggle pause state and game speed
+    public void TogglePause()
+    {
+        if (isPaused)
+        {
+            ResumeGame();
+        }
+        else
+        {
+            PauseGame();
+        }
+    }
+
     // pause game and freeze time
     public void PauseGame()
     {
