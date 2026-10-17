@@ -12,6 +12,7 @@ public class EnemySpawner : MonoBehaviour
 
     private float waveTimer = 3f; // countdown timer to next wave
     private float spawnTimer = 0f; // countdown timer to next enemy spawn
+    private int enemiesLeftToSpawn = 0; // remaining enemies to spawn in wave
 
     // initialise references on start
     void Start()
@@ -31,6 +32,20 @@ public class EnemySpawner : MonoBehaviour
     // handle wave timers and enemy spawning
     void Update()
     {
+        if (enemiesLeftToSpawn > 0)
+        {
+            spawnTimer -= Time.deltaTime;
+
+            if (spawnTimer <= 0f)
+            {
+                SpawnEnemy();
+                spawnTimer = spawnInterval;
+                enemiesLeftToSpawn--;
+            }
+
+            return;
+        }
+
         waveTimer -= Time.deltaTime;
 
         if (HUD.instance != null)
@@ -48,11 +63,18 @@ public class EnemySpawner : MonoBehaviour
     void StartNextWave()
     {
         currentWave++;
+        enemiesLeftToSpawn = enemiesPerWave + (currentWave * 2);
         waveTimer = timeBetweenWaves;
+        spawnTimer = 0f;
 
         if (HUD.instance != null)
         {
             HUD.instance.SetWave(currentWave);
         }
+    }
+
+    // spawn single enemy on path
+    void SpawnEnemy()
+    {
     }
 }
