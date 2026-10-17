@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 // game loop manager for game flow
 public class GameManager : MonoBehaviour
@@ -58,5 +59,12 @@ public class GameManager : MonoBehaviour
         {
             pausePanel.SetActive(false);
         }
+    }
+
+    // restart active scene and reset time scale
+    public void RestartGame()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
