@@ -20,9 +20,14 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    // dispatch kill event when enemy dies
+    // reward sp and dispatch kill event when enemy dies
     void OnDeath()
     {
+        if (HUD.instance != null)
+        {
+            HUD.instance.AddSP(spReward);
+        }
+
         if (onKilled != null)
         {
             onKilled.Invoke();
