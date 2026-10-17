@@ -4,6 +4,8 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance; // static reference to game manager
+
+    public GameObject pausePanel; // pause screen overlay
     public bool isPaused = false; // current pause state
 
     // set instance on awake
@@ -39,6 +41,11 @@ public class GameManager : MonoBehaviour
     {
         isPaused = true;
         Time.timeScale = 0f;
+
+        if (pausePanel != null)
+        {
+            pausePanel.SetActive(true);
+        }
     }
 
     // resume game and unfreeze time
@@ -46,5 +53,10 @@ public class GameManager : MonoBehaviour
     {
         isPaused = false;
         Time.timeScale = 1f;
+
+        if (pausePanel != null)
+        {
+            pausePanel.SetActive(false);
+        }
     }
 }
