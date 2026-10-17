@@ -31,7 +31,7 @@ Features are in categories:
 * **1.5 Field Apprentice Upgrades `[ADDITIONAL]`**: You can upgrade apprentices directly on the battlefield by paying their small upgrade fee (25 SP for Lvl 1, 50 SP for Lvl 2, 100 SP for Lvl 3).
 
 ### 2. Pathing & Navigation System
-* **2.1 NavMesh Pathfinding & Perimeter Spawning `[REQUIRED]`**: Enemies spawn from the outer side points and navigate toward the fortress in the centre.
+* **2.1 Grid Paths & Edge Spawning `[REQUIRED]`**: Enemies spawn at the edge of the map and walk along grid paths toward the fortress in the centre.
 * **2.2 Fortress Breach & Attack Damage `[REQUIRED]`**: When an enemy reaches the fortress, it does attack damage directly against the SP pool and dies immediately.
 * **2.3 Obstacle & Roadblock Interactions `[ADDITIONAL]`**: Imaginary walls are physical roadblocks where enemies stop infront and attack the wall until it breaks before continuing toward the fortress.
 
@@ -74,7 +74,7 @@ The core features represent the minimal **`[REQUIRED]`** systems targeted to tes
 | Core Feature | Lead Member | Targeted Prototype Scope (CW1) |
 | :--- | :--- | :--- |
 | **1. Placement System `[REQUIRED]`** | **Dennis** | Place Level 0 recruits onto the battlefield for a 10 SP fee, making sure the fixed maximum limit works. |
-| **2. Pathing & Navigation `[REQUIRED]`** | **Dennis** | Enemies spawn from outer side points and navigate toward the fortress in the centre using NavMesh pathfinding. |
+| **2. Pathing & Navigation `[REQUIRED]`** | **Dennis** | Enemies spawn at the edge of the map and walk along grid paths to the centre fortress. |
 | **3. Targeting & Combat `[REQUIRED]`** | **Aidan** | Level 0 recruits fight incoming enemies by throwing stones to defend the path and eliminate enemy health bars. |
 | **4. Enemy Swarms `[REQUIRED]`** | **Adam** | Grunt infantry attack in groups on the path toward the fortress. |
 | **5. Attack & Loss Condition `[REQUIRED]`** | **Adam** | Enemies reaching the fortress deduct SP and die instantly. Reaching 0 SP destroys the fortress (Game Over). |
@@ -92,4 +92,4 @@ flowchart TD
 ```
 
 ### 2-Week Feasibility Statement
-By focusing strictly on Level 0 recruits throwing stones, Grunt swarms navigating the NavMesh, and the 100 SP fortress pool, the prototype only includes the essential game features to function, which fits within the 2-week CW1 window (~12 hours of development effort per member). All advanced systems from the implementation plan including the 4 magic specialisations, $1.5\times$ bench passive generation, 3-to-1 Super Fusion ($6\times$ power), and milestone regression are reserved for the final game (CW2).
+By focusing strictly on Level 0 recruits throwing stones, Grunt swarms walking along the grid paths, and the 100 SP fortress pool, the prototype only includes the essential game features to function, which fits within the 2-week CW1 window (~12 hours of development effort per member). All advanced systems from the implementation plan including the 4 magic specialisations, $1.5\times$ bench passive generation, 3-to-1 Super Fusion ($6\times$ power), and milestone regression are reserved for the final game (CW2).
