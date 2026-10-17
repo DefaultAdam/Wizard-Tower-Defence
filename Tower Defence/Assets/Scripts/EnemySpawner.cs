@@ -13,6 +13,7 @@ public class EnemySpawner : MonoBehaviour
     private float waveTimer = 3f; // countdown timer to next wave
     private float spawnTimer = 0f; // countdown timer to next enemy spawn
     private int enemiesLeftToSpawn = 0; // remaining enemies to spawn in wave
+    private int currentPathIndex = 0; // current path index to spawn on
 
     // initialise references on start
     void Start()
@@ -76,5 +77,29 @@ public class EnemySpawner : MonoBehaviour
     // spawn single enemy on path
     void SpawnEnemy()
     {
+        if (enemyPrefab == null || grid == null)
+        {
+            return;
+        }
+
+        Vector2Int[] path = grid.GetPath(currentPathIndex);
+
+        if (path == null || path.Length == 0)
+        {
+            return;
+        }
+
+        Vector3 spawnPosition = grid.GetCellCenter(path[0]);
+        GameObject enemyObject = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+
+        EnemyMovement movement = enemyObject.GetComponent<EnemyMovement>();
+
+        if (movement != null)
+        {
+            movement.grid = grid;
+            movement.pathNumber = currentPathIndex;
+        }
+
+        currentPathIndex = (currentPathIndex + 1) % 3;
     }
 }
