@@ -11,4 +11,18 @@ public class GameManager : MonoBehaviour
     {
         instance = this;
     }
+
+    // pause game and freeze time
+    public void PauseGame()
+    {
+        isPaused = true;
+        Time.timeScale = 0f;
+    }
+
+    // resume game and unfreeze time
+    public void ResumeGame()
+    {
+        isPaused = false;
+        Time.timeScale = 1f;
+    }
 }
