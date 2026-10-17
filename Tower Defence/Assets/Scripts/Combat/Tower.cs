@@ -1,53 +1,191 @@
 using UnityEngine;
 
+// targeting priority options
+public enum TargetPriority
+{
+    First,
+    Closest,
+    Strongest,
+    Weakest
+}
+
 // tower combat and attack script
 public class Tower : MonoBehaviour
 {
     public float attackRange = 5f; // attack range distance
     public float attackCooldown = 1f; // seconds between attacks
     public float damage = 20f; // damage dealt per attack
+    public TargetPriority targetPriority = TargetPriority.Closest; // targeting priority criteria
 
     public GameObject projectilePrefab; // projectile prefab to shoot
     public Transform firePoint; // spawn point for projectiles
+    public Transform towerHead; // rotating part of the tower
+    public float rotationSpeed = 10f; // rotation speed towards target
 
     private float cooldownTimer = 0f; // timer to track attack cooldown
     private GameObject currentTarget; // current target enemy
 
-    // update cooldown timer every frame
+    // update target tracking and attack cooldown
     void Update()
     {
+        if (currentTarget != null && !IsTargetValid())
+        {
+            currentTarget = null;
+        }
+
+        if (currentTarget == null)
+        {
+            FindTarget();
+        }
+
+        if (currentTarget != null)
+        {
+            RotateTowardsTarget();
+        }
+
         if (cooldownTimer > 0f)
         {
             cooldownTimer -= Time.deltaTime;
         }
 
-        if (cooldownTimer <= 0f)
+        if (cooldownTimer <= 0f && currentTarget != null)
         {
-            FindTarget();
+            Attack(currentTarget);
         }
     }
 
-    // find nearest enemy in range
-    void FindTarget()
+    // check if current target is alive and in range
+    bool IsTargetValid()
     {
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        float shortestDistance = attackRange;
-        currentTarget = null;
-
-        foreach (GameObject enemy in enemies)
+        if (currentTarget == null)
         {
-            float distance = Vector3.Distance(transform.position, enemy.transform.position);
-
-            if (distance < shortestDistance)
-            {
-                shortestDistance = distance;
-                currentTarget = enemy;
-            }
+            return false;
         }
 
-        if (currentTarget != null)
+        Health enemyHealth = currentTarget.GetComponent<Health>();
+
+        if (enemyHealth != null && enemyHealth.isDead)
         {
-            Attack(currentTarget);
+            return false;
+        }
+
+        float distance = Vector3.Distance(transform.position, currentTarget.transform.position);
+
+        if (distance > attackRange)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    // find best target in range using overlap sphere
+    void FindTarget()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, attackRange);
+        currentTarget = null;
+
+        float bestDistance = attackRange;
+        float highestHealth = -1f;
+        float lowestHealth = float.MaxValue;
+        float furthestDistance = -1f;
+
+        foreach (Collider hitCollider in colliders)
+        {
+            if (hitCollider == null || !hitCollider.CompareTag("Enemy"))
+            {
+                continue;
+            }
+
+            GameObject enemy = hitCollider.gameObject;
+            Health enemyHealth = enemy.GetComponent<Health>();
+
+            if (enemyHealth != null && enemyHealth.isDead)
+            {
+                continue;
+            }
+
+            float distance = Vector3.Distance(transform.position, enemy.transform.position);
+
+            if (distance > attackRange)
+            {
+                continue;
+            }
+
+            if (targetPriority == TargetPriority.Closest)
+            {
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    currentTarget = enemy;
+                }
+            }
+            else if (targetPriority == TargetPriority.First)
+            {
+                Enemy enemyScript = enemy.GetComponent<Enemy>();
+                float progress = 0f;
+
+                if (enemyScript != null)
+                {
+                    progress = enemyScript.distanceTravelled;
+                }
+
+                if (progress > furthestDistance)
+                {
+                    furthestDistance = progress;
+                    currentTarget = enemy;
+                }
+            }
+            else if (targetPriority == TargetPriority.Strongest)
+            {
+                float currentHealth = 0f;
+
+                if (enemyHealth != null)
+                {
+                    currentHealth = enemyHealth.currentHealth;
+                }
+
+                if (currentHealth > highestHealth)
+                {
+                    highestHealth = currentHealth;
+                    currentTarget = enemy;
+                }
+            }
+            else if (targetPriority == TargetPriority.Weakest)
+            {
+                float currentHealth = float.MaxValue;
+
+                if (enemyHealth != null)
+                {
+                    currentHealth = enemyHealth.currentHealth;
+                }
+
+                if (currentHealth < lowestHealth)
+                {
+                    lowestHealth = currentHealth;
+                    currentTarget = enemy;
+                }
+            }
+        }
+    }
+
+    // rotate tower to face current target
+    void RotateTowardsTarget()
+    {
+        Transform targetTransform = transform;
+
+        if (towerHead != null)
+        {
+            targetTransform = towerHead;
+        }
+
+        Vector3 direction = currentTarget.transform.position - targetTransform.position;
+        direction.y = 0f;
+
+        if (direction.magnitude > 0.01f)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            targetTransform.rotation = Quaternion.Lerp(targetTransform.rotation, lookRotation, rotationSpeed * Time.deltaTime);
         }
     }
 
@@ -59,13 +197,15 @@ public class Tower : MonoBehaviour
         if (projectilePrefab != null)
         {
             Vector3 spawnPosition = transform.position;
+            Quaternion spawnRotation = transform.rotation;
 
             if (firePoint != null)
             {
                 spawnPosition = firePoint.position;
+                spawnRotation = firePoint.rotation;
             }
 
-            GameObject projectileObject = Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
+            GameObject projectileObject = Instantiate(projectilePrefab, spawnPosition, spawnRotation);
             Projectile projectile = projectileObject.GetComponent<Projectile>();
 
             if (projectile != null)
@@ -74,5 +214,12 @@ public class Tower : MonoBehaviour
                 projectile.SetTarget(target.transform);
             }
         }
+    }
+
+    // draw attack range sphere in editor scene view
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }
