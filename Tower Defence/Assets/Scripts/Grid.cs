@@ -119,16 +119,25 @@ public class Grid : MonoBehaviour
     {
         return transform.position + new Vector3(
             (position.x + 0.5f) * cellSize,
-            (position.y + 0.5f) * cellSize,
-            0f
+            0f,
+            (position.y + 0.5f) * cellSize
         );
     }
+
     public CellType GetCellType(Vector2Int position)
     {
         if (!IsInsideGrid(position))
             return CellType.Used;
 
         return cells[position.x, position.y];
+    }
+
+    public void SetCellType(Vector2Int position, CellType cellType)
+    {
+        if (IsInsideGrid(position))
+        {
+            cells[position.x, position.y] = cellType;
+        }
     }
     public bool IsInsideGrid(Vector2Int position)
     {
@@ -211,8 +220,8 @@ public class Grid : MonoBehaviour
                     GetCellCenter(position),
                     new Vector3(
                         cellSize * 0.96f,
-                        cellSize * 0.96f,
-                        0.1f
+                        0.05f,
+                        cellSize * 0.96f
                     )
                 );
             }
@@ -235,5 +244,15 @@ public class Grid : MonoBehaviour
             default:
                 return null;
         }
+    }
+
+    public Vector2Int convertWorldPosToCell(Vector3 worldPosition)
+    {
+        Vector3 localPosition = worldPosition - transform.position;
+
+        int x = Mathf.FloorToInt(localPosition.x / cellSize);
+        int y = Mathf.FloorToInt(localPosition.z / cellSize);
+
+        return new Vector2Int(x, y);
     }
 }
