@@ -9,6 +9,7 @@ public class EnemyMovement : MonoBehaviour
     private Vector2Int[] path;
     private int nextGridNumber;
     public float speed = 2f;
+    public int fortressDamage = 8; // sp damage dealt to fortress on breach
 
     private void Start()
     {
@@ -39,6 +40,5 @@ public class EnemyMovement : MonoBehaviour
         {
             nextGridNumber++;
         }
-
     }
 }
