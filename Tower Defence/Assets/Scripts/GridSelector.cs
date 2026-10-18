@@ -100,6 +100,12 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
+        if (towerPrefab == null)
+        {
+            Debug.LogError("GridSelector: towerPrefab is null");
+            return;
+        }
+
         if (HUD.instance == null)
         {
             Debug.LogError("GridSelector: HUD is null");
@@ -113,11 +119,8 @@ public class GridSelector : MonoBehaviour
 
         HUD.instance.DeductSP(placementCost);
 
-        if (towerPrefab != null)
-        {
-            Instantiate(towerPrefab, center, Quaternion.identity);
-        }
-
+        Instantiate(towerPrefab, center, Quaternion.identity);
+        
         grid.SetCellType(cell, Grid.CellType.Used);
         placedTowers++;
     }
