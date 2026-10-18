@@ -131,6 +131,14 @@ public class Grid : MonoBehaviour
 
         return cells[position.x, position.y];
     }
+
+    public void SetCellType(Vector2Int position, CellType cellType)
+    {
+        if (IsInsideGrid(position))
+        {
+            cells[position.x, position.y] = cellType;
+        }
+    }
     public bool IsInsideGrid(Vector2Int position)
     {
         return position.x >= 0 && position.x < width
