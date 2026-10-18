@@ -28,8 +28,14 @@ public class EnemyMovement : MonoBehaviour
 
     private void Update()
     {
+        if (path == null)
+        {
+            return;
+        }
+
         if (nextGridNumber >= path.Length)
         {
+            ReachFortress();
             return;
         }
 
@@ -40,5 +46,16 @@ public class EnemyMovement : MonoBehaviour
         {
             nextGridNumber++;
         }
+    }
+
+    // damage fortress sp and destroy enemy
+    private void ReachFortress()
+    {
+        if (HUD.instance != null)
+        {
+            HUD.instance.DeductSP(fortressDamage);
+        }
+
+        Destroy(gameObject);
     }
 }
