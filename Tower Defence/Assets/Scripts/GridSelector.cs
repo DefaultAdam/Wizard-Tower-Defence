@@ -100,15 +100,18 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
-        if (HUD.instance != null && HUD.instance.currentSP < placementCost)
+        if (HUD.instance == null)
+        {
+            Debug.LogError("GridSelector: HUD is null");
+            return;
+        }
+
+        if (HUD.instance.currentSP < placementCost)
         {
             return;
         }
 
-        if (HUD.instance != null)
-        {
-            HUD.instance.DeductSP(placementCost);
-        }
+        HUD.instance.DeductSP(placementCost);
 
         if (towerPrefab != null)
         {
