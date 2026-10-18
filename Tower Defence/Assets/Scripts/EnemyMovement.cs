@@ -9,6 +9,7 @@ public class EnemyMovement : MonoBehaviour
     private Vector2Int[] path;
     private int nextGridNumber;
     public float speed = 2f;
+    public int fortressDamage = 8; // sp damage dealt to fortress on breach
 
     private void Start()
     {
@@ -27,8 +28,14 @@ public class EnemyMovement : MonoBehaviour
 
     private void Update()
     {
+        if (path == null)
+        {
+            return;
+        }
+
         if (nextGridNumber >= path.Length)
         {
+            ReachFortress();
             return;
         }
 
@@ -39,6 +46,16 @@ public class EnemyMovement : MonoBehaviour
         {
             nextGridNumber++;
         }
+    }
 
+    // damage fortress sp and destroy enemy
+    private void ReachFortress()
+    {
+        if (HUD.instance != null)
+        {
+            HUD.instance.DeductSP(fortressDamage);
+        }
+
+        Destroy(gameObject);
     }
 }
