@@ -26,8 +26,8 @@ public class GridSelector : MonoBehaviour
         {
             highlight.positionCount = 5;
             highlight.useWorldSpace = true;
-            highlight.startWidth = 0.05f;
-            highlight.endWidth = 0.05f;
+            highlight.startWidth = 0.08f;
+            highlight.endWidth = 0.08f;
             highlight.loop = false;
             highlight.enabled = false;
         }
@@ -70,7 +70,7 @@ public class GridSelector : MonoBehaviour
 
         Vector3 center = grid.GetCellCenter(cell);
         float halfSize = grid.cellSize * 0.48f;
-        float y = center.y + 0.05f;
+        float y = center.y + 0.15f;
 
         if (highlight != null)
         {
