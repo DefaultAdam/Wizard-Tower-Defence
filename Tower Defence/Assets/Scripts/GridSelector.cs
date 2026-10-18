@@ -5,6 +5,7 @@ public class GridSelector : MonoBehaviour
     public Camera sceneCamera;
     public Grid grid;
     public LineRenderer highlight;
+    public GameObject towerPrefab;
 
     private void Start()
     {
@@ -77,5 +78,25 @@ public class GridSelector : MonoBehaviour
             highlight.SetPosition(4, new Vector3(center.x - halfSize, y, center.z - halfSize));
             highlight.enabled = true;
         }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            TryPlaceTower(cell, center);
+        }
+    }
+
+    private void TryPlaceTower(Vector2Int cell, Vector3 center)
+    {
+        if (grid.GetCellType(cell) != Grid.CellType.Free)
+        {
+            return;
+        }
+
+        if (towerPrefab != null)
+        {
+            Instantiate(towerPrefab, center, Quaternion.identity);
+        }
+
+        grid.SetCellType(cell, Grid.CellType.Used);
     }
 }
