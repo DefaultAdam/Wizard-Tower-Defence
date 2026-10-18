@@ -13,6 +13,7 @@ public class HUD : MonoBehaviour
     public Slider spSlider; // slider bar for fortress energy pool
     public GameObject gameOverPanel; // game over screen overlay
     public GameObject victoryPanel; // victory screen overlay
+    public GameObject pausePanel; // pause screen overlay
     public GameObject inspectorPanel; // unit inspector panel overlay
     public Text unitNameText; // text display for selected unit name
     public Text unitLevelText; // text display for selected unit level tier
@@ -23,15 +24,17 @@ public class HUD : MonoBehaviour
     public int currentWave = 1; // current wave number
     public float waveTimer = 30f; // countdown timer for wave
 
-    // set instance on awake
+    // set instance and reset time scale on awake
     void Awake()
     {
         instance = this;
+        Time.timeScale = 1f;
     }
 
     // initialise hud on start
     void Start()
     {
+        Time.timeScale = 1f;
         currentSP = startingSP;
 
         if (spSlider != null)
@@ -48,6 +51,11 @@ public class HUD : MonoBehaviour
         if (victoryPanel != null)
         {
             victoryPanel.SetActive(false);
+        }
+
+        if (pausePanel != null)
+        {
+            pausePanel.SetActive(false);
         }
 
         if (inspectorPanel != null)
@@ -155,6 +163,8 @@ public class HUD : MonoBehaviour
             {
                 gameOverPanel.SetActive(true);
             }
+
+            Time.timeScale = 0f;
         }
     }
 
@@ -167,6 +177,8 @@ public class HUD : MonoBehaviour
             {
                 victoryPanel.SetActive(true);
             }
+
+            Time.timeScale = 0f;
         }
     }
 

@@ -10,18 +10,42 @@ public class GameManager : MonoBehaviour
     public string menuSceneName = "MainMenu"; // name of main menu scene
     public bool isPaused = false; // current pause state
 
-    // set instance on awake
+    // set instance and reset time scale on awake
     void Awake()
     {
         instance = this;
+        Time.timeScale = 1f;
+        isPaused = false;
     }
 
-    // handle pause key input
+    // initialise pause panel reference and ensure unpaused on start
+    void Start()
+    {
+        Time.timeScale = 1f;
+        isPaused = false;
+
+        if (pausePanel == null && HUD.instance != null)
+        {
+            pausePanel = HUD.instance.pausePanel;
+        }
+
+        if (pausePanel != null)
+        {
+            pausePanel.SetActive(false);
+        }
+    }
+
+    // handle pause and restart key input
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             TogglePause();
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            RestartGame();
         }
     }
 
