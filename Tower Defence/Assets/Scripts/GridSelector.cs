@@ -6,6 +6,9 @@ public class GridSelector : MonoBehaviour
     public Grid grid;
     public LineRenderer highlight;
     public GameObject towerPrefab;
+    public int placementCost = 10;
+    public int maxTowers = 7;
+    public int placedTowers = 0;
 
     private void Start()
     {
@@ -92,11 +95,27 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
+        if (placedTowers >= maxTowers)
+        {
+            return;
+        }
+
+        if (HUD.instance != null && HUD.instance.currentSP < placementCost)
+        {
+            return;
+        }
+
+        if (HUD.instance != null)
+        {
+            HUD.instance.DeductSP(placementCost);
+        }
+
         if (towerPrefab != null)
         {
             Instantiate(towerPrefab, center, Quaternion.identity);
         }
 
         grid.SetCellType(cell, Grid.CellType.Used);
+        placedTowers++;
     }
 }
