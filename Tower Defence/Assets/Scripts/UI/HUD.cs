@@ -163,6 +163,8 @@ public class HUD : MonoBehaviour
             {
                 gameOverPanel.SetActive(true);
             }
+
+            Time.timeScale = 0f;
         }
     }
 
@@ -175,6 +177,8 @@ public class HUD : MonoBehaviour
             {
                 victoryPanel.SetActive(true);
             }
+
+            Time.timeScale = 0f;
         }
     }
 
