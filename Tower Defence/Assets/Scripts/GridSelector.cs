@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class GridSelector : MonoBehaviour
 {
@@ -48,6 +49,11 @@ public class GridSelector : MonoBehaviour
             SetHighlightColour(Color.white);
             highlight.loop = false;
             highlight.enabled = false;
+        }
+
+        if (HUD.instance != null)
+        {
+            HUD.instance.UpdateTowerCount(placedTowers, maxTowers);
         }
     }
 
@@ -102,11 +108,33 @@ public class GridSelector : MonoBehaviour
             highlight.SetPosition(2, new Vector3(center.x + halfSize, y, center.z + halfSize));
             highlight.SetPosition(3, new Vector3(center.x + halfSize, y, center.z - halfSize));
             highlight.SetPosition(4, new Vector3(center.x - halfSize, y, center.z - halfSize));
+
+            if (isPlacing)
+            {
+                if (grid.GetCellType(cell) == Grid.CellType.Free)
+                {
+                    SetHighlightColour(Color.green);
+                }
+                else
+                {
+                    SetHighlightColour(Color.red);
+                }
+            }
+            else
+            {
+                SetHighlightColour(Color.white);
+            }
+
             highlight.enabled = true;
         }
 
-        if (Input.GetMouseButtonDown(0))
+        if (isPlacing && Input.GetMouseButtonDown(0))
         {
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            {
+                return;
+            }
+
             TryPlaceTower(cell, center);
         }
     }
