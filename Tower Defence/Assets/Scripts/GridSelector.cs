@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class GridSelector : MonoBehaviour
 {
+    public static GridSelector instance;
     public Camera sceneCamera;
     public Grid grid;
     public LineRenderer highlight;
@@ -10,6 +11,13 @@ public class GridSelector : MonoBehaviour
     public int placementCost = 10;
     public int maxTowers = 7;
     public int placedTowers = 0;
+    public bool isPlacing = false;
+
+    // initialise instance on awake
+    private void Awake()
+    {
+        instance = this;
+    }
 
     private void Start()
     {
@@ -37,6 +45,7 @@ public class GridSelector : MonoBehaviour
             }
 
             highlight.numCornerVertices = 4;
+            SetHighlightColour(Color.white);
             highlight.loop = false;
             highlight.enabled = false;
         }
@@ -132,5 +141,23 @@ public class GridSelector : MonoBehaviour
         
         grid.SetCellType(cell, Grid.CellType.Used);
         placedTowers++;
+    }
+
+    // set highlight line colour
+    private void SetHighlightColour(Color color)
+    {
+        if (highlight == null)
+        {
+            return;
+        }
+
+        color.a = 1f;
+        highlight.startColor = color;
+        highlight.endColor = color;
+
+        if (highlight.material != null)
+        {
+            highlight.material.color = color;
+        }
     }
 }
