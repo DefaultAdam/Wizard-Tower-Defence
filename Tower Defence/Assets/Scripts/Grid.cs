@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Grid : MonoBehaviour
 {
-    public int width = 18;
-    public int height = 12;
+    public int width = 50;
+    public int height = 30;
     public float cellSize = 1f;
 
     public enum CellType
@@ -139,6 +139,7 @@ public class Grid : MonoBehaviour
             cells[position.x, position.y] = cellType;
         }
     }
+
     public bool IsInsideGrid(Vector2Int position)
     {
         return position.x >= 0 && position.x < width
