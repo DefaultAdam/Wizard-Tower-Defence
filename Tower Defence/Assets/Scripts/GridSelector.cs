@@ -58,6 +58,11 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
+        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
+        {
+            CancelPlacement();
+        }
+
         Ray ray = sceneCamera.ScreenPointToRay(Input.mousePosition);
 
         Plane gridPlane = new Plane(
@@ -103,6 +108,55 @@ public class GridSelector : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             TryPlaceTower(cell, center);
+        }
+    }
+
+    // start tower placement mode and display recruit inspector
+    public void StartPlacement()
+    {
+        if (placedTowers >= maxTowers)
+        {
+            return;
+        }
+
+        if (HUD.instance != null && HUD.instance.currentSP < placementCost)
+        {
+            return;
+        }
+
+        isPlacing = true;
+
+        if (HUD.instance != null)
+        {
+            HUD.instance.ShowUnitInspector("Recruit", "Level 0 Recruit", "Role: Stone Thrower\nDamage: 5\nRange: 10");
+        }
+    }
+
+    // cancel tower placement mode and hide recruit inspector
+    public void CancelPlacement()
+    {
+        isPlacing = false;
+        if (highlight != null)
+        {
+            highlight.enabled = false;
+        }
+
+        if (HUD.instance != null)
+        {
+            HUD.instance.HideUnitInspector();
+        }
+    }
+
+    // toggle tower placement mode
+    public void TogglePlacement()
+    {
+        if (isPlacing)
+        {
+            CancelPlacement();
+        }
+        else
+        {
+            StartPlacement();
         }
     }
 
