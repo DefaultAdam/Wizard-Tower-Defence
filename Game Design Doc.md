@@ -26,12 +26,18 @@ Features are in categories:
 ### 1. Apprentice / Unit Placement System
 * **1.1 Battlefield Direct Placement `[REQUIRED]`**: You can place Level 0 recruits directly onto the battlefield for a 10 SP fee. They fight by throwing stones.
 * **1.2 Apprentice Placement Limits `[REQUIRED]`**: There is a fixed maximum limit of apprentices you can place on the battlefield and bench.
-* **1.3 Apprentice Non-Death Rule `[UNAPPROVED]`**: Once placed on the battlefield, apprentices don't die. But can be locked if they aren't in the right milestone. They remain on the field to attack enemies continually.
-* **1.4 Reserve Bench Placement `[ADDITIONAL]`**: Recruits wait on the bench. While unplaced, they generate an increased amount of SP ($1.5\times$ kill value).
-* **1.5 Field Apprentice Upgrades `[ADDITIONAL]`**: You can upgrade apprentices directly on the battlefield by paying their small upgrade fee (25 SP for Lvl 1, 50 SP for Lvl 2, 100 SP for Lvl 3).
+* **1.3 Placement Controls & HUD Feedback `[REQUIRED]`**:
+  * **HUD Placement Toggle Button**: A dedicated button on the HUD to enter and cancel recruit placement mode.
+  * **Cursor Highlight Validation**: A grid cursor outline that changes colour dynamically (Green for valid placement, Red for invalid/blocked/path/limit reached).
+  * **HUD Floating Deduction Text**: Animated visual feedback (-10 SP) that pops up on the HUD when a recruit is placed.
+  * **Live Recruit Counter**: An on-screen HUD counter tracking active placed apprentices against the maximum placement limit.
+* **1.4 Apprentice Non-Death Rule `[UNAPPROVED]`**: Once placed on the battlefield, apprentices don't die. But can be locked if they aren't in the right milestone. They remain on the field to attack enemies continually.
+* **1.5 Reserve Bench Placement `[ADDITIONAL]`**: Recruits wait on the bench. While unplaced, they generate an increased amount of SP ($1.5\times$ kill value).
+* **1.6 Field Apprentice Upgrades `[ADDITIONAL]`**: You can upgrade apprentices directly on the battlefield by paying their small upgrade fee (25 SP for Lvl 1, 50 SP for Lvl 2, 100 SP for Lvl 3).
 
 ### 2. Pathing & Navigation System
 * **2.1 Grid Paths & Edge Spawning `[REQUIRED]`**: Enemies spawn at the edge of the map and walk along grid paths toward the fortress in the centre.
+  * **3 Distinct Lanes**: The three structured spawn lanes (North, South, and East paths).
 * **2.2 Fortress Breach & Attack Damage `[REQUIRED]`**: When an enemy reaches the fortress, it does attack damage directly against the SP pool and dies immediately.
 * **2.3 Obstacle & Roadblock Interactions `[ADDITIONAL]`**: Imaginary walls are physical roadblocks where enemies stop infront and attack the wall until it breaks before continuing toward the fortress.
 
