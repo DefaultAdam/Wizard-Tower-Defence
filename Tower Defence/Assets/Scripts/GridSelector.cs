@@ -1,7 +1,9 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class GridSelector : MonoBehaviour
 {
+    public static GridSelector instance;
     public Camera sceneCamera;
     public Grid grid;
     public LineRenderer highlight;
@@ -10,6 +12,13 @@ public class GridSelector : MonoBehaviour
     public int placementCost = 10;
     public int maxTowers = 7;
     public int placedTowers = 0;
+    public bool isPlacing = false;
+
+    // initialise instance on awake
+    private void Awake()
+    {
+        instance = this;
+    }
 
     private void Start()
     {
@@ -37,8 +46,14 @@ public class GridSelector : MonoBehaviour
             }
 
             highlight.numCornerVertices = 4;
+            SetHighlightColour(Color.white);
             highlight.loop = false;
             highlight.enabled = false;
+        }
+
+        if (HUD.instance != null)
+        {
+            HUD.instance.UpdateTowerCount(placedTowers, maxTowers);
         }
     }
 
@@ -47,6 +62,11 @@ public class GridSelector : MonoBehaviour
         if (grid == null || sceneCamera == null)
         {
             return;
+        }
+
+        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
+        {
+            CancelPlacement();
         }
 
         Ray ray = sceneCamera.ScreenPointToRay(Input.mousePosition);
@@ -88,12 +108,83 @@ public class GridSelector : MonoBehaviour
             highlight.SetPosition(2, new Vector3(center.x + halfSize, y, center.z + halfSize));
             highlight.SetPosition(3, new Vector3(center.x + halfSize, y, center.z - halfSize));
             highlight.SetPosition(4, new Vector3(center.x - halfSize, y, center.z - halfSize));
+
+            if (isPlacing)
+            {
+                if (grid.GetCellType(cell) == Grid.CellType.Free)
+                {
+                    SetHighlightColour(Color.green);
+                }
+                else
+                {
+                    SetHighlightColour(Color.red);
+                }
+            }
+            else
+            {
+                SetHighlightColour(Color.white);
+            }
+
             highlight.enabled = true;
         }
 
-        if (Input.GetMouseButtonDown(0))
+        if (isPlacing && Input.GetMouseButtonDown(0))
         {
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            {
+                return;
+            }
+
             TryPlaceTower(cell, center);
+        }
+    }
+
+    // start tower placement mode and display recruit inspector
+    public void StartPlacement()
+    {
+        if (placedTowers >= maxTowers)
+        {
+            return;
+        }
+
+        if (HUD.instance != null && HUD.instance.currentSP < placementCost)
+        {
+            return;
+        }
+
+        isPlacing = true;
+
+        if (HUD.instance != null)
+        {
+            HUD.instance.ShowUnitInspector("Recruit", "Level 0 Recruit", "Role: Stone Thrower\nDamage: 5\nRange: 10");
+        }
+    }
+
+    // cancel tower placement mode and hide recruit inspector
+    public void CancelPlacement()
+    {
+        isPlacing = false;
+        if (highlight != null)
+        {
+            highlight.enabled = false;
+        }
+
+        if (HUD.instance != null)
+        {
+            HUD.instance.HideUnitInspector();
+        }
+    }
+
+    // toggle tower placement mode
+    public void TogglePlacement()
+    {
+        if (isPlacing)
+        {
+            CancelPlacement();
+        }
+        else
+        {
+            StartPlacement();
         }
     }
 
@@ -106,6 +197,7 @@ public class GridSelector : MonoBehaviour
 
         if (placedTowers >= maxTowers)
         {
+            CancelPlacement();
             return;
         }
 
@@ -127,10 +219,32 @@ public class GridSelector : MonoBehaviour
         }
 
         HUD.instance.DeductSP(placementCost);
+        HUD.instance.ShowDeduction(placementCost);
 
         Instantiate(towerPrefab, center, Quaternion.identity);
         
         grid.SetCellType(cell, Grid.CellType.Used);
         placedTowers++;
+        HUD.instance.UpdateTowerCount(placedTowers, maxTowers);
+
+        CancelPlacement();
+    }
+
+    // set highlight line colour
+    private void SetHighlightColour(Color color)
+    {
+        if (highlight == null)
+        {
+            return;
+        }
+
+        color.a = 1f;
+        highlight.startColor = color;
+        highlight.endColor = color;
+
+        if (highlight.material != null)
+        {
+            highlight.material.color = color;
+        }
     }
 }
