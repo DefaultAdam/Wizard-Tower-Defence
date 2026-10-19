@@ -197,6 +197,7 @@ public class GridSelector : MonoBehaviour
 
         if (placedTowers >= maxTowers)
         {
+            CancelPlacement();
             return;
         }
 
@@ -218,11 +219,15 @@ public class GridSelector : MonoBehaviour
         }
 
         HUD.instance.DeductSP(placementCost);
+        HUD.instance.ShowDeduction(placementCost);
 
         Instantiate(towerPrefab, center, Quaternion.identity);
         
         grid.SetCellType(cell, Grid.CellType.Used);
         placedTowers++;
+        HUD.instance.UpdateTowerCount(placedTowers, maxTowers);
+
+        CancelPlacement();
     }
 
     // set highlight line colour
