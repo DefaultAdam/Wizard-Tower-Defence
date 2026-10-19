@@ -29,6 +29,13 @@ public class GridSelector : MonoBehaviour
             highlight.useWorldSpace = true;
             highlight.startWidth = outlineWidth;
             highlight.endWidth = outlineWidth;
+
+            Shader unlitShader = Shader.Find("Sprites/Default");
+            if (unlitShader != null)
+            {
+                highlight.material = new Material(unlitShader);
+            }
+
             highlight.loop = false;
             highlight.enabled = false;
         }
