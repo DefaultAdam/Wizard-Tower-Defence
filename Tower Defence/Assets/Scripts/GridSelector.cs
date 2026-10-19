@@ -36,6 +36,7 @@ public class GridSelector : MonoBehaviour
                 highlight.material = new Material(unlitShader);
             }
 
+            highlight.numCornerVertices = 4;
             highlight.loop = false;
             highlight.enabled = false;
         }
@@ -77,8 +78,8 @@ public class GridSelector : MonoBehaviour
         }
 
         Vector3 center = grid.GetCellCenter(cell);
-        float halfSize = grid.cellSize * 0.48f;
-        float y = center.y + 0.15f;
+        float halfSize = grid.cellSize * 0.49f;
+        float y = center.y + 0.28f;
 
         if (highlight != null)
         {
