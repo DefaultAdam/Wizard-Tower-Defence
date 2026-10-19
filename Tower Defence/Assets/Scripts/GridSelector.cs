@@ -5,6 +5,7 @@ public class GridSelector : MonoBehaviour
     public Camera sceneCamera;
     public Grid grid;
     public LineRenderer highlight;
+    public float outlineWidth = 0.35f;
     public GameObject towerPrefab;
     public int placementCost = 10;
     public int maxTowers = 7;
@@ -26,8 +27,16 @@ public class GridSelector : MonoBehaviour
         {
             highlight.positionCount = 5;
             highlight.useWorldSpace = true;
-            highlight.startWidth = 0.08f;
-            highlight.endWidth = 0.08f;
+            highlight.startWidth = outlineWidth;
+            highlight.endWidth = outlineWidth;
+
+            Shader unlitShader = Shader.Find("Sprites/Default");
+            if (unlitShader != null)
+            {
+                highlight.material = new Material(unlitShader);
+            }
+
+            highlight.numCornerVertices = 4;
             highlight.loop = false;
             highlight.enabled = false;
         }
@@ -69,8 +78,8 @@ public class GridSelector : MonoBehaviour
         }
 
         Vector3 center = grid.GetCellCenter(cell);
-        float halfSize = grid.cellSize * 0.48f;
-        float y = center.y + 0.15f;
+        float halfSize = grid.cellSize * 0.49f;
+        float y = center.y + 0.28f;
 
         if (highlight != null)
         {
