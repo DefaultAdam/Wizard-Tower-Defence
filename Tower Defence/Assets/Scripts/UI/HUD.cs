@@ -20,6 +20,7 @@ public class HUD : MonoBehaviour
     public Text unitStatsText; // text display for selected unit combat stats
     public Text spDeductionText; // text display for energy subtraction
     public Text towerCountText; // text display for placed towers count
+    public Button towerButton; // button to trigger tower placement
     public float deductionDuration = 1.5f; // display duration for deduction text
     private float deductionTimer = 0f; // countdown timer for deduction display
     public int startingSP = 100; // starting fortress energy pool
@@ -76,6 +77,11 @@ public class HUD : MonoBehaviour
         if (towerCountText != null && GridSelector.instance != null)
         {
             UpdateTowerCount(GridSelector.instance.placedTowers, GridSelector.instance.maxTowers);
+        }
+
+        if (towerButton != null)
+        {
+            towerButton.onClick.AddListener(OnTowerButtonClicked);
         }
 
         UpdateSPText();
@@ -258,6 +264,15 @@ public class HUD : MonoBehaviour
         if (towerCountText != null)
         {
             towerCountText.text = "Towers: " + current + "/" + max;
+        }
+    }
+
+    // handle tower placement button click
+    public void OnTowerButtonClicked()
+    {
+        if (GridSelector.instance != null)
+        {
+            GridSelector.instance.TogglePlacement();
         }
     }
 
