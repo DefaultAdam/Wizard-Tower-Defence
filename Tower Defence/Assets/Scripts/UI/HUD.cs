@@ -18,6 +18,9 @@ public class HUD : MonoBehaviour
     public Text unitNameText; // text display for selected unit name
     public Text unitLevelText; // text display for selected unit level tier
     public Text unitStatsText; // text display for selected unit combat stats
+    public Text spDeductionText; // text display for energy subtraction
+    public float deductionDuration = 1.5f; // display duration for deduction text
+    private float deductionTimer = 0f; // countdown timer for deduction display
     public int startingSP = 100; // starting fortress energy pool
     public int maxSP = 500; // maximum energy value for slider bar
     public int currentSP; // current fortress energy pool
@@ -63,10 +66,32 @@ public class HUD : MonoBehaviour
             inspectorPanel.SetActive(false);
         }
 
+        if (spDeductionText != null)
+        {
+            spDeductionText.text = "";
+            spDeductionText.color = Color.red;
+        }
+
         UpdateSPText();
         UpdateMilestoneText();
         UpdateWaveText();
         UpdateTimerText();
+    }
+
+    // count down deduction timer and clear text
+    void Update()
+    {
+        if (deductionTimer > 0f)
+        {
+            deductionTimer -= Time.deltaTime;
+            if (deductionTimer <= 0f)
+            {
+                if (spDeductionText != null)
+                {
+                    spDeductionText.text = "";
+                }
+            }
+        }
     }
 
     // update sp text display
@@ -209,6 +234,16 @@ public class HUD : MonoBehaviour
     public void DeductSP(int amount)
     {
         ModifySP(-amount);
+    }
+
+    // show energy subtraction amount in red colour
+    public void ShowDeduction(int amount)
+    {
+        if (spDeductionText != null)
+        {
+            spDeductionText.text = "-" + amount;
+            deductionTimer = deductionDuration;
+        }
     }
 
     // display unit details in inspector panel
