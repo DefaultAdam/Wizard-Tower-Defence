@@ -292266,7 +292266,12 @@ MonoBehaviour:
   outlineWidth: 0.35
   towerPrefab: {fileID: 6120485918239021834, guid: 7841687039834e0aa63fd836212acac6, type: 3}
   placementCost: 10
-  maxTowers: 7
+  veteranPrefab: {fileID: 6120485918239021834, guid: e43f48fd996f42e9a31d738ac2ecf888, type: 3}
+  veteranCost: 50
+  veteranUnlockSP: 250
+  selectedTroopIndex: 0
+  maxTowers: 5
+  maxTowerLimit: 25
   placedTowers: 0
   isPlacing: 0
 --- !u!1001 &6839535679635656835
