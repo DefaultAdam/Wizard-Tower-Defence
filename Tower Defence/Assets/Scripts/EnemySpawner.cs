@@ -89,6 +89,11 @@ public class EnemySpawner : MonoBehaviour
         {
             HUD.instance.SetWave(currentWave);
         }
+
+        if (GridSelector.instance != null)
+        {
+            GridSelector.instance.UpdateAllowedTowers(currentWave);
+        }
     }
 
     // spawn single enemy on path

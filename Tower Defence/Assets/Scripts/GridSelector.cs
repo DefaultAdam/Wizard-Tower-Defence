@@ -10,7 +10,8 @@ public class GridSelector : MonoBehaviour
     public float outlineWidth = 0.35f;
     public GameObject towerPrefab;
     public int placementCost = 10;
-    public int maxTowers = 7;
+    public int maxTowers = 5; // current maximum allowed towers
+    public int maxTowerLimit = 25; // absolute maximum tower limit
     public int placedTowers = 0;
     public bool isPlacing = false;
 
@@ -49,6 +50,26 @@ public class GridSelector : MonoBehaviour
             SetHighlightColour(Color.white);
             highlight.loop = false;
             highlight.enabled = false;
+        }
+
+        UpdateAllowedTowers(1);
+    }
+
+    // update allowed towers based on wave number
+    public void UpdateAllowedTowers(int wave)
+    {
+        int waveNumber = wave;
+
+        if (waveNumber < 1)
+        {
+            waveNumber = 1;
+        }
+
+        maxTowers = waveNumber + 4;
+
+        if (maxTowers > maxTowerLimit)
+        {
+            maxTowers = maxTowerLimit;
         }
 
         if (HUD.instance != null)

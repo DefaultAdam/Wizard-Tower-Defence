@@ -121,9 +121,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63b60241d92043a0832d14792f11f598, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackRange: 10
+  attackRange: 6
   attackCooldown: 1
   damage: 25
+  damagePerWave: 5
   targetPriority: 1
   projectilePrefab: {fileID: 4062152177973192290, guid: 8ef7af76966a2364b88c95de9a3eec21, type: 3}
   firePoint: {fileID: 6120485918239021841}
