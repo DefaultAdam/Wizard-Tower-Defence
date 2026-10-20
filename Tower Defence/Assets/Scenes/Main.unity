@@ -268678,10 +268678,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 5192837461092837401, guid: 1a3bdc3962b04297bfafa406cc6f16ef, type: 3}
   grid: {fileID: 1300000003}
-  timeBetweenWaves: 15
-  spawnInterval: 1
-  enemiesPerWave: 5
+  timeBetweenWaves: 3
+  spawnInterval: 0.4
+  enemiesPerWave: 9
   currentWave: 0
+  spawnRateIncrease: 0.05
+  minimumSpawnInterval: 0.15
+  groupSize: 1
+  baseEnemyBonus: 2
+  roundFiveEnemyBonus: 3
+  roundTenEnemyBonus: 4
+  roundFifteenEnemyBonus: 5
+  enemyBaseHealth: 100
+  levelZeroHealthBonus: 10
+  levelOneHealthBonus: 20
+  levelTwoHealthBonus: 30
+  levelThreeHealthBonus: 50
 --- !u!1 &2000263806
 GameObject:
   m_ObjectHideFlags: 0
@@ -292254,7 +292266,12 @@ MonoBehaviour:
   outlineWidth: 0.35
   towerPrefab: {fileID: 6120485918239021834, guid: 7841687039834e0aa63fd836212acac6, type: 3}
   placementCost: 10
-  maxTowers: 7
+  veteranPrefab: {fileID: 6120485918239021834, guid: e43f48fd996f42e9a31d738ac2ecf888, type: 3}
+  veteranCost: 50
+  veteranUnlockSP: 250
+  selectedTroopIndex: 0
+  maxTowers: 5
+  maxTowerLimit: 25
   placedTowers: 0
   isPlacing: 0
 --- !u!1001 &6839535679635656835
