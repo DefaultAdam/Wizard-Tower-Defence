@@ -21,6 +21,7 @@ public class HUD : MonoBehaviour
     public Text spDeductionText; // text display for energy subtraction
     public Text towerCountText; // text display for placed towers count
     public Button towerButton; // button to trigger tower placement
+    public Button veteranButton; // button to trigger veteran tower placement
     public float deductionDuration = 1.5f; // display duration for deduction text
     private float deductionTimer = 0f; // countdown timer for deduction display
     public int startingSP = 100; // starting fortress energy pool
@@ -82,6 +83,11 @@ public class HUD : MonoBehaviour
         if (towerButton != null)
         {
             towerButton.onClick.AddListener(OnTowerButtonClicked);
+        }
+
+        if (veteranButton != null)
+        {
+            veteranButton.onClick.AddListener(OnVeteranButtonClicked);
         }
 
         UpdateSPText();
@@ -273,6 +279,15 @@ public class HUD : MonoBehaviour
         if (GridSelector.instance != null)
         {
             GridSelector.instance.TogglePlacement();
+        }
+    }
+
+    // handle veteran placement button click
+    public void OnVeteranButtonClicked()
+    {
+        if (GridSelector.instance != null)
+        {
+            GridSelector.instance.ToggleVeteranPlacement();
         }
     }
 
