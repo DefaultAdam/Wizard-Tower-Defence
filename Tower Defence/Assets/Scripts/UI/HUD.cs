@@ -26,6 +26,7 @@ public class HUD : MonoBehaviour
     private float deductionTimer = 0f; // countdown timer for deduction display
     public int startingSP = 100; // starting fortress energy pool
     public int maxSP = 500; // maximum energy value for slider bar
+    public int veteranUnlockSP = 250; // energy required to unlock veteran tower
     public int currentSP; // current fortress energy pool
     public int currentWave = 1; // current wave number
     public float waveTimer = 30f; // countdown timer for wave
@@ -94,6 +95,7 @@ public class HUD : MonoBehaviour
         UpdateMilestoneText();
         UpdateWaveText();
         UpdateTimerText();
+        UpdateVeteranButtonState();
     }
 
     // count down deduction timer and clear text
@@ -238,6 +240,7 @@ public class HUD : MonoBehaviour
         UpdateSPText();
         UpdateMilestoneText();
         UpdateSPSlider();
+        UpdateVeteranButtonState();
         CheckGameOver();
         CheckVictory();
     }
@@ -288,6 +291,22 @@ public class HUD : MonoBehaviour
         if (GridSelector.instance != null)
         {
             GridSelector.instance.ToggleVeteranPlacement();
+        }
+    }
+
+    // update veteran button interactable state based on energy pool
+    public void UpdateVeteranButtonState()
+    {
+        if (veteranButton != null)
+        {
+            if (currentSP >= veteranUnlockSP)
+            {
+                veteranButton.interactable = true;
+            }
+            else
+            {
+                veteranButton.interactable = false;
+            }
         }
     }
 
