@@ -7,7 +7,11 @@ public class EnemySpawner : MonoBehaviour
     public Grid grid; // reference to grid
     public float timeBetweenWaves = 15f; // time between waves in seconds
     public float spawnInterval = 1f; // seconds between individual enemy spawns
-    public int enemiesPerWave = 5; // number of enemies per wave
+    public int enemiesPerWave = 9; // number of enemies in first wave
+    public int baseEnemyBonus = 2; // extra enemies added each wave before round five
+    public int roundFiveEnemyBonus = 3; // extra enemies added each wave starting round five
+    public int roundTenEnemyBonus = 4; // extra enemies added each wave starting round ten
+    public int roundFifteenEnemyBonus = 5; // extra enemies added each wave starting round fifteen
     public int currentWave = 0; // current wave counter
 
     private float waveTimer = 3f; // countdown timer to next wave
@@ -60,11 +64,46 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    // calculate total enemies to spawn in wave
+    int CalculateWaveEnemyCount(int wave)
+    {
+        int count = enemiesPerWave;
+
+        for (int i = 2; i <= wave; i++)
+        {
+            if (i >= 15)
+            {
+                count += roundFifteenEnemyBonus;
+            }
+            else if (i >= 10)
+            {
+                count += roundTenEnemyBonus;
+            }
+            else if (i >= 5)
+            {
+                count += roundFiveEnemyBonus;
+            }
+            else
+            {
+                count += baseEnemyBonus;
+            }
+        }
+
+        return count;
+    }
+
     // begin next enemy wave
     void StartNextWave()
     {
         currentWave++;
-        enemiesLeftToSpawn = enemiesPerWave + (currentWave * 2);
+        int totalEnemies = CalculateWaveEnemyCount(currentWave);
+
+        if (totalEnemies < 1)
+        {
+            totalEnemies = 1;
+        }
+
+        enemiesLeftToSpawn = totalEnemies;
         waveTimer = timeBetweenWaves;
         spawnTimer = 0f;
 
