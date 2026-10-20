@@ -172,13 +172,11 @@ jobs:
             STAGE_LOWER=$(echo "$STAGE" | tr '[:upper:]' '[:lower:]')
             KIND_LOWER=$(echo "$KIND" | tr '[:upper:]' '[:lower:]')
 
-            cat <<EOF > release_notes.md
-Playable WebGL build of the $STAGE_LOWER $KIND_LOWER.
-
-## Play Online
-You can play the game directly in your browser:
-* [Play WebGL Build](https://defaultadam.github.io/Wizard-Tower-Defence/)
-EOF
+            echo "Playable WebGL build of the $STAGE_LOWER $KIND_LOWER." > release_notes.md
+            echo "" >> release_notes.md
+            echo "## Play Online" >> release_notes.md
+            echo "You can play the game directly in your browser:" >> release_notes.md
+            echo "* [Play WebGL Build](https://defaultadam.github.io/Wizard-Tower-Defence/)" >> release_notes.md
 
             echo "publish=true" >> $GITHUB_OUTPUT
             echo "tag=$TAG" >> $GITHUB_OUTPUT
