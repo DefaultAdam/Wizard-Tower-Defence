@@ -7,12 +7,17 @@ public class EnemySpawner : MonoBehaviour
     public Grid grid; // reference to grid
     public float timeBetweenWaves = 15f; // time between waves in seconds
     public float spawnInterval = 1f; // seconds between individual enemy spawns
-    public int enemiesPerWave = 9; // number of enemies in first wave
-    public int baseEnemyBonus = 2; // extra enemies added each wave before round five
-    public int roundFiveEnemyBonus = 3; // extra enemies added each wave starting round five
-    public int roundTenEnemyBonus = 4; // extra enemies added each wave starting round ten
+    public int enemiesPerWave = 9; // number of enemies in first wave
+
+    public int baseEnemyBonus = 2; // extra enemies added each wave before round five
+
+    public int roundFiveEnemyBonus = 3; // extra enemies added each wave starting round five
+
+    public int roundTenEnemyBonus = 4; // extra enemies added each wave starting round ten
+
     public int roundFifteenEnemyBonus = 5; // extra enemies added each wave starting round fifteen
-    public int currentWave = 0; // current wave counter
+    public int currentWave = 0; // current wave counter
+    public int groupSize = 1; // number of enemies to spawn in each group
 
     private float waveTimer = 3f; // countdown timer to next wave
     private float spawnTimer = 0f; // countdown timer to next enemy spawn
@@ -43,9 +48,8 @@ public class EnemySpawner : MonoBehaviour
 
             if (spawnTimer <= 0f)
             {
-                SpawnEnemy();
+                SpawnGroup();
                 spawnTimer = spawnInterval;
-                enemiesLeftToSpawn--;
             }
 
             return;
@@ -112,9 +116,27 @@ public class EnemySpawner : MonoBehaviour
             HUD.instance.SetWave(currentWave);
         }
 
+        if (currentWave > 1 && currentWave % 2 == 0)
+        {
+            groupSize++;
+        }
+
         if (GridSelector.instance != null)
         {
             GridSelector.instance.UpdateAllowedTowers(currentWave);
+        }
+    }
+
+    // spawn group of enemies on paths
+    void SpawnGroup()
+    {
+        for (int i = 0; i < groupSize; i++)
+        {
+            if (enemiesLeftToSpawn > 0)
+            {
+                SpawnEnemy();
+                enemiesLeftToSpawn--;
+            }
         }
     }
 
