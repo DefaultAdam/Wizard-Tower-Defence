@@ -6,8 +6,10 @@ public class EnemySpawner : MonoBehaviour
     public GameObject enemyPrefab; // enemy prefab to spawn
     public Grid grid; // reference to grid
     public float timeBetweenWaves = 15f; // time between waves in seconds
-    public float spawnInterval = 0.4f; // seconds between individual enemy spawns
-    public float spawnRateIncrease = 0.05f; // reduction in spawn interval each wave
+    public float spawnInterval = 0.4f; // seconds between individual enemy spawns
+
+    public float spawnRateIncrease = 0.05f; // reduction in spawn interval each wave
+
     public float minimumSpawnInterval = 0.15f; // lowest spawn interval limit
     public int enemiesPerWave = 9; // number of enemies in first wave
 
@@ -21,6 +23,11 @@ public class EnemySpawner : MonoBehaviour
     public int currentWave = 0; // current wave counter
 
     public int groupSize = 1; // number of enemies to spawn in each group
+    public float enemyBaseHealth = 100f; // starting enemy health
+    public float levelZeroHealthBonus = 10f; // health increase per round at level zero
+    public float levelOneHealthBonus = 20f; // health increase per round at level one
+    public float levelTwoHealthBonus = 30f; // health increase per round at level two
+    public float levelThreeHealthBonus = 50f; // health increase per round at level three
 
     private float waveTimer = 3f; // countdown timer to next wave
     private float spawnTimer = 0f; // countdown timer to next enemy spawn
