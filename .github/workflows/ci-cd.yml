@@ -138,16 +138,41 @@ jobs:
           REF: ${{ github.ref }}
         run: |
           if [[ "$REF" == refs/tags/v* ]]; then
-            echo "publish=true" >> $GITHUB_OUTPUT
-            echo "tag=$REF_NAME" >> $GITHUB_OUTPUT
+            TAG="$REF_NAME"
           elif [[ "$REF" == "refs/heads/main" ]]; then
-            VERSION=$(echo "$COMMIT_MSG" | grep -o -E '\bv[0-9]+(\.[0-9]+)*\b' | head -n 1 || true)
-            if [ -n "$VERSION" ]; then
-              echo "publish=true" >> $GITHUB_OUTPUT
-              echo "tag=$VERSION" >> $GITHUB_OUTPUT
+            TAG=$(echo "$COMMIT_MSG" | grep -o -E '\bv[0-9]+(\.[0-9]+)*\b' | head -n 1 || true)
+          else
+            TAG=""
+          fi
+
+          if [ -n "$TAG" ]; then
+            VER_NUM="${TAG#v}"
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$VER_NUM"
+            MAJOR="${MAJOR:-0}"
+            MINOR="${MINOR:-0}"
+            PATCH="${PATCH:-0}"
+
+            if [ "$MAJOR" -ge 1 ]; then
+              STAGE="Production"
             else
-              echo "publish=false" >> $GITHUB_OUTPUT
+              STAGE="Prototype"
             fi
+
+            if [ "$PATCH" -gt 0 ] || echo "$COMMIT_MSG" | grep -iq "patch"; then
+              KIND="Patch"
+            elif [ "$MAJOR" -ge 1 ] && [ "$MINOR" -eq 0 ] && [ "$PATCH" -eq 0 ]; then
+              KIND="Release"
+            elif [ "$MAJOR" -eq 0 ] && [ "$MINOR" -le 1 ] && [ "$PATCH" -eq 0 ]; then
+              KIND="Release"
+            else
+              KIND="Update"
+            fi
+
+            TITLE="$STAGE $KIND $TAG"
+
+            echo "publish=true" >> $GITHUB_OUTPUT
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            echo "title=$TITLE" >> $GITHUB_OUTPUT
           else
             echo "publish=false" >> $GITHUB_OUTPUT
           fi
@@ -164,7 +189,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.release-version.outputs.tag }}
-          name: ${{ steps.release-version.outputs.tag }} - Prototype update
+          name: ${{ steps.release-version.outputs.title }}
           files: Wizard-Tower-Defence-${{ steps.release-version.outputs.tag }}-webgl.zip
           generate_release_notes: true
 
