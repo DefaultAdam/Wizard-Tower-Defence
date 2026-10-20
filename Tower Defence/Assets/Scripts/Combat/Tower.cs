@@ -12,9 +12,10 @@ public enum TargetPriority
 // tower combat and attack script
 public class Tower : MonoBehaviour
 {
-    public float attackRange = 5f; // attack range distance
+    public float attackRange = 6f; // attack range distance
     public float attackCooldown = 1f; // seconds between attacks
-    public float damage = 20f; // damage dealt per attack
+    public float damage = 25f; // damage dealt per attack
+
     public float damagePerWave = 5f; // extra damage gained each round
     public TargetPriority targetPriority = TargetPriority.Closest; // targeting priority criteria
 
