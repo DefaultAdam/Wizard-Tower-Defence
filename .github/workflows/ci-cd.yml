@@ -168,7 +168,17 @@ jobs:
               KIND="Update"
             fi
 
-            TITLE="$STAGE $KIND $TAG"
+            TITLE="$TAG - $STAGE $KIND"
+            STAGE_LOWER=$(echo "$STAGE" | tr '[:upper:]' '[:lower:]')
+            KIND_LOWER=$(echo "$KIND" | tr '[:upper:]' '[:lower:]')
+
+            cat <<EOF > release_notes.md
+Playable WebGL build of the $STAGE_LOWER $KIND_LOWER.
+
+## Play Online
+You can play the game directly in your browser:
+* [Play WebGL Build](https://defaultadam.github.io/Wizard-Tower-Defence/)
+EOF
 
             echo "publish=true" >> $GITHUB_OUTPUT
             echo "tag=$TAG" >> $GITHUB_OUTPUT
@@ -190,6 +200,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.release-version.outputs.tag }}
           name: ${{ steps.release-version.outputs.title }}
+          body_path: release_notes.md
           files: Wizard-Tower-Defence-${{ steps.release-version.outputs.tag }}-webgl.zip
           generate_release_notes: true
 
