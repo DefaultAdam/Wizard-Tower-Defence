@@ -190,6 +190,15 @@ public class HUD : MonoBehaviour
         UpdateTimerText();
     }
 
+    // set wave timer display to show wave is active
+    public void SetWaveInProgress()
+    {
+        if (timerText != null)
+        {
+            timerText.text = "Wave In Progress";
+        }
+    }
+
     // update sp slider display
     public void UpdateSPSlider()
     {
