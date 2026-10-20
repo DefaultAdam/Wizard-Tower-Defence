@@ -5,7 +5,7 @@ public class EnemySpawner : MonoBehaviour
 {
     public GameObject enemyPrefab; // enemy prefab to spawn
     public Grid grid; // reference to grid
-    public float timeBetweenWaves = 15f; // time between waves in seconds
+    public float timeBetweenWaves = 3f; // countdown between waves in seconds
     public float spawnInterval = 1f; // seconds between individual enemy spawns
     public int enemiesPerWave = 5; // number of enemies per wave
     public int currentWave = 0; // current wave counter
@@ -14,6 +14,8 @@ public class EnemySpawner : MonoBehaviour
     private float spawnTimer = 0f; // countdown timer to next enemy spawn
     private int enemiesLeftToSpawn = 0; // remaining enemies to spawn in wave
     private int currentPathIndex = 0; // current path index to spawn on
+
+    private bool isWaveInProgress = false; // check if wave is actively running
 
     // initialise references on start
     void Start()
@@ -33,15 +35,29 @@ public class EnemySpawner : MonoBehaviour
     // handle wave timers and enemy spawning
     void Update()
     {
-        if (enemiesLeftToSpawn > 0)
+        if (isWaveInProgress)
         {
-            spawnTimer -= Time.deltaTime;
-
-            if (spawnTimer <= 0f)
+            if (enemiesLeftToSpawn > 0)
             {
-                SpawnEnemy();
-                spawnTimer = spawnInterval;
-                enemiesLeftToSpawn--;
+                spawnTimer -= Time.deltaTime;
+
+                if (spawnTimer <= 0f)
+                {
+                    SpawnEnemy();
+                    spawnTimer = spawnInterval;
+                    enemiesLeftToSpawn--;
+                }
+            }
+
+            if (HUD.instance != null)
+            {
+                HUD.instance.SetWaveInProgress();
+            }
+
+            if (enemiesLeftToSpawn <= 0 && GameObject.FindWithTag("Enemy") == null)
+            {
+                isWaveInProgress = false;
+                waveTimer = timeBetweenWaves;
             }
 
             return;
@@ -64,6 +80,7 @@ public class EnemySpawner : MonoBehaviour
     void StartNextWave()
     {
         currentWave++;
+        isWaveInProgress = true;
         enemiesLeftToSpawn = enemiesPerWave + (currentWave * 2);
         waveTimer = timeBetweenWaves;
         spawnTimer = 0f;
