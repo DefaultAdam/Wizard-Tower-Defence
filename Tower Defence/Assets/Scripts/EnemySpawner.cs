@@ -13,7 +13,8 @@ public class EnemySpawner : MonoBehaviour
     private float waveTimer = 3f; // countdown timer to next wave
     private float spawnTimer = 0f; // countdown timer to next enemy spawn
     private int enemiesLeftToSpawn = 0; // remaining enemies to spawn in wave
-    private int currentPathIndex = 0; // current path index to spawn on
+    private int currentPathIndex = 0; // current path index to spawn on
+    private bool isWaveInProgress = false; // check if wave is actively running
 
     // initialise references on start
     void Start()
@@ -33,15 +34,24 @@ public class EnemySpawner : MonoBehaviour
     // handle wave timers and enemy spawning
     void Update()
     {
-        if (enemiesLeftToSpawn > 0)
+        if (isWaveInProgress)
         {
-            spawnTimer -= Time.deltaTime;
-
-            if (spawnTimer <= 0f)
+            if (enemiesLeftToSpawn > 0)
             {
-                SpawnEnemy();
-                spawnTimer = spawnInterval;
-                enemiesLeftToSpawn--;
+                spawnTimer -= Time.deltaTime;
+
+                if (spawnTimer <= 0f)
+                {
+                    SpawnEnemy();
+                    spawnTimer = spawnInterval;
+                    enemiesLeftToSpawn--;
+                }
+            }
+
+            if (enemiesLeftToSpawn <= 0 && GameObject.FindWithTag("Enemy") == null)
+            {
+                isWaveInProgress = false;
+                waveTimer = timeBetweenWaves;
             }
 
             return;
@@ -64,6 +74,7 @@ public class EnemySpawner : MonoBehaviour
     void StartNextWave()
     {
         currentWave++;
+        isWaveInProgress = true;
         enemiesLeftToSpawn = enemiesPerWave + (currentWave * 2);
         waveTimer = timeBetweenWaves;
         spawnTimer = 0f;
