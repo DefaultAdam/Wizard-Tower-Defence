@@ -21,10 +21,12 @@ public class HUD : MonoBehaviour
     public Text spDeductionText; // text display for energy subtraction
     public Text towerCountText; // text display for placed towers count
     public Button towerButton; // button to trigger tower placement
+    public Button veteranButton; // button to trigger veteran tower placement
     public float deductionDuration = 1.5f; // display duration for deduction text
     private float deductionTimer = 0f; // countdown timer for deduction display
     public int startingSP = 100; // starting fortress energy pool
     public int maxSP = 500; // maximum energy value for slider bar
+    public int veteranUnlockSP = 250; // energy required to unlock veteran tower
     public int currentSP; // current fortress energy pool
     public int currentWave = 1; // current wave number
     public float waveTimer = 30f; // countdown timer for wave
@@ -84,10 +86,16 @@ public class HUD : MonoBehaviour
             towerButton.onClick.AddListener(OnTowerButtonClicked);
         }
 
+        if (veteranButton != null)
+        {
+            veteranButton.onClick.AddListener(OnVeteranButtonClicked);
+        }
+
         UpdateSPText();
         UpdateMilestoneText();
         UpdateWaveText();
         UpdateTimerText();
+        UpdateVeteranButtonState();
     }
 
     // count down deduction timer and clear text
@@ -241,6 +249,7 @@ public class HUD : MonoBehaviour
         UpdateSPText();
         UpdateMilestoneText();
         UpdateSPSlider();
+        UpdateVeteranButtonState();
         CheckGameOver();
         CheckVictory();
     }
@@ -282,6 +291,31 @@ public class HUD : MonoBehaviour
         if (GridSelector.instance != null)
         {
             GridSelector.instance.TogglePlacement();
+        }
+    }
+
+    // handle veteran placement button click
+    public void OnVeteranButtonClicked()
+    {
+        if (GridSelector.instance != null)
+        {
+            GridSelector.instance.ToggleVeteranPlacement();
+        }
+    }
+
+    // update veteran button interactable state based on energy pool
+    public void UpdateVeteranButtonState()
+    {
+        if (veteranButton != null)
+        {
+            if (currentSP >= veteranUnlockSP)
+            {
+                veteranButton.interactable = true;
+            }
+            else
+            {
+                veteranButton.interactable = false;
+            }
         }
     }
 

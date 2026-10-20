@@ -10,7 +10,12 @@ public class GridSelector : MonoBehaviour
     public float outlineWidth = 0.35f;
     public GameObject towerPrefab;
     public int placementCost = 10;
-    public int maxTowers = 5; // current maximum allowed towers
+    public GameObject veteranPrefab; // veteran tower prefab
+    public int veteranCost = 50; // veteran placement cost
+    public int veteranUnlockSP = 250; // sp milestone needed to unlock veteran
+    public int selectedTroopIndex = 0; // selected troop index 0 for recruit 1 for veteran
+    public int maxTowers = 5; // current maximum allowed towers
+
     public int maxTowerLimit = 25; // absolute maximum tower limit
     public int placedTowers = 0;
     public bool isPlacing = false;
@@ -163,6 +168,12 @@ public class GridSelector : MonoBehaviour
     // start tower placement mode and display recruit inspector
     public void StartPlacement()
     {
+        StartRecruitPlacement();
+    }
+
+    // start recruit placement mode and display recruit inspector
+    public void StartRecruitPlacement()
+    {
         if (placedTowers >= maxTowers)
         {
             return;
@@ -173,11 +184,37 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
+        selectedTroopIndex = 0;
         isPlacing = true;
 
         if (HUD.instance != null)
         {
-            HUD.instance.ShowUnitInspector("Recruit", "Level 0 Recruit", "Role: Stone Thrower\nDamage: 5\nRange: 10");
+            HUD.instance.ShowUnitInspector("Recruit", "Level 0 Recruit", "Role: Stone Thrower\nDamage: 5\nRange: 6");
+        }
+    }
+
+    // start veteran placement mode and display veteran inspector
+    public void StartVeteranPlacement()
+    {
+        if (placedTowers >= maxTowers)
+        {
+            return;
+        }
+
+        if (HUD.instance != null)
+        {
+            if (HUD.instance.currentSP < veteranUnlockSP || HUD.instance.currentSP < veteranCost)
+            {
+                return;
+            }
+        }
+
+        selectedTroopIndex = 1;
+        isPlacing = true;
+
+        if (HUD.instance != null)
+        {
+            HUD.instance.ShowUnitInspector("Veteran", "Level 2 Veteran", "Role: Energy Caster\nDamage: 35\nRange: 7");
         }
     }
 
@@ -199,13 +236,26 @@ public class GridSelector : MonoBehaviour
     // toggle tower placement mode
     public void TogglePlacement()
     {
-        if (isPlacing)
+        if (isPlacing && selectedTroopIndex == 0)
         {
             CancelPlacement();
         }
         else
         {
-            StartPlacement();
+            StartRecruitPlacement();
+        }
+    }
+
+    // toggle veteran placement mode
+    public void ToggleVeteranPlacement()
+    {
+        if (isPlacing && selectedTroopIndex == 1)
+        {
+            CancelPlacement();
+        }
+        else
+        {
+            StartVeteranPlacement();
         }
     }
 
@@ -222,9 +272,18 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
-        if (towerPrefab == null)
+        int cost = placementCost;
+        GameObject prefabToPlace = towerPrefab;
+
+        if (selectedTroopIndex == 1)
         {
-            Debug.LogError("GridSelector: towerPrefab is null");
+            cost = veteranCost;
+            prefabToPlace = veteranPrefab;
+        }
+
+        if (prefabToPlace == null)
+        {
+            Debug.LogError("GridSelector: tower prefab is null");
             return;
         }
 
@@ -234,15 +293,15 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
-        if (HUD.instance.currentSP < placementCost)
+        if (HUD.instance.currentSP < cost)
         {
             return;
         }
 
-        HUD.instance.DeductSP(placementCost);
-        HUD.instance.ShowDeduction(placementCost);
+        HUD.instance.DeductSP(cost);
+        HUD.instance.ShowDeduction(cost);
 
-        Instantiate(towerPrefab, center, Quaternion.identity);
+        Instantiate(prefabToPlace, center, Quaternion.identity);
         
         grid.SetCellType(cell, Grid.CellType.Used);
         placedTowers++;
