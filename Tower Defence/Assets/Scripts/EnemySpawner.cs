@@ -49,6 +49,11 @@ public class EnemySpawner : MonoBehaviour
                 }
             }
 
+            if (HUD.instance != null)
+            {
+                HUD.instance.SetWaveInProgress();
+            }
+
             if (enemiesLeftToSpawn <= 0 && GameObject.FindWithTag("Enemy") == null)
             {
                 isWaveInProgress = false;
