@@ -21,6 +21,11 @@ public class EnemySpawner : MonoBehaviour
     public int currentWave = 0; // current wave counter
 
     public int groupSize = 1; // number of enemies to spawn in each group
+    public float enemyBaseHealth = 100f; // starting enemy health
+    public float levelZeroHealthBonus = 10f; // health increase per round at level zero
+    public float levelOneHealthBonus = 20f; // health increase per round at level one
+    public float levelTwoHealthBonus = 30f; // health increase per round at level two
+    public float levelThreeHealthBonus = 50f; // health increase per round at level three
 
     private float waveTimer = 3f; // countdown timer to next wave
     private float spawnTimer = 0f; // countdown timer to next enemy spawn
@@ -28,10 +33,14 @@ public class EnemySpawner : MonoBehaviour
     private int currentPathIndex = 0; // current path index to spawn on
 
     private bool isWaveInProgress = false; // check if wave is actively running
+    private float currentEnemyHealth = 100f; // total health assigned to spawned enemies
+    private int highestMilestone = 0; // highest reached milestone level
 
     // initialise references on start
     void Start()
     {
+        currentEnemyHealth = enemyBaseHealth;
+
         if (grid == null)
         {
             grid = FindObjectOfType<Grid>();
@@ -152,6 +161,53 @@ public class EnemySpawner : MonoBehaviour
         {
             GridSelector.instance.UpdateAllowedTowers(currentWave);
         }
+
+        if (currentWave == 1)
+        {
+            currentEnemyHealth = enemyBaseHealth;
+        }
+        else
+        {
+            if (HUD.instance != null)
+            {
+                int currentMilestone = 0;
+
+                if (HUD.instance.currentSP >= 400)
+                {
+                    currentMilestone = 3;
+                }
+                else if (HUD.instance.currentSP >= 250)
+                {
+                    currentMilestone = 2;
+                }
+                else if (HUD.instance.currentSP >= 150)
+                {
+                    currentMilestone = 1;
+                }
+
+                if (currentMilestone > highestMilestone)
+                {
+                    highestMilestone = currentMilestone;
+                }
+            }
+
+            float healthIncrease = levelZeroHealthBonus;
+
+            if (highestMilestone >= 3)
+            {
+                healthIncrease = levelThreeHealthBonus;
+            }
+            else if (highestMilestone == 2)
+            {
+                healthIncrease = levelTwoHealthBonus;
+            }
+            else if (highestMilestone == 1)
+            {
+                healthIncrease = levelOneHealthBonus;
+            }
+
+            currentEnemyHealth += healthIncrease;
+        }
     }
 
     // spawn group of enemies on paths
@@ -184,6 +240,14 @@ public class EnemySpawner : MonoBehaviour
 
         Vector3 spawnPosition = grid.GetCellCenter(path[0]);
         GameObject enemyObject = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+
+        Health enemyHealth = enemyObject.GetComponent<Health>();
+
+        if (enemyHealth != null)
+        {
+            enemyHealth.maxHealth = currentEnemyHealth;
+            enemyHealth.currentHealth = currentEnemyHealth;
+        }
 
         EnemyMovement movement = enemyObject.GetComponent<EnemyMovement>();
 
