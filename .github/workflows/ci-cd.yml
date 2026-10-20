@@ -130,18 +130,76 @@ jobs:
           versioning: None
           allowDirtyBuild: true
 
-      - if: steps.check.outputs.run_unity == 'true' && startsWith(github.ref, 'refs/tags/v')
+      - id: release-version
+        if: steps.check.outputs.run_unity == 'true' && github.event_name == 'push'
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          REF_NAME: ${{ github.ref_name }}
+          REF: ${{ github.ref }}
+        run: |
+          if [[ "$REF" == refs/tags/v* ]]; then
+            TAG="$REF_NAME"
+          elif [[ "$REF" == "refs/heads/main" ]]; then
+            TAG=$(echo "$COMMIT_MSG" | grep -o -E '\bv[0-9]+(\.[0-9]+)*\b' | head -n 1 || true)
+          else
+            TAG=""
+          fi
+
+          if [ -n "$TAG" ]; then
+            VER_NUM="${TAG#v}"
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$VER_NUM"
+            MAJOR="${MAJOR:-0}"
+            MINOR="${MINOR:-0}"
+            PATCH="${PATCH:-0}"
+
+            if [ "$MAJOR" -ge 1 ]; then
+              STAGE="Production"
+            else
+              STAGE="Prototype"
+            fi
+
+            if [ "$PATCH" -gt 0 ] || echo "$COMMIT_MSG" | grep -iq "patch"; then
+              KIND="Patch"
+            elif [ "$MAJOR" -ge 1 ] && [ "$MINOR" -eq 0 ] && [ "$PATCH" -eq 0 ]; then
+              KIND="Release"
+            elif [ "$MAJOR" -eq 0 ] && [ "$MINOR" -le 1 ] && [ "$PATCH" -eq 0 ]; then
+              KIND="Release"
+            else
+              KIND="Update"
+            fi
+
+            TITLE="$TAG - $STAGE $KIND"
+            STAGE_LOWER=$(echo "$STAGE" | tr '[:upper:]' '[:lower:]')
+            KIND_LOWER=$(echo "$KIND" | tr '[:upper:]' '[:lower:]')
+
+            echo "Playable WebGL build of the $STAGE_LOWER $KIND_LOWER." > release_notes.md
+            echo "" >> release_notes.md
+            echo "## Play Online" >> release_notes.md
+            echo "You can play the game directly in your browser:" >> release_notes.md
+            echo "* [Play WebGL Build](https://defaultadam.github.io/Wizard-Tower-Defence/)" >> release_notes.md
+
+            echo "publish=true" >> $GITHUB_OUTPUT
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            echo "title=$TITLE" >> $GITHUB_OUTPUT
+          else
+            echo "publish=false" >> $GITHUB_OUTPUT
+          fi
+
+      - if: steps.release-version.outputs.publish == 'true'
         name: Package WebGL release
         run: |
           cd build/WebGL/WebGL
-          zip -r ../../../Wizard-Tower-Defence-${{ github.ref_name }}-webgl.zip .
+          zip -r ../../../Wizard-Tower-Defence-${{ steps.release-version.outputs.tag }}-webgl.zip .
 
-      - if: steps.check.outputs.run_unity == 'true' && startsWith(github.ref, 'refs/tags/v')
+      - if: steps.release-version.outputs.publish == 'true'
         name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: Wizard-Tower-Defence-${{ github.ref_name }}-webgl.zip
+          tag_name: ${{ steps.release-version.outputs.tag }}
+          name: ${{ steps.release-version.outputs.title }}
+          body_path: release_notes.md
+          files: Wizard-Tower-Defence-${{ steps.release-version.outputs.tag }}-webgl.zip
           generate_release_notes: true
 
       - if: steps.check.outputs.run_unity == 'true' && github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
