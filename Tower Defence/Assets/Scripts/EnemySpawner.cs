@@ -29,8 +29,10 @@ public class EnemySpawner : MonoBehaviour
     public float levelTwoHealthBonus = 30f; // health increase per round at level two
     public float levelThreeHealthBonus = 50f; // health increase per round at level three
 
-    private float currentEnemyHealth = 100f; // total health assigned to spawned enemies
-    private int highestMilestone = 0; // highest reached milestone level
+    private float currentEnemyHealth = 100f; // total health assigned to spawned enemies
+
+    private int highestMilestone = 0; // highest reached milestone level
+
     private float waveTimer = 3f; // countdown timer to next wave
     private float spawnTimer = 0f; // countdown timer to next enemy spawn
     private int enemiesLeftToSpawn = 0; // remaining enemies to spawn in wave
@@ -225,6 +227,14 @@ public class EnemySpawner : MonoBehaviour
 
         Vector3 spawnPosition = grid.GetCellCenter(path[0]);
         GameObject enemyObject = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+
+        Health enemyHealth = enemyObject.GetComponent<Health>();
+
+        if (enemyHealth != null)
+        {
+            enemyHealth.maxHealth = currentEnemyHealth;
+            enemyHealth.currentHealth = currentEnemyHealth;
+        }
 
         EnemyMovement movement = enemyObject.GetComponent<EnemyMovement>();
 
