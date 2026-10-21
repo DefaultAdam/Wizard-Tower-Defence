@@ -4,6 +4,12 @@ using UnityEngine;
 public class EnemySpawner : MonoBehaviour
 {
     public GameObject enemyPrefab; // enemy prefab to spawn
+    public GameObject sprintPrefab;
+    public GameObject juggernautPrefab;
+    public int sprintStartWave = 3;
+    public int juggernautStartWave = 5;
+    public float sprintChance = 0.25f;
+    public float juggernautChance = 0.15f;
     public Grid grid; // reference to grid
     public float timeBetweenWaves = 3f; // countdown between waves in seconds
     public float spawnInterval = 0.4f; // seconds between individual enemy spawns
@@ -223,6 +229,23 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    GameObject ChooseEnemyPrefab()
+    {
+        float roll = Random.value;
+
+        if (juggernautPrefab != null && currentWave >= juggernautStartWave && roll < juggernautChance)
+        {
+            return juggernautPrefab;
+        }
+
+        if (sprintPrefab != null && currentWave >= sprintStartWave && roll >= 1f - sprintChance)
+        {
+            return sprintPrefab;
+        }
+
+        return enemyPrefab;
+    }
+
     // spawn single enemy on path
     void SpawnEnemy()
     {
@@ -239,14 +262,22 @@ public class EnemySpawner : MonoBehaviour
         }
 
         Vector3 spawnPosition = grid.GetCellCenter(path[0]);
-        GameObject enemyObject = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+        GameObject enemyObject = Instantiate(ChooseEnemyPrefab(), spawnPosition, Quaternion.identity);
 
         Health enemyHealth = enemyObject.GetComponent<Health>();
+        Enemy enemyScript = enemyObject.GetComponent<Enemy>();
 
         if (enemyHealth != null)
         {
-            enemyHealth.maxHealth = currentEnemyHealth;
-            enemyHealth.currentHealth = currentEnemyHealth;
+            float multiplier = 1f;
+
+            if (enemyScript != null)
+            {
+                multiplier = enemyScript.healthMultiplier;
+            }
+
+            enemyHealth.maxHealth = currentEnemyHealth * multiplier;
+            enemyHealth.currentHealth = currentEnemyHealth * multiplier;
         }
 
         EnemyMovement movement = enemyObject.GetComponent<EnemyMovement>();

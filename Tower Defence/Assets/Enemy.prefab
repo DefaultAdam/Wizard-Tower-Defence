@@ -139,6 +139,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spReward: 4
+  healthMultiplier: 1
   onKilled:
     m_PersistentCalls:
       m_Calls: []

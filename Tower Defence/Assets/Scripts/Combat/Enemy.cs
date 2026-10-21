@@ -5,6 +5,7 @@ using UnityEngine.Events;
 public class Enemy : MonoBehaviour
 {
     public int spReward = 10; // skill points rewarded on kill
+    public float healthMultiplier = 1f;
     public UnityEvent onKilled; // event triggered when killed
 
     public float distanceTravelled = 0f; // distance travelled along path
