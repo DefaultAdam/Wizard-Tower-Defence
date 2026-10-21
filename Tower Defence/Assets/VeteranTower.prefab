@@ -125,6 +125,8 @@ MonoBehaviour:
   attackCooldown: 0.8
   damage: 35
   damagePerWave: 3
+  aoeRadius: 2
+  aoeDamagePercent: 0.5
   targetPriority: 1
   projectilePrefab: {fileID: 4062152177973192290, guid: 8ef7af76966a2364b88c95de9a3eec21, type: 3}
   firePoint: {fileID: 6120485918239021841}
