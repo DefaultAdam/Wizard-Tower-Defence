@@ -5,6 +5,8 @@ public class Projectile : MonoBehaviour
 {
     public float speed = 10f; // projectile movement speed
     public float damage = 20f; // damage dealt on hit
+    public float aoeRadius = 0f;
+    public float aoeDamagePercent = 0.5f;
 
     private Transform target; // target to follow
 
@@ -40,6 +42,7 @@ public class Projectile : MonoBehaviour
     // hit target and deal damage
     void HitTarget()
     {
+        Vector3 hitPosition = target.position;
         Health targetHealth = target.GetComponent<Health>();
 
         if (targetHealth != null)
@@ -47,6 +50,36 @@ public class Projectile : MonoBehaviour
             targetHealth.TakeDamage(damage);
         }
 
+        if (aoeRadius > 0f)
+        {
+            DealAreaDamage(hitPosition);
+        }
+
         Destroy(gameObject);
+    }
+
+    void DealAreaDamage(Vector3 center)
+    {
+        Collider[] colliders = Physics.OverlapSphere(center, aoeRadius);
+
+        foreach (Collider hitCollider in colliders)
+        {
+            if (hitCollider == null || !hitCollider.CompareTag("Enemy"))
+            {
+                continue;
+            }
+
+            if (hitCollider.transform == target)
+            {
+                continue;
+            }
+
+            Health enemyHealth = hitCollider.GetComponent<Health>();
+
+            if (enemyHealth != null)
+            {
+                enemyHealth.TakeDamage(damage * aoeDamagePercent);
+            }
+        }
     }
 }
