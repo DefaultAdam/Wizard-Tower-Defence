@@ -7,8 +7,14 @@ public class Projectile : MonoBehaviour
     public float damage = 20f; // damage dealt on hit
     public float aoeRadius = 0f;
     public float aoeDamagePercent = 0.5f;
+    public int splashStoneCount = 8;
+    public float splashEffectDuration = 0.35f;
 
     private Transform target; // target to follow
+    private GameObject[] splashStones;
+    private Vector3 splashCenter;
+    private float splashTimer;
+    private bool splashing;
 
     // set target for projectile to follow
     public void SetTarget(Transform newTarget)
@@ -24,6 +30,12 @@ public class Projectile : MonoBehaviour
     // move toward target and face trajectory every frame
     void Update()
     {
+        if (splashing)
+        {
+            UpdateSplashEffect();
+            return;
+        }
+
         if (target == null)
         {
             Destroy(gameObject);
@@ -53,9 +65,66 @@ public class Projectile : MonoBehaviour
         if (aoeRadius > 0f)
         {
             DealAreaDamage(hitPosition);
+            ShowSplashEffect(hitPosition);
+            return;
         }
 
         Destroy(gameObject);
+    }
+
+    void ShowSplashEffect(Vector3 center)
+    {
+        Renderer stoneRenderer = GetComponentInChildren<Renderer>();
+
+        splashCenter = center + new Vector3(0f, 0.3f, 0f);
+        splashStones = new GameObject[splashStoneCount];
+
+        for (int i = 0; i < splashStoneCount; i++)
+        {
+            GameObject stone = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            Destroy(stone.GetComponent<Collider>());
+
+            stone.transform.position = splashCenter;
+            stone.transform.localScale = transform.localScale;
+
+            if (stoneRenderer != null)
+            {
+                stone.GetComponent<Renderer>().sharedMaterial = stoneRenderer.sharedMaterial;
+            }
+
+            splashStones[i] = stone;
+        }
+
+        if (stoneRenderer != null)
+        {
+            stoneRenderer.enabled = false;
+        }
+
+        splashTimer = 0f;
+        splashing = true;
+    }
+
+    void UpdateSplashEffect()
+    {
+        splashTimer += Time.deltaTime;
+        float progress = Mathf.Clamp01(splashTimer / splashEffectDuration);
+
+        for (int i = 0; i < splashStones.Length; i++)
+        {
+            float angle = i * Mathf.PI * 2f / splashStones.Length;
+            Vector3 direction = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
+            splashStones[i].transform.position = splashCenter + direction * (aoeRadius * progress);
+        }
+
+        if (progress >= 1f)
+        {
+            for (int i = 0; i < splashStones.Length; i++)
+            {
+                Destroy(splashStones[i]);
+            }
+
+            Destroy(gameObject);
+        }
     }
 
     void DealAreaDamage(Vector3 center)
