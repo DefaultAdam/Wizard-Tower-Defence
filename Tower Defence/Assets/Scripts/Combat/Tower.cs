@@ -27,6 +27,8 @@ public class Tower : MonoBehaviour
     public float damage = 25f; // damage dealt per attack
 
     public float damagePerWave = 5f; // extra damage gained each round
+    public float aoeRadius = 0f;
+    public float aoeDamagePercent = 0.5f;
     public TargetPriority targetPriority = TargetPriority.Closest; // targeting priority criteria
 
     public GameObject projectilePrefab; // projectile prefab to shoot
@@ -372,6 +374,8 @@ public class Tower : MonoBehaviour
             if (projectile != null)
             {
                 projectile.damage = GetCurrentDamage();
+                projectile.aoeRadius = aoeRadius;
+                projectile.aoeDamagePercent = aoeDamagePercent;
                 projectile.SetTarget(target.transform);
             }
         }
