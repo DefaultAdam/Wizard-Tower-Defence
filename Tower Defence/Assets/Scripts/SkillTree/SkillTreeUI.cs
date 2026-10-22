@@ -13,6 +13,26 @@ public class SkillTreeUI : MonoBehaviour
     public KeyCode toggleKey = KeyCode.Tab; // keyboard shortcut to toggle skill tree window
     public bool isOpen = false; // current window open state
 
+    public Button physicalApprenticeButton; // button to unlock physical apprentice
+    public Button mechanicApprenticeButton; // button to unlock mechanic apprentice
+    public Button magicApprenticeButton; // button to unlock magic apprentice
+    public Button imaginaryApprenticeButton; // button to unlock imaginary apprentice
+
+    public Text physicalApprenticeText; // text display for physical apprentice button
+    public Text mechanicApprenticeText; // text display for mechanic apprentice button
+    public Text magicApprenticeText; // text display for magic apprentice button
+    public Text imaginaryApprenticeText; // text display for imaginary apprentice button
+
+    public Button physicalVeteranButton; // button to unlock physical veteran
+    public Button mechanicVeteranButton; // button to unlock mechanic veteran
+    public Button magicVeteranButton; // button to unlock magic veteran
+    public Button imaginaryVeteranButton; // button to unlock imaginary veteran
+
+    public Text physicalVeteranText; // text display for physical veteran button
+    public Text mechanicVeteranText; // text display for mechanic veteran button
+    public Text magicVeteranText; // text display for magic veteran button
+    public Text imaginaryVeteranText; // text display for imaginary veteran button
+
     // initialise instance on awake
     void Awake()
     {
