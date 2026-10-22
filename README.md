@@ -55,11 +55,6 @@ A 3D grid-based tower defence game developed in Unity and deployed to WebGL. Def
 
 ---
 
-## Core Features
-
-
----
-
 ## AI Usage & Source Declaration
 
 AI tools were used in this repository for:
