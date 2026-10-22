@@ -52,6 +52,46 @@ public class SkillTreeUI : MonoBehaviour
             closeButton.onClick.AddListener(Close);
         }
 
+        if (physicalApprenticeButton != null)
+        {
+            physicalApprenticeButton.onClick.AddListener(UnlockPhysicalApprentice);
+        }
+
+        if (mechanicApprenticeButton != null)
+        {
+            mechanicApprenticeButton.onClick.AddListener(UnlockMechanicApprentice);
+        }
+
+        if (magicApprenticeButton != null)
+        {
+            magicApprenticeButton.onClick.AddListener(UnlockMagicApprentice);
+        }
+
+        if (imaginaryApprenticeButton != null)
+        {
+            imaginaryApprenticeButton.onClick.AddListener(UnlockImaginaryApprentice);
+        }
+
+        if (physicalVeteranButton != null)
+        {
+            physicalVeteranButton.onClick.AddListener(UnlockPhysicalVeteran);
+        }
+
+        if (mechanicVeteranButton != null)
+        {
+            mechanicVeteranButton.onClick.AddListener(UnlockMechanicVeteran);
+        }
+
+        if (magicVeteranButton != null)
+        {
+            magicVeteranButton.onClick.AddListener(UnlockMagicVeteran);
+        }
+
+        if (imaginaryVeteranButton != null)
+        {
+            imaginaryVeteranButton.onClick.AddListener(UnlockImaginaryVeteran);
+        }
+
         if (window != null)
         {
             window.SetActive(false);
@@ -126,6 +166,64 @@ public class SkillTreeUI : MonoBehaviour
         if (spText != null)
         {
             spText.text = "SP: " + SkillTree.instance.GetCurrentSP();
+        }
+    }
+
+    // unlock physical apprentice path
+    public void UnlockPhysicalApprentice()
+    {
+        TryUnlock(Branch.Physical, 1);
+    }
+
+    // unlock mechanic apprentice path
+    public void UnlockMechanicApprentice()
+    {
+        TryUnlock(Branch.Mechanic, 1);
+    }
+
+    // unlock magic apprentice path
+    public void UnlockMagicApprentice()
+    {
+        TryUnlock(Branch.Magic, 1);
+    }
+
+    // unlock imaginary apprentice path
+    public void UnlockImaginaryApprentice()
+    {
+        TryUnlock(Branch.Imaginary, 1);
+    }
+
+    // unlock physical veteran path
+    public void UnlockPhysicalVeteran()
+    {
+        TryUnlock(Branch.Physical, 2);
+    }
+
+    // unlock mechanic veteran path
+    public void UnlockMechanicVeteran()
+    {
+        TryUnlock(Branch.Mechanic, 2);
+    }
+
+    // unlock magic veteran path
+    public void UnlockMagicVeteran()
+    {
+        TryUnlock(Branch.Magic, 2);
+    }
+
+    // unlock imaginary veteran path
+    public void UnlockImaginaryVeteran()
+    {
+        TryUnlock(Branch.Imaginary, 2);
+    }
+
+    // attempt path unlock and refresh window
+    void TryUnlock(Branch branch, int level)
+    {
+        if (SkillTree.instance != null)
+        {
+            SkillTree.instance.TryUnlockPath(branch, level);
+            RefreshWindow();
         }
     }
 }
