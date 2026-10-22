@@ -100,6 +100,11 @@ public class GridSelector : MonoBehaviour
 
         Ray ray = sceneCamera.ScreenPointToRay(Input.mousePosition);
 
+        if (!isPlacing)
+        {
+            UpdateTroopSelection(ray);
+        }
+
         Plane gridPlane = new Plane(
             Vector3.up,
             new Vector3(0f, grid.transform.position.y, 0f)
@@ -165,6 +170,22 @@ public class GridSelector : MonoBehaviour
             }
 
             TryPlaceTower(cell, center);
+        }
+    }
+
+    // update hovered troop and select it on click
+    void UpdateTroopSelection(Ray ray)
+    {
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
+        hoveredTower = GetTowerUnderMouse(ray);
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            selectedTower = hoveredTower;
         }
     }
 
