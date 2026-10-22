@@ -9,10 +9,10 @@ public class GridSelector : MonoBehaviour
     public LineRenderer highlight;
     public float outlineWidth = 0.35f;
     public GameObject towerPrefab;
-    public int placementCost = 10;
+    public int placementCost = 20;
     public GameObject veteranPrefab; // veteran tower prefab
-    public int veteranCost = 50; // veteran placement cost
-    public int veteranUnlockSP = 250; // sp milestone needed to unlock veteran
+    public int veteranCost = 150; // veteran placement cost
+    public int veteranUnlockSP = 350; // sp milestone needed to unlock veteran
     public int selectedTroopIndex = 0; // selected troop index 0 for recruit 1 for veteran
     public int maxTowers = 5; // current maximum allowed towers
 
