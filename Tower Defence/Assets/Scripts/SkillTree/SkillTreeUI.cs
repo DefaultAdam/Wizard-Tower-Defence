@@ -18,4 +18,52 @@ public class SkillTreeUI : MonoBehaviour
     {
         instance = this;
     }
+
+    // open or close skill tree window
+    public void Toggle()
+    {
+        if (isOpen)
+        {
+            Close();
+        }
+        else
+        {
+            Open();
+        }
+    }
+
+    // open skill tree window and clear placement or selection
+    public void Open()
+    {
+        isOpen = true;
+
+        if (window != null)
+        {
+            window.SetActive(true);
+        }
+
+        if (GridSelector.instance != null)
+        {
+            GridSelector.instance.CancelPlacement();
+            GridSelector.instance.ClearSelection();
+        }
+
+        RefreshWindow();
+    }
+
+    // close skill tree window
+    public void Close()
+    {
+        isOpen = false;
+
+        if (window != null)
+        {
+            window.SetActive(false);
+        }
+    }
+
+    // update window display elements
+    public void RefreshWindow()
+    {
+    }
 }
