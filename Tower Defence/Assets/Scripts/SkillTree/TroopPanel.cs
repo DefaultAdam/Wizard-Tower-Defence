@@ -38,6 +38,11 @@ public class TroopPanel : MonoBehaviour
             tower = GridSelector.instance.GetInspectedTower();
         }
 
+        if (SkillTreeUI.instance != null && SkillTreeUI.instance.isOpen)
+        {
+            tower = null;
+        }
+
         if (tower == null)
         {
             if (panel != null && panel.activeSelf)
