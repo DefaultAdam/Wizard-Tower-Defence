@@ -96,6 +96,7 @@ public class GridSelector : MonoBehaviour
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
         {
             CancelPlacement();
+            ClearSelection();
         }
 
         Ray ray = sceneCamera.ScreenPointToRay(Input.mousePosition);
@@ -210,6 +211,30 @@ public class GridSelector : MonoBehaviour
         return closestTower;
     }
 
+    // get selected troop or hovered troop if none is selected
+    public Tower GetInspectedTower()
+    {
+        if (selectedTower != null)
+        {
+            return selectedTower;
+        }
+
+        return hoveredTower;
+    }
+
+    // get troop clicked for upgrades
+    public Tower GetSelectedTower()
+    {
+        return selectedTower;
+    }
+
+    // clear hovered and selected troop
+    public void ClearSelection()
+    {
+        hoveredTower = null;
+        selectedTower = null;
+    }
+
     // start tower placement mode and display recruit inspector
     public void StartPlacement()
     {
@@ -231,6 +256,7 @@ public class GridSelector : MonoBehaviour
 
         selectedTroopIndex = 0;
         isPlacing = true;
+        ClearSelection();
 
         if (HUD.instance != null)
         {
@@ -256,6 +282,7 @@ public class GridSelector : MonoBehaviour
 
         selectedTroopIndex = 1;
         isPlacing = true;
+        ClearSelection();
 
         if (HUD.instance != null)
         {
