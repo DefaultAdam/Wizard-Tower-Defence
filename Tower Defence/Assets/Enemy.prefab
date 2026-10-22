@@ -138,7 +138,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a67e91041f24e86ad60c327e799174c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  baseHealth: 100
+  healthPerWave: 20
+  startWave: 1
   spReward: 4
+  healthMultiplier: 1
   onKilled:
     m_PersistentCalls:
       m_Calls: []
