@@ -106,6 +106,32 @@ public class Tower : MonoBehaviour
         ApplyColour();
     }
 
+    // get display name for troop
+    public string GetTroopName()
+    {
+        if (level <= 0)
+        {
+            return "Recruit";
+        }
+
+        if (branch == Branch.None)
+        {
+            if (level == 1)
+            {
+                return "Apprentice";
+            }
+
+            return "Veteran";
+        }
+
+        if (level == 1)
+        {
+            return branch + " Apprentice";
+        }
+
+        return branch + " Veteran";
+    }
+
     // update target tracking and attack cooldown
     void Update()
     {
