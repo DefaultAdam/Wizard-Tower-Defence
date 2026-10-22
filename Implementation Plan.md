@@ -223,3 +223,32 @@ When an enemy reaches the fortress, it does attack damage directly against the S
   * **Magic Bubbles:** Lifts enemies into midair, preventing movement or attacks until the bubble pops.
   * **Mechanic Throws:** Brings enemies backward down the path, forcing them to re-walk.
   * **Apprentices:** Apprentices can't die. They remain on the field to attack enemies continually.
+
+---
+
+## 8. Enemy Wave Progression & Health Scaling
+
+### A. Health Scaling Progression
+Enemy health increases from **Round 3**, and then steadily gains difficulty:
+* **Standard (Grunt):** 100 HP base; flat for Rounds 1–2; gains **+20 HP** each round starting from Round 3.
+* **Sprint:** 50 HP base; debuts on **Round 3** at base health; gains **+10 HP** each round starting from Round 4.
+* **Juggernaut:** 400 HP base; debuts on **Round 5** at base health; gains **+50 HP** each round starting from Round 6.
+
+| Wave | Standard Enemy (+20/wave) | Sprint Enemy (+10/wave) | Juggernaut Enemy (+50/wave) |
+| :---: | :---: | :---: | :---: |
+| **Wave 1** | **100 HP** | *(not spawning)* | *(not spawning)* |
+| **Wave 2** | **100 HP** *(flat base)* | *(not spawning)* | *(not spawning)* |
+| **Wave 3** | **120 HP** | **50 HP** *(debut base)* | *(not spawning)* |
+| **Wave 4** | **140 HP** | **60 HP** | *(not spawning)* |
+| **Wave 5** | **160 HP** | **70 HP** | **400 HP** *(debut base)* |
+| **Wave 6** | **180 HP** | **80 HP** | **450 HP** |
+
+### B. Wave-Tiered Spawn Distribution
+* **Waves 1–2:** 100% Standard enemies.
+* **Waves 3–4:** 50% Standard enemies, 50% Sprint enemies.
+* **Waves 5+:** 47.5% Standard enemies, 32.5% Sprint enemies, 20% Juggernaut enemies.
+
+### C. Movement Speeds
+* **Standard (Grunt):** 2.0 units/s
+* **Sprint:** 4.0 units/s
+* **Juggernaut:** 1.25 units/s
