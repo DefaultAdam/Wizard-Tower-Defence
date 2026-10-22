@@ -20,10 +20,10 @@ Skill Points (SP) are the **currency pool, and health of the fortress**.
 flowchart TD
     subgraph FortressPool ["Fortress SP Energy Pool"]
         N0["0 SP\nFortress Falls\n(GAME OVER)"]
-        N1["100 SP Base Buffer\nLevel 0 Recruit (10 SP)\n(Throws Stones)"]
-        N2["150 SP Milestone\nLevel 1 Specialisation\n(Fee: 25 SP)"]
-        N3["250 SP Milestone\nLevel 2 Veteran Tier\n(Fee: 50 SP)"]
-        N4["400 SP Milestone\nLevel 3 Master Tier\n(Fee: 100 SP & Fusion)"]
+        N1["100 SP Base Buffer\nLevel 0 Recruit (20 SP)\n(Throws Stones)"]
+        N2["250 SP Milestone\nLevel 1 Apprentice Tier\n(Fee: 100 SP)"]
+        N3["350 SP Milestone\nLevel 2 Veteran Tier\n(Fee: 150 SP)"]
+        N4["400 SP Milestone\nLevel 3 Master Tier\n(Fee: 200 SP & Fusion)"]
         N5["500 SP Milestone\nUltimate Wizard Skill\n(WIN GAME)"]
 
         N0 <-->|"Advance / Regress"| N1
@@ -60,10 +60,10 @@ flowchart TD
     end
 
     subgraph Outflows ["Unit Placement & Upgrade Fees"]
-        Hire["Place Recruit (Bench or Field): 10 SP"]
-        Fee1["Level 1 Upgrade Fee: 25 SP"]
-        Fee2["Level 2 Upgrade Fee: 50 SP"]
-        Fee3["Level 3 Upgrade Fee: 100 SP"]
+        Hire["Place Recruit (Bench or Field): 20 SP"]
+        Fee1["Level 1 Upgrade Fee: 100 SP"]
+        Fee2["Level 2 Upgrade Fee: 150 SP"]
+        Fee3["Level 3 Upgrade Fee: 200 SP"]
     end
 
     subgraph Breaches ["Breach Damage (Instant Despawn)"]
@@ -72,7 +72,7 @@ flowchart TD
 
     Kills -->|"+SP"| Fortress
     Bench -->|"+1.5x SP"| Fortress
-    Fortress -.->|"Spend 10 SP"| Hire
+    Fortress -.->|"Spend 20 SP"| Hire
     Fortress -.->|"Spend Fee"| Fee1
     Fee1 -.-> Fee2
     Fee2 -.-> Fee3
@@ -89,8 +89,8 @@ flowchart TD
 ### A. How You Gain SP & The $1.5\times$ Bench Generation
 
 1. **Recruit Placement Cost (Bench or Field):**
-   * Placing any Level 0 Recruit costs **10 SP** (deducted from the fortress pool).
-   * Starting with 100 SP, hiring your first recruit leaves **90 SP** of fortress health.
+   * Placing any Level 0 Recruit costs **20 SP** (deducted from the fortress pool).
+   * Starting with 100 SP, hiring your first recruit leaves **80 SP** of fortress health.
 2. **Enemy Kill Rewards vs. Bench Generation:**
    * Keeping your recruit on the bench won't let you use them but they will generate $1.5\times$ the SP. How each enemy impacts SP pool/health: 
 
@@ -111,10 +111,10 @@ flowchart TD
 
 #### 1. Skill Tree Milestones (Pool Thresholds)
 The fortress SP pool is a progress meter. When you achieve a new milestone you unlock the ability to train apprentices:
-* **100 SP (Starting Base):** Unlocks **Level 0 Basic Recruit** (10 SP to place, throws stones).
-* **150 SP Pool:** Unlocks **Level 1 Magic Specialisations** (Physical, Mechanic, Magic, Imaginary).
-* **250 SP Pool:** Unlocks **Level 2 Veterans** (+25% power and hit speed).
-* **400 SP Pool:** Unlocks **Level 3 Masters** (+50% power and hit speed & unlocks 3-to-1 Super Fusion).
+* **100 SP (Starting Base):** Unlocks **Level 0 Recruit** (20 SP to place, throws stones).
+* **250 SP Pool:** Unlocks **Level 1 Apprentice** (Physical, Mechanic, Magic, Imaginary).
+* **350 SP Pool:** Unlocks **Level 2 Veteran** (+25% power and hit speed).
+* **400 SP Pool:** Unlocks **Level 3 Master** (+50% power and hit speed & unlocks 3-to-1 Super Fusion).
 * **500 SP Pool:** Unlocks the **Ultimate Skill** to defeat the Dark Evil Wizard and **Win the Game**.
 
 #### 2. Small Apprentice Upgrade Fees (Deducted from Pool)
@@ -122,10 +122,10 @@ Once a tier is unlocked in your skill tree, you pay a fee per apprentice to upgr
 
 | Action / Tier | Prerequisite Pool | SP Cost / Fee | What It Unlocks |
 | :--- | :---: | :---: | :--- |
-| **Place Level 0 Recruit** | **100 SP Base** | **10 SP** | Deploy recruit to bench (passive SP) or field (stone-thrower). |
-| **Upgrade to Level 1** | **150 SP** | **25 SP** | **Specialisation:** Select one of 4 branches (*Physical, Mechanic, Magic, or Imaginary*). |
-| **Upgrade to Level 2** | **250 SP** | **50 SP** | **Veteran Status:** $+25\%$ spell damage and cast rate. |
-| **Upgrade to Level 3** | **400 SP** | **100 SP** | **Master Status:** $+50\%$ damage/area, and **unlocks 3-to-1 Super Fusion**. |
+| **Place Level 0 Recruit** | **100 SP Base** | **20 SP** | Deploy recruit to bench (passive SP) or field (stone-thrower). |
+| **Upgrade to Level 1** | **250 SP** | **100 SP** | **Specialisation:** Select one of 4 branches (*Physical, Mechanic, Magic, or Imaginary*). |
+| **Upgrade to Level 2** | **350 SP** | **150 SP** | **Veteran Status:** $+25\%$ spell damage and cast rate. |
+| **Upgrade to Level 3** | **400 SP** | **200 SP** | **Master Status:** $+50\%$ damage/area, and **unlocks 3-to-1 Super Fusion**. |
 | **Ultimate Skill** | **500 SP** | **Goal Met** | **Game Victory:** Casts the final spell that kills the Dark Evil Wizard. |
 
 ---
@@ -156,8 +156,8 @@ Once a tier is unlocked in your skill tree, you pay a fee per apprentice to upgr
 
 ### B. Apprentice Deployment Rules
 * **Bench:** Recruits wait on the bench. While unplaced, they generate an increased amount of SP.
-* **Direct Placement:** You can place Level 0 recruits directly onto the battlefield for a 10 SP fee. They fight by throwing stones.
-* **Field Upgrades:** You can upgrade apprentices directly on the battlefield by paying their small upgrade fee (25 SP for Lvl 1, 50 SP for Lvl 2, 100 SP for Lvl 3).
+* **Direct Placement:** You can place Level 0 recruits directly onto the battlefield for a 20 SP fee. They fight by throwing stones.
+* **Field Upgrades:** You can upgrade apprentices directly on the battlefield by paying their small upgrade fee (100 SP for Lvl 1, 150 SP for Lvl 2, 200 SP for Lvl 3).
 * **Apprentice Limits:** There is a fixed maximum limit of apprentices you can place on the battlefield and bench.
 * **Apprentices Can't Die:** Once placed on the battlefield, apprentices don't die. But can be locked if they aren't in the right milestone. 
 
@@ -166,7 +166,7 @@ Once a tier is unlocked in your skill tree, you pay a fee per apprentice to upgr
 ## 4. 3-to-1 Super Apprentice Fusion (Level 3 Units Only)
 
 * **Rule:** Combine **3x Level 3 apprentices** of the **exact same specialisation branch**.
-* **Level Requirement:** Must be Level 3 (unlocked at 400 SP milestone, upgraded with 100 SP fee). Levels 0, 1, and 2 can't fuse.
+* **Level Requirement:** Must be Level 3 (unlocked at 400 SP milestone, upgraded with 200 SP fee). Levels 0, 1, and 2 can't fuse.
 * **Where to Fuse:** Either on the bench or the battlefield.
 * **The Fusion Math ($3 \times 2\times = 6\times$):**
   * 3 individual Level 3 units produce $3.0\times$ power.

@@ -24,16 +24,16 @@ Features are in categories:
 ---
 
 ### 1. Apprentice / Unit Placement System
-* **1.1 Battlefield Direct Placement `[REQUIRED]`**: You can place Level 0 recruits directly onto the battlefield for a 10 SP fee. They fight by throwing stones.
+* **1.1 Battlefield Direct Placement `[REQUIRED]`**: You can place Level 0 recruits directly onto the battlefield for a 20 SP fee. They fight by throwing stones.
 * **1.2 Apprentice Placement Limits `[REQUIRED]`**: There is a fixed maximum limit of apprentices you can place on the battlefield and bench.
 * **1.3 Placement Controls & HUD Feedback `[REQUIRED]`**:
   * **HUD Placement Toggle Button**: A dedicated button on the HUD to enter and cancel recruit placement mode.
   * **Cursor Highlight Validation**: A grid cursor outline that changes colour dynamically (Green for valid placement, Red for invalid/blocked/path/limit reached).
-  * **HUD Floating Deduction Text**: Animated visual feedback (-10 SP) that pops up on the HUD when a recruit is placed.
+  * **HUD Floating Deduction Text**: Animated visual feedback (-20 SP) that pops up on the HUD when a recruit is placed.
   * **Live Recruit Counter**: An on-screen HUD counter tracking active placed apprentices against the maximum placement limit.
 * **1.4 Apprentice Non-Death Rule `[UNAPPROVED]`**: Once placed on the battlefield, apprentices don't die. But can be locked if they aren't in the right milestone. They remain on the field to attack enemies continually.
 * **1.5 Reserve Bench Placement `[ADDITIONAL]`**: Recruits wait on the bench. While unplaced, they generate an increased amount of SP ($1.5\times$ kill value).
-* **1.6 Field Apprentice Upgrades `[ADDITIONAL]`**: You can upgrade apprentices directly on the battlefield by paying their small upgrade fee (25 SP for Lvl 1, 50 SP for Lvl 2, 100 SP for Lvl 3).
+* **1.6 Field Apprentice Upgrades `[ADDITIONAL]`**: You can upgrade apprentices directly on the battlefield by paying their small upgrade fee (100 SP for Lvl 1, 150 SP for Lvl 2, 200 SP for Lvl 3).
 
 ### 2. Pathing & Navigation System
 * **2.1 Grid Paths & Edge Spawning `[REQUIRED]`**: Enemies spawn at the edge of the map and walk along grid paths toward the fortress in the centre.
@@ -54,14 +54,14 @@ Features are in categories:
 * **4.1 Grunt Archetype `[REQUIRED]`**: Standard infantry that attacks in groups, dealing 8 SP attack damage to the fortress.
 * **4.2 Sprint Archetype `[ADDITIONAL]`**: Fast runner that runs quickly across the path toward the fortress, dealing 5 SP attack damage to the fortress.
 * **4.3 Disrupt Archetype `[ADDITIONAL]`**: Anti-magic specialist that counters magic energy, dealing 12 SP attack damage to the fortress.
-* **4.4 Juggernaut Archetype `[ADDITIONAL]`**: Heavily armoured tank with massive health, dealing 20 SP attack damage to the fortress.
+* **4.4 Juggernaut Archetype `[ADDITIONAL]`**: Heavily armoured tank with massive health, dealing 25 SP attack damage to the fortress.
 
 ### 5. SP Economy & Fortress Health Pool
 * **5.1 Dual-Function Energy Pool `[UNAPPROVED]`**: Skill Points (SP) are the currency pool, and health of the fortress.
 * **5.2 Base SP & Kill SP `[REQUIRED]`**: Starting base health is 100 SP, enemy kills on award SP (+SP per kill).
-* **5.3 Fortress Attack Deductions `[REQUIRED]`**: When enemies attack the fortress, they deduct SP directly from the pool (Sprint $-5$, Grunt $-8$, Disrupt $-12$, Juggernaut $-20$).
+* **5.3 Fortress Attack Deductions `[REQUIRED]`**: When enemies attack the fortress, they deduct SP directly from the pool (Sprint $-5$, Grunt $-8$, Disrupt $-12$, Juggernaut $-25$).
 * **5.4 Benched Apprentice Passive Generation `[ADDITIONAL]`**: Recruits benched generate $1.5\times$ the total SP rewarded in that wave. This is to increase acceleratation for reaching milestones and fund upgrades whilst not defending the path.
-* **5.5 Milestone Unlocks & Thresholds `[ADDITIONAL]`**: The fortress SP pool is a progress meter which unlocks milestones at 100 SP (Level 0 Recruit), 150 SP (Level 1 Specialisations), 250 SP (Level 2 Veterans), 400 SP (Level 3 Masters), and 500 SP (Ultimate Skill).
+* **5.5 Milestone Unlocks & Thresholds `[ADDITIONAL]`**: The fortress SP pool is a progress meter which unlocks milestones at 100 SP (Level 0 Recruit), 250 SP (Level 1 Apprentice), 350 SP (Level 2 Veteran), 400 SP (Level 3 Master), and 500 SP (Ultimate Skill).
 * **5.6 Milestone Re-Locking & Regression `[ADDITIONAL]`**: If an attack puts your SP pool below an active milestone, that tier in the skill tree locks again until you regain enough SP to reach the milestone threshold.
 
 ### 6. Game Objectives & Views
@@ -79,7 +79,7 @@ The core features represent the minimal **`[REQUIRED]`** systems targeted to tes
 
 | Core Feature | Lead Member | Targeted Prototype Scope (CW1) |
 | :--- | :--- | :--- |
-| **1. Placement System `[REQUIRED]`** | **Dennis** | Place Level 0 recruits onto the battlefield for a 10 SP fee, making sure the fixed maximum limit works. |
+| **1. Placement System `[REQUIRED]`** | **Dennis** | Place Level 0 recruits onto the battlefield for a 20 SP fee, making sure the fixed maximum limit works. |
 | **2. Pathing & Navigation `[REQUIRED]`** | **Dennis** | Enemies spawn at the edge of the map and walk along grid paths to the centre fortress. |
 | **3. Targeting & Combat `[REQUIRED]`** | **Aidan** | Level 0 recruits fight incoming enemies by throwing stones to defend the path and eliminate enemy health bars. |
 | **4. Enemy Swarms `[REQUIRED]`** | **Adam** | Grunt infantry attack in groups on the path toward the fortress. |

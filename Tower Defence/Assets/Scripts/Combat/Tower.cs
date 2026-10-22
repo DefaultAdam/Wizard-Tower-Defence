@@ -9,6 +9,16 @@ public enum TargetPriority
     Weakest
 }
 
+// specialisation branch choices
+public enum Branch
+{
+    None,
+    Physical,
+    Mechanic,
+    Magic,
+    Imaginary
+}
+
 // tower combat and attack script
 public class Tower : MonoBehaviour
 {
@@ -17,6 +27,8 @@ public class Tower : MonoBehaviour
     public float damage = 25f; // damage dealt per attack
 
     public float damagePerWave = 5f; // extra damage gained each round
+    public float aoeRadius = 0f; // splash attack radius
+    public float aoeDamagePercent = 0.5f; // splash damage percentage
     public TargetPriority targetPriority = TargetPriority.Closest; // targeting priority criteria
 
     public GameObject projectilePrefab; // projectile prefab to shoot
@@ -24,18 +36,212 @@ public class Tower : MonoBehaviour
     public Transform towerHead; // rotating part of the tower
     public float rotationSpeed = 10f; // rotation speed towards target
 
+    public Branch branch = Branch.None; // chosen specialisation branch
+    public int level = 0; // troop level tier
+
     private float cooldownTimer = 0f; // timer to track attack cooldown
     private GameObject currentTarget; // current target enemy
+
+    // apply troop colour on start
+    void Start()
+    {
+        ApplyColour();
+    }
+
+    // get colour for a specialisation branch
+    public Color GetBranchColour()
+    {
+        if (branch == Branch.Physical)
+        {
+            return new Color(0.78f, 0.6f, 0.42f);
+        }
+
+        if (branch == Branch.Mechanic)
+        {
+            return new Color(0.45f, 0.56f, 0.68f);
+        }
+
+        if (branch == Branch.Magic)
+        {
+            return new Color(0.6f, 0.3f, 0.85f);
+        }
+
+        if (branch == Branch.Imaginary)
+        {
+            return new Color(1f, 0.85f, 0.2f);
+        }
+
+        return Color.white;
+    }
+
+    // apply branch colour to all troop renderers
+    public void ApplyColour()
+    {
+        Color colour = GetBranchColour();
+
+        foreach (Renderer troopRenderer in GetComponentsInChildren<Renderer>())
+        {
+            troopRenderer.material.color = colour;
+        }
+    }
+
+    // upgrade recruit to apprentice branch with upgraded combat stats
+    public void UpgradeToApprentice(Branch newBranch, Tower apprenticeTemplate)
+    {
+        branch = newBranch;
+        level = 1;
+
+        if (apprenticeTemplate != null)
+        {
+            attackRange = apprenticeTemplate.attackRange;
+            attackCooldown = apprenticeTemplate.attackCooldown;
+            damage = apprenticeTemplate.damage;
+            damagePerWave = apprenticeTemplate.damagePerWave;
+            aoeRadius = apprenticeTemplate.aoeRadius;
+            aoeDamagePercent = apprenticeTemplate.aoeDamagePercent;
+        }
+        else
+        {
+            attackRange = 7f;
+            attackCooldown = 2f;
+            damage = 35f;
+            damagePerWave = 5f;
+            aoeRadius = 2f;
+            aoeDamagePercent = 0.5f;
+        }
+
+        ApplyColour();
+    }
+
+    // upgrade recruit to apprentice branch
+    public void UpgradeToApprentice(Branch newBranch)
+    {
+        UpgradeToApprentice(newBranch, null);
+    }
+
+    // upgrade apprentice to veteran with upgraded stats
+    public void UpgradeToVeteran(Tower veteranTemplate)
+    {
+        level = 2;
+
+        if (veteranTemplate != null)
+        {
+            attackRange = veteranTemplate.attackRange * 1.25f;
+            attackCooldown = veteranTemplate.attackCooldown * 0.75f;
+            damage = veteranTemplate.damage * 1.5f;
+            damagePerWave = veteranTemplate.damagePerWave * 1.5f;
+            aoeRadius = veteranTemplate.aoeRadius * 1.25f;
+            aoeDamagePercent = veteranTemplate.aoeDamagePercent;
+        }
+        else
+        {
+            attackRange = 8.5f;
+            attackCooldown = 1.5f;
+            damage = 50f;
+            damagePerWave = 7.5f;
+            aoeRadius = 2.5f;
+            aoeDamagePercent = 0.5f;
+        }
+
+        ApplyColour();
+    }
+
+    // upgrade veteran to master with upgraded stats
+    public void UpgradeToMaster(Tower masterTemplate)
+    {
+        if (masterTemplate != null)
+        {
+            attackRange = masterTemplate.attackRange;
+            attackCooldown = masterTemplate.attackCooldown;
+            damage = masterTemplate.damage;
+            damagePerWave = masterTemplate.damagePerWave;
+        }
+
+        level = 3;
+        ApplyColour();
+    }
+
+    // get display name for troop
+    public string GetTroopName()
+    {
+        if (level <= 0)
+        {
+            return "Recruit";
+        }
+
+        if (branch == Branch.None)
+        {
+            if (level == 1)
+            {
+                return "Apprentice";
+            }
+
+            if (level == 2)
+            {
+                return "Veteran";
+            }
+
+            if (level == 3)
+            {
+                return "Master";
+            }
+
+            return "Recruit";
+        }
+
+        if (level == 1)
+        {
+            return branch + " Apprentice";
+        }
+
+        if (level == 2)
+        {
+            return branch + " Veteran";
+        }
+
+        if (level == 3)
+        {
+            return branch + " Master";
+        }
+
+        return branch + " Recruit";
+    }
+
+    // get current damage including wave bonus
+    public float GetCurrentDamage()
+    {
+        float totalDamage = damage;
+
+        if (HUD.instance != null && HUD.instance.currentWave > 1)
+        {
+            totalDamage += (HUD.instance.currentWave - 1) * damagePerWave;
+        }
+
+        return totalDamage;
+    }
+
+    // get combat stats text for display
+    public string GetStatsText()
+    {
+        string text = "Damage: " + GetCurrentDamage() + "\nFire Rate: " + attackCooldown + "s\nRange: " + attackRange;
+
+        if (aoeRadius > 0f)
+        {
+            text += "\nSplash: " + aoeRadius;
+        }
+
+        return text;
+    }
 
     // update target tracking and attack cooldown
     void Update()
     {
-        if (currentTarget != null && !IsTargetValid())
+        if (cooldownTimer > 0f)
         {
-            currentTarget = null;
+            cooldownTimer -= Time.deltaTime;
         }
 
-        if (currentTarget == null)
+        if (!IsTargetValid(currentTarget))
         {
             FindTarget();
         }
@@ -43,35 +249,30 @@ public class Tower : MonoBehaviour
         if (currentTarget != null)
         {
             RotateTowardsTarget();
-        }
 
-        if (cooldownTimer > 0f)
-        {
-            cooldownTimer -= Time.deltaTime;
-        }
-
-        if (cooldownTimer <= 0f && currentTarget != null)
-        {
-            Attack(currentTarget);
+            if (cooldownTimer <= 0f)
+            {
+                Attack(currentTarget);
+            }
         }
     }
 
     // check if current target is alive and in range
-    bool IsTargetValid()
+    bool IsTargetValid(GameObject target)
     {
-        if (currentTarget == null)
+        if (target == null)
         {
             return false;
         }
 
-        Health enemyHealth = currentTarget.GetComponent<Health>();
+        Health enemyHealth = target.GetComponent<Health>();
 
         if (enemyHealth != null && enemyHealth.isDead)
         {
             return false;
         }
 
-        float distance = Vector3.Distance(transform.position, currentTarget.transform.position);
+        float distance = Vector3.Distance(transform.position, target.transform.position);
 
         if (distance > attackRange)
         {
@@ -212,14 +413,9 @@ public class Tower : MonoBehaviour
 
             if (projectile != null)
             {
-                float totalDamage = damage;
-
-                if (HUD.instance != null && HUD.instance.currentWave > 1)
-                {
-                    totalDamage += (HUD.instance.currentWave - 1) * damagePerWave;
-                }
-
-                projectile.damage = totalDamage;
+                projectile.damage = GetCurrentDamage();
+                projectile.aoeRadius = aoeRadius;
+                projectile.aoeDamagePercent = aoeDamagePercent;
                 projectile.SetTarget(target.transform);
             }
         }

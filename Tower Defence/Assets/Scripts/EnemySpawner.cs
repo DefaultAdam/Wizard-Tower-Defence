@@ -4,6 +4,11 @@ using UnityEngine;
 public class EnemySpawner : MonoBehaviour
 {
     public GameObject enemyPrefab; // enemy prefab to spawn
+    public GameObject sprintPrefab;
+    public GameObject juggernautPrefab;
+    public int sprintStartWave = 3;
+    public int juggernautStartWave = 5;
+    public int healthScalingStartWave = 3; // wave when enemy health increase begins
     public Grid grid; // reference to grid
     public float timeBetweenWaves = 3f; // countdown between waves in seconds
     public float spawnInterval = 0.4f; // seconds between individual enemy spawns
@@ -206,7 +211,10 @@ public class EnemySpawner : MonoBehaviour
                 healthIncrease = levelOneHealthBonus;
             }
 
-            currentEnemyHealth += healthIncrease;
+            if (currentWave >= healthScalingStartWave)
+            {
+                currentEnemyHealth += healthIncrease;
+            }
         }
     }
 
@@ -221,6 +229,39 @@ public class EnemySpawner : MonoBehaviour
                 enemiesLeftToSpawn--;
             }
         }
+    }
+
+    // choose enemy prefab based on current wave probabilities
+    GameObject ChooseEnemyPrefab()
+    {
+        if (currentWave < sprintStartWave)
+        {
+            return enemyPrefab;
+        }
+
+        float roll = Random.value;
+
+        if (currentWave < juggernautStartWave)
+        {
+            if (sprintPrefab != null && roll < 0.50f)
+            {
+                return sprintPrefab;
+            }
+
+            return enemyPrefab;
+        }
+
+        if (juggernautPrefab != null && roll < 0.20f)
+        {
+            return juggernautPrefab;
+        }
+
+        if (sprintPrefab != null && roll < 0.525f)
+        {
+            return sprintPrefab;
+        }
+
+        return enemyPrefab;
     }
 
     // spawn single enemy on path
@@ -239,14 +280,36 @@ public class EnemySpawner : MonoBehaviour
         }
 
         Vector3 spawnPosition = grid.GetCellCenter(path[0]);
-        GameObject enemyObject = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+        GameObject enemyObject = Instantiate(ChooseEnemyPrefab(), spawnPosition, Quaternion.identity);
 
         Health enemyHealth = enemyObject.GetComponent<Health>();
+        Enemy enemyScript = enemyObject.GetComponent<Enemy>();
 
         if (enemyHealth != null)
         {
-            enemyHealth.maxHealth = currentEnemyHealth;
-            enemyHealth.currentHealth = currentEnemyHealth;
+            float totalHealth = currentEnemyHealth;
+
+            if (enemyScript != null)
+            {
+                totalHealth = enemyScript.baseHealth;
+
+                // standard enemies begin scaling from round three
+                if (enemyScript.startWave <= 1)
+                {
+                    if (currentWave >= healthScalingStartWave)
+                    {
+                        totalHealth += (currentWave - healthScalingStartWave + 1) * enemyScript.healthPerWave;
+                    }
+                }
+                // special enemies start at base health on their first wave and scale thereafter
+                else if (currentWave > enemyScript.startWave)
+                {
+                    totalHealth += (currentWave - enemyScript.startWave) * enemyScript.healthPerWave;
+                }
+            }
+
+            enemyHealth.maxHealth = totalHealth;
+            enemyHealth.currentHealth = totalHealth;
         }
 
         EnemyMovement movement = enemyObject.GetComponent<EnemyMovement>();
