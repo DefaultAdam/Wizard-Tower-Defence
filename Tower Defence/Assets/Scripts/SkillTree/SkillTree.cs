@@ -105,6 +105,39 @@ public class SkillTree : MonoBehaviour
         return recruitColour;
     }
 
+    // check if a troop can be upgraded to a branch tier and give reason if not
+    public bool CanUpgradeTroop(Tower tower, Branch branch, int targetLevel, out string reason)
+    {
+        reason = "";
+
+        if (tower == null || tower.level != targetLevel - 1)
+        {
+            reason = "Unavailable";
+            return false;
+        }
+
+        if (targetLevel >= 2 && tower.branch != branch)
+        {
+            reason = "Wrong path";
+            return false;
+        }
+
+        if (GetCurrentSP() < GetUnlockSP(targetLevel))
+        {
+            reason = "Needs " + GetUnlockSP(targetLevel) + " SP milestone";
+            return false;
+        }
+
+        if (GetCurrentSP() < GetUpgradeCost(targetLevel))
+        {
+            reason = "Not enough SP";
+            return false;
+        }
+
+        reason = GetUpgradeCost(targetLevel) + " SP";
+        return true;
+    }
+
     // get display text for a level tier
     public static string GetLevelName(int level)
     {
