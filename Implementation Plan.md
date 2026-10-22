@@ -5,8 +5,22 @@
 * **Control Style:** The player does not control a character directly. Gameplay alternates between two views:
   1. **Battlefield View:** Watch incoming enemy waves, place apprentices, build barriers, combine units, and protect the fortress.
   2. **Skill Tree View:** Spend Skill Points (SP) to unlock new apprentices.
-* **Win Condition:** Purchase the **Ultimate Skill (500 SP)** at the top of the skill tree to destroy the Dark Evil Wizard.
+* **Win Condition:** Purchase the **Ultimate Skill (500 SP)** to destroy the Dark Evil Wizard.
 * **Loss Condition:** Enemy attacks drain your SP pool down to **`0 SP`**, destroying the fortress (Game Over).
+
+---
+
+## 1.1 Core Feature Responsibilities
+
+| Core Feature | Lead Member | Targeted Prototype Scope (CW1) |
+| :--- | :--- | :--- |
+| **1. Placement System `[REQUIRED]`** | **Dennis** | Place Level 0 recruits onto the battlefield for a 20 SP fee, making sure the fixed maximum limit works. |
+| **2. Pathing & Navigation `[REQUIRED]`** | **Dennis** | Enemies spawn at the edge of the map and walk along grid paths to the centre fortress. |
+| **3. Targeting & Combat `[REQUIRED]`** | **Adam** | Level 0 recruits fight incoming enemies by throwing stones to defend the path and eliminate enemy health bars. |
+| **4. Enemy Swarms `[REQUIRED]`** | **Adam** | Grunt infantry attack in groups on the path toward the fortress. |
+| **5. Attack & Loss Condition `[REQUIRED]`** | **Adam** | Enemies reaching the fortress deduct SP and die instantly. Reaching 0 SP destroys the fortress (Game Over). |
+| **6. SP Economy Pool `[REQUIRED]`** | **Adam** | Fortress SP pool (100 Base), where kills on battlefield award SP and placement/attacks deduct SP. |
+| **7. Skill Tree & Troop Upgrades `[REQUIRED]`** | **Adam** | Adds depth and progression. Four different specialisations with upgrades and milestone to unlock to keep the game engaging. |
 
 ---
 
@@ -67,7 +81,7 @@ flowchart TD
     end
 
     subgraph Breaches ["Breach Damage (Instant Despawn)"]
-        BreachDrain["Sprint: -5 SP | Grunt: -8 SP\nDisrupt: -12 SP | Juggernaut: -20 SP"]
+        BreachDrain["Sprint: -5 SP | Grunt: -8 SP\nDisrupt: -12 SP | Juggernaut: -25 SP"]
     end
 
     Kills -->|"+SP"| Fortress
@@ -91,6 +105,8 @@ flowchart TD
 1. **Recruit Placement Cost (Bench or Field):**
    * Placing any Level 0 Recruit costs **20 SP** (deducted from the fortress pool).
    * Starting with 100 SP, hiring your first recruit leaves **80 SP** of fortress health.
+   * Placing a Level 2 Veteran directly costs **150 SP** (unlocked at 350 SP milestone).
+   * **Placement Buffer Rule:** You cannot place a unit if remaining SP is less than or equal to the placement cost.
 2. **Enemy Kill Rewards vs. Bench Generation:**
    * Keeping your recruit on the bench won't let you use them but they will generate $1.5\times$ the SP. How each enemy impacts SP pool/health: 
 
@@ -99,7 +115,7 @@ flowchart TD
 | **`Sprint`** (Fast runner) | **$-5$ SP** | **$+2$ SP** | **$+3$ SP** *(Clean integer)* |
 | **`Grunt`** (Standard swarmer) | **$-8$ SP** | **$+4$ SP** | **$+6$ SP** *(Clean integer)* |
 | **`Disrupt`** (Anti-magic) | **$-12$ SP** | **$+8$ SP** | **$+12$ SP** *(Clean integer)* |
-| **`Juggernaut`** (Heavy siege) | **$-20$ SP** | **$+16$ SP** | **$+24$ SP** *(Clean integer)* |
+| **`Juggernaut`** (Heavy siege) | **$-25$ SP** | **$+20$ SP** | **$+30$ SP** *(Clean integer)* |
 
 * **The Strategic Element:**
   * **On the field:** Recruits defend the path, preventing attacks.
@@ -131,7 +147,7 @@ Once a tier is unlocked in your skill tree, you pay a fee per apprentice to upgr
 ---
 
 ### C. Attacks & Skill Regression
-* When enemies attack the fortress, they deduct SP directly from the pool (Sprint $-5$, Grunt $-8$, Disrupt $-12$, Juggernaut $-20$).
+* When enemies attack the fortress, they deduct SP directly from the pool (Sprint $-5$, Grunt $-8$, Disrupt $-12$, Juggernaut $-25$).
 * **Milestone Re-Locking:**
   * If an attack puts your SP pool below an active milestone (e.g., from 152 SP down to 144 SP), that tier in the skill tree locks again until you regain enough SP to reach 150 SP.
 * **LIFO Regression on Negative SP:**
@@ -145,7 +161,7 @@ Once a tier is unlocked in your skill tree, you pay a fee per apprentice to upgr
 
 ## 3. The 4 Apprentices
 
-### A. The 4 Level 1 Specialisations (Unlocked at 150 SP, 25 SP Fee)
+### A. The 4 Level 1 Specialisations (Unlocked at 250 SP Milestone, 25 SP Path Fee)
 
 | Magic Type | Combat Role | Level 1 Spell Behaviour | Best Strategic Use |
 | :--- | :--- | :--- | :--- |
@@ -156,9 +172,10 @@ Once a tier is unlocked in your skill tree, you pay a fee per apprentice to upgr
 
 ### B. Apprentice Deployment Rules
 * **Bench:** Recruits wait on the bench. While unplaced, they generate an increased amount of SP.
-* **Direct Placement:** You can place Level 0 recruits directly onto the battlefield for a 20 SP fee. They fight by throwing stones.
-* **Field Upgrades:** You can upgrade apprentices directly on the battlefield by paying their small upgrade fee (100 SP for Lvl 1, 150 SP for Lvl 2, 200 SP for Lvl 3).
-* **Apprentice Limits:** There is a fixed maximum limit of apprentices you can place on the battlefield and bench.
+* **Direct Placement:** You can place Level 0 recruits directly onto the battlefield for a 20 SP fee. They fight by throwing stones. Level 2 Veterans can also be placed directly for 150 SP once unlocked.
+* **Field Upgrades:** You can upgrade apprentices directly on the battlefield by paying their small upgrade fee (100 SP for Lvl 1, 150 SP for Lvl 2, 200 SP for Lvl 3) after unlocking the branch path in the skill tree (25 SP for Lvl 1, 50 SP for Lvl 2).
+* **Apprentice Limits:** There is a dynamic maximum limit of apprentices you can place on the battlefield that scales with waves (`Wave + 4`, up to 25).
+* **Area of Effect Splash:** Level 2 Veterans throw boulders dealing area splash damage (2.0 to 2.5 radius, 50% splash damage).
 * **Apprentices Can't Die:** Once placed on the battlefield, apprentices don't die. But can be locked if they aren't in the right milestone. 
 
 ---
@@ -211,7 +228,7 @@ When an enemy reaches the fortress, it does attack damage directly against the S
 | **`Sprint`** | **5 SP** | Fast but fragile. Requires 20 solo attacks to drain the base 100 SP alone. |
 | **`Grunt`** | **8 SP** | Standard infantry swarmer. A dense swarm reaching the fortress quickly drains SP. |
 | **`Disrupt`** | **12 SP** | Anti-magic explodes upon reaching the fortress, dealing medium-high SP damage. |
-| **`Juggernaut`** | **20 SP** | Massive ram. Dangerous threat that drains 20 SP per attack (5 attacks destroy the fortress). |
+| **`Juggernaut`** | **25 SP** | Massive ram. Dangerous threat that drains 25 SP per attack (4 attacks destroy the fortress). |
 
 ---
 
@@ -252,3 +269,12 @@ Enemy health increases from **Round 3**, and then steadily gains difficulty:
 * **Standard (Grunt):** 2.0 units/s
 * **Sprint:** 4.0 units/s
 * **Juggernaut:** 1.25 units/s
+
+### D. Wave Spawner Mechanics
+* **Spawn Intervals:** Begins at 0.4s and reduces by 0.05s per wave down to a 0.15s minimum.
+* **Group Sizing:** Group size increases by +1 every 2 waves (`currentWave % 2 == 0`).
+* **Wave Enemy Count Bonus Scaling:**
+  * Waves 1–4: +2 extra enemies per wave.
+  * Waves 5–9: +3 extra enemies per wave.
+  * Waves 10–14: +4 extra enemies per wave.
+  * Waves 15+: +5 extra enemies per wave.
