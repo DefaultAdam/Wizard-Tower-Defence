@@ -93,6 +93,17 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
+        if (SkillTreeUI.instance != null && SkillTreeUI.instance.isOpen)
+        {
+            hoveredTower = null;
+
+            if (highlight != null)
+            {
+                highlight.enabled = false;
+            }
+            return;
+        }
+
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
         {
             CancelPlacement();
