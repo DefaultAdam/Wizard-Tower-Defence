@@ -26,6 +26,85 @@ public class SkillTree : MonoBehaviour
         instance = this;
     }
 
+    // get current sp from hud
+    public int GetCurrentSP()
+    {
+        if (HUD.instance == null)
+        {
+            return 0;
+        }
+
+        return HUD.instance.currentSP;
+    }
+
+    // get sp milestone needed for a level
+    public int GetUnlockSP(int level)
+    {
+        if (level == 1)
+        {
+            return apprenticeUnlockSP;
+        }
+
+        if (level == 2)
+        {
+            return veteranUnlockSP;
+        }
+
+        if (level == 3)
+        {
+            return masterUnlockSP;
+        }
+
+        return 0;
+    }
+
+    // get fee to upgrade a troop to a level
+    public int GetUpgradeCost(int level)
+    {
+        if (level == 1)
+        {
+            return apprenticeUpgradeCost;
+        }
+
+        if (level == 2)
+        {
+            return veteranUpgradeCost;
+        }
+
+        if (level == 3)
+        {
+            return masterUpgradeCost;
+        }
+
+        return 0;
+    }
+
+    // get display colour for a branch
+    public Color GetBranchColour(Branch branch)
+    {
+        if (branch == Branch.Physical)
+        {
+            return physicalColour;
+        }
+
+        if (branch == Branch.Mechanic)
+        {
+            return mechanicColour;
+        }
+
+        if (branch == Branch.Magic)
+        {
+            return magicColour;
+        }
+
+        if (branch == Branch.Imaginary)
+        {
+            return imaginaryColour;
+        }
+
+        return recruitColour;
+    }
+
     // get display text for a level tier
     public static string GetLevelName(int level)
     {
