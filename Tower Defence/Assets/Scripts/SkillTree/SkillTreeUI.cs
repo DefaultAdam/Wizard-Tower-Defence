@@ -98,5 +98,14 @@ public class SkillTreeUI : MonoBehaviour
     // update window display elements
     public void RefreshWindow()
     {
+        if (SkillTree.instance == null)
+        {
+            return;
+        }
+
+        if (spText != null)
+        {
+            spText.text = "SP: " + SkillTree.instance.GetCurrentSP();
+        }
     }
 }
