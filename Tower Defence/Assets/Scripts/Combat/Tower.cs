@@ -83,6 +83,29 @@ public class Tower : MonoBehaviour
         }
     }
 
+    // upgrade recruit to apprentice branch
+    public void UpgradeToApprentice(Branch newBranch)
+    {
+        branch = newBranch;
+        level = 1;
+        ApplyColour();
+    }
+
+    // upgrade apprentice to veteran with upgraded stats
+    public void UpgradeToVeteran(Tower veteranTemplate)
+    {
+        if (veteranTemplate != null)
+        {
+            attackRange = veteranTemplate.attackRange;
+            attackCooldown = veteranTemplate.attackCooldown;
+            damage = veteranTemplate.damage;
+            damagePerWave = veteranTemplate.damagePerWave;
+        }
+
+        level = 2;
+        ApplyColour();
+    }
+
     // update target tracking and attack cooldown
     void Update()
     {
