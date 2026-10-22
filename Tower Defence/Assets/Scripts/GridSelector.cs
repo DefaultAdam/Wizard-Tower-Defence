@@ -20,6 +20,9 @@ public class GridSelector : MonoBehaviour
     public int placedTowers = 0;
     public bool isPlacing = false;
 
+    private Tower hoveredTower; // troop currently under the mouse
+    private Tower selectedTower; // troop clicked for upgrades
+
     // initialise instance on awake
     private void Awake()
     {
@@ -163,6 +166,27 @@ public class GridSelector : MonoBehaviour
 
             TryPlaceTower(cell, center);
         }
+    }
+
+    // find closest troop hit by the mouse ray
+    Tower GetTowerUnderMouse(Ray ray)
+    {
+        RaycastHit[] hits = Physics.RaycastAll(ray, 1000f);
+        Tower closestTower = null;
+        float closestDistance = float.MaxValue;
+
+        foreach (RaycastHit hit in hits)
+        {
+            Tower tower = hit.collider.GetComponentInParent<Tower>();
+
+            if (tower != null && hit.distance < closestDistance)
+            {
+                closestDistance = hit.distance;
+                closestTower = tower;
+            }
+        }
+
+        return closestTower;
     }
 
     // start tower placement mode and display recruit inspector
