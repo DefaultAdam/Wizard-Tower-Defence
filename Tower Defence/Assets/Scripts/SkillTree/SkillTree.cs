@@ -138,6 +138,47 @@ public class SkillTree : MonoBehaviour
         return true;
     }
 
+    // spend sp to upgrade a placed troop
+    public bool TryUpgradeTroop(Tower tower, Branch branch, int targetLevel)
+    {
+        string reason;
+
+        if (!CanUpgradeTroop(tower, branch, targetLevel, out reason))
+        {
+            return false;
+        }
+
+        int cost = GetUpgradeCost(targetLevel);
+
+        if (HUD.instance != null)
+        {
+            HUD.instance.DeductSP(cost);
+            HUD.instance.ShowDeduction(cost);
+        }
+
+        if (targetLevel == 1)
+        {
+            tower.UpgradeToApprentice(branch);
+        }
+        else if (targetLevel == 2)
+        {
+            Tower veteranTemplate = null;
+
+            if (GridSelector.instance != null && GridSelector.instance.veteranPrefab != null)
+            {
+                veteranTemplate = GridSelector.instance.veteranPrefab.GetComponent<Tower>();
+            }
+
+            tower.UpgradeToVeteran(veteranTemplate);
+        }
+        else if (targetLevel == 3)
+        {
+            tower.UpgradeToMaster(null);
+        }
+
+        return true;
+    }
+
     // get display text for a level tier
     public static string GetLevelName(int level)
     {
