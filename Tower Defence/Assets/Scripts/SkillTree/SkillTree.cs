@@ -79,6 +79,101 @@ public class SkillTree : MonoBehaviour
         return 0;
     }
 
+    // check if a branch path has been unlocked in the skill tree for a level
+    public bool IsPathUnlocked(Branch branch, int level)
+    {
+        if (level <= 0)
+        {
+            return true;
+        }
+
+        if (branch == Branch.None)
+        {
+            return false;
+        }
+
+        if (level == 1)
+        {
+            return apprenticeUnlocked[(int)branch];
+        }
+
+        if (level == 2)
+        {
+            return veteranUnlocked[(int)branch];
+        }
+
+        return false;
+    }
+
+    // check if a skill tree path can be unlocked and give the reason if not
+    public bool CanUnlockPath(Branch branch, int level, out string reason)
+    {
+        reason = "";
+
+        if (branch == Branch.None || level < 1 || level > 2)
+        {
+            reason = "Unavailable";
+            return false;
+        }
+
+        if (IsPathUnlocked(branch, level))
+        {
+            reason = "Unlocked";
+            return false;
+        }
+
+        if (level == 2 && !IsPathUnlocked(branch, 1))
+        {
+            reason = "Needs Level 1";
+            return false;
+        }
+
+        if (GetCurrentSP() < GetUnlockSP(level))
+        {
+            reason = "Needs " + GetUnlockSP(level) + " SP milestone";
+            return false;
+        }
+
+        if (GetCurrentSP() < GetPathCost(level))
+        {
+            reason = "Not enough SP";
+            return false;
+        }
+
+        reason = "Unlock: " + GetPathCost(level) + " SP";
+        return true;
+    }
+
+    // spend sp to unlock a skill tree path
+    public bool TryUnlockPath(Branch branch, int level)
+    {
+        string reason;
+
+        if (!CanUnlockPath(branch, level, out reason))
+        {
+            return false;
+        }
+
+        int cost = GetPathCost(level);
+
+        if (HUD.instance != null)
+        {
+            HUD.instance.DeductSP(cost);
+            HUD.instance.ShowDeduction(cost);
+        }
+
+        if (level == 1)
+        {
+            apprenticeUnlocked[(int)branch] = true;
+        }
+        else if (level == 2)
+        {
+            veteranUnlocked[(int)branch] = true;
+        }
+
+        return true;
+    }
+
     // get fee to upgrade a troop to a level
     public int GetUpgradeCost(int level)
     {
@@ -140,6 +235,12 @@ public class SkillTree : MonoBehaviour
         if (targetLevel >= 2 && tower.branch != branch)
         {
             reason = "Wrong path";
+            return false;
+        }
+
+        if (!IsPathUnlocked(branch, targetLevel))
+        {
+            reason = "Path locked in tree";
             return false;
         }
 
