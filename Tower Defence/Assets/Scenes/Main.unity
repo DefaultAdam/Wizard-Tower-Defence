@@ -123648,9 +123648,9 @@ MonoBehaviour:
   highlight: {fileID: 4000000003}
   outlineWidth: 0.35
   towerPrefab: {fileID: 6120485918239021834, guid: 7841687039834e0aa63fd836212acac6, type: 3}
-  placementCost: 10
+  placementCost: 20
   veteranPrefab: {fileID: 6120485918239021834, guid: e43f48fd996f42e9a31d738ac2ecf888, type: 3}
-  veteranCost: 50
+  veteranCost: 100
   veteranUnlockSP: 250
   selectedTroopIndex: 0
   maxTowers: 5
