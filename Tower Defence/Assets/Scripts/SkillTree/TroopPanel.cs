@@ -28,6 +28,38 @@ public class TroopPanel : MonoBehaviour
         instance = this;
     }
 
+    // check inspected troop each frame and toggle panel
+    void Update()
+    {
+        Tower tower = null;
+
+        if (GridSelector.instance != null && !GridSelector.instance.isPlacing)
+        {
+            tower = GridSelector.instance.GetInspectedTower();
+        }
+
+        if (tower == null)
+        {
+            if (panel != null && panel.activeSelf)
+            {
+                panel.SetActive(false);
+            }
+            return;
+        }
+
+        if (panel != null && !panel.activeSelf)
+        {
+            panel.SetActive(true);
+        }
+
+        Refresh(tower);
+    }
+
+    // update panel content for the inspected troop
+    void Refresh(Tower tower)
+    {
+    }
+
     // set up button listeners on start
     void Start()
     {
