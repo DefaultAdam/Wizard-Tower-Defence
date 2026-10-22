@@ -211,7 +211,14 @@ public class Tower : MonoBehaviour
     // get combat stats text for display
     public string GetStatsText()
     {
-        return "Damage: " + GetCurrentDamage() + "\nFire Rate: " + attackCooldown + "s\nRange: " + attackRange;
+        string text = "Damage: " + GetCurrentDamage() + "\nFire Rate: " + attackCooldown + "s\nRange: " + attackRange;
+
+        if (aoeRadius > 0f)
+        {
+            text += "\nSplash: " + aoeRadius;
+        }
+
+        return text;
     }
 
     // update target tracking and attack cooldown
