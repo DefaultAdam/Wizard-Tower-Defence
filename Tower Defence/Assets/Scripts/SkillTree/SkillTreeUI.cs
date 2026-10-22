@@ -1,0 +1,272 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+// skill tree window ui controller
+public class SkillTreeUI : MonoBehaviour
+{
+    public static SkillTreeUI instance; // static reference to skill tree ui
+
+    public GameObject window; // full screen skill tree window root
+    public Text spText; // window sp pool display
+    public Button openButton; // button to open skill tree window
+    public Button closeButton; // button to close skill tree window
+    public KeyCode toggleKey = KeyCode.Tab; // keyboard shortcut to toggle skill tree window
+    public bool isOpen = false; // current window open state
+
+    public Button physicalApprenticeButton; // button to unlock physical apprentice
+    public Button mechanicApprenticeButton; // button to unlock mechanic apprentice
+    public Button magicApprenticeButton; // button to unlock magic apprentice
+    public Button imaginaryApprenticeButton; // button to unlock imaginary apprentice
+
+    public Text physicalApprenticeText; // text display for physical apprentice button
+    public Text mechanicApprenticeText; // text display for mechanic apprentice button
+    public Text magicApprenticeText; // text display for magic apprentice button
+    public Text imaginaryApprenticeText; // text display for imaginary apprentice button
+
+    public Button physicalVeteranButton; // button to unlock physical veteran
+    public Button mechanicVeteranButton; // button to unlock mechanic veteran
+    public Button magicVeteranButton; // button to unlock magic veteran
+    public Button imaginaryVeteranButton; // button to unlock imaginary veteran
+
+    public Text physicalVeteranText; // text display for physical veteran button
+    public Text mechanicVeteranText; // text display for mechanic veteran button
+    public Text magicVeteranText; // text display for magic veteran button
+    public Text imaginaryVeteranText; // text display for imaginary veteran button
+
+    // initialise instance on awake
+    void Awake()
+    {
+        instance = this;
+    }
+
+    // set up button click listeners on start
+    void Start()
+    {
+        if (openButton != null)
+        {
+            openButton.onClick.AddListener(Toggle);
+        }
+
+        if (closeButton != null)
+        {
+            closeButton.onClick.AddListener(Close);
+        }
+
+        if (physicalApprenticeButton != null)
+        {
+            physicalApprenticeButton.onClick.AddListener(UnlockPhysicalApprentice);
+        }
+
+        if (mechanicApprenticeButton != null)
+        {
+            mechanicApprenticeButton.onClick.AddListener(UnlockMechanicApprentice);
+        }
+
+        if (magicApprenticeButton != null)
+        {
+            magicApprenticeButton.onClick.AddListener(UnlockMagicApprentice);
+        }
+
+        if (imaginaryApprenticeButton != null)
+        {
+            imaginaryApprenticeButton.onClick.AddListener(UnlockImaginaryApprentice);
+        }
+
+        if (physicalVeteranButton != null)
+        {
+            physicalVeteranButton.onClick.AddListener(UnlockPhysicalVeteran);
+        }
+
+        if (mechanicVeteranButton != null)
+        {
+            mechanicVeteranButton.onClick.AddListener(UnlockMechanicVeteran);
+        }
+
+        if (magicVeteranButton != null)
+        {
+            magicVeteranButton.onClick.AddListener(UnlockMagicVeteran);
+        }
+
+        if (imaginaryVeteranButton != null)
+        {
+            imaginaryVeteranButton.onClick.AddListener(UnlockImaginaryVeteran);
+        }
+
+        if (window != null)
+        {
+            window.SetActive(false);
+        }
+    }
+
+    // handle toggle key and refresh open window
+    void Update()
+    {
+        if (Input.GetKeyDown(toggleKey))
+        {
+            Toggle();
+        }
+
+        if (isOpen)
+        {
+            RefreshWindow();
+        }
+    }
+
+    // open or close skill tree window
+    public void Toggle()
+    {
+        if (isOpen)
+        {
+            Close();
+        }
+        else
+        {
+            Open();
+        }
+    }
+
+    // open skill tree window and clear placement or selection
+    public void Open()
+    {
+        isOpen = true;
+
+        if (window != null)
+        {
+            window.SetActive(true);
+        }
+
+        if (GridSelector.instance != null)
+        {
+            GridSelector.instance.CancelPlacement();
+            GridSelector.instance.ClearSelection();
+        }
+
+        RefreshWindow();
+    }
+
+    // close skill tree window
+    public void Close()
+    {
+        isOpen = false;
+
+        if (window != null)
+        {
+            window.SetActive(false);
+        }
+    }
+
+    // update window display elements and node buttons
+    public void RefreshWindow()
+    {
+        SkillTree skillTree = SkillTree.instance;
+
+        if (skillTree == null)
+        {
+            return;
+        }
+
+        if (spText != null)
+        {
+            spText.text = "SP: " + skillTree.GetCurrentSP();
+        }
+
+        UpdateNodeButton(physicalApprenticeButton, physicalApprenticeText, Branch.Physical, 1);
+        UpdateNodeButton(mechanicApprenticeButton, mechanicApprenticeText, Branch.Mechanic, 1);
+        UpdateNodeButton(magicApprenticeButton, magicApprenticeText, Branch.Magic, 1);
+        UpdateNodeButton(imaginaryApprenticeButton, imaginaryApprenticeText, Branch.Imaginary, 1);
+
+        UpdateNodeButton(physicalVeteranButton, physicalVeteranText, Branch.Physical, 2);
+        UpdateNodeButton(mechanicVeteranButton, mechanicVeteranText, Branch.Mechanic, 2);
+        UpdateNodeButton(magicVeteranButton, magicVeteranText, Branch.Magic, 2);
+        UpdateNodeButton(imaginaryVeteranButton, imaginaryVeteranText, Branch.Imaginary, 2);
+    }
+
+    // update state and text for a tree node button
+    void UpdateNodeButton(Button button, Text label, Branch branch, int level)
+    {
+        if (button == null || SkillTree.instance == null)
+        {
+            return;
+        }
+
+        SkillTree skillTree = SkillTree.instance;
+        bool unlocked = skillTree.IsPathUnlocked(branch, level);
+        string reason;
+        bool canUnlock = skillTree.CanUnlockPath(branch, level, out reason);
+
+        if (unlocked)
+        {
+            button.interactable = false;
+            if (label != null)
+            {
+                label.text = SkillTree.GetTroopName(branch, level) + "\n(UNLOCKED)";
+            }
+        }
+        else
+        {
+            button.interactable = canUnlock;
+            if (label != null)
+            {
+                label.text = SkillTree.GetTroopName(branch, level) + "\n(" + reason + ")";
+            }
+        }
+    }
+
+    // unlock physical apprentice path
+    public void UnlockPhysicalApprentice()
+    {
+        TryUnlock(Branch.Physical, 1);
+    }
+
+    // unlock mechanic apprentice path
+    public void UnlockMechanicApprentice()
+    {
+        TryUnlock(Branch.Mechanic, 1);
+    }
+
+    // unlock magic apprentice path
+    public void UnlockMagicApprentice()
+    {
+        TryUnlock(Branch.Magic, 1);
+    }
+
+    // unlock imaginary apprentice path
+    public void UnlockImaginaryApprentice()
+    {
+        TryUnlock(Branch.Imaginary, 1);
+    }
+
+    // unlock physical veteran path
+    public void UnlockPhysicalVeteran()
+    {
+        TryUnlock(Branch.Physical, 2);
+    }
+
+    // unlock mechanic veteran path
+    public void UnlockMechanicVeteran()
+    {
+        TryUnlock(Branch.Mechanic, 2);
+    }
+
+    // unlock magic veteran path
+    public void UnlockMagicVeteran()
+    {
+        TryUnlock(Branch.Magic, 2);
+    }
+
+    // unlock imaginary veteran path
+    public void UnlockImaginaryVeteran()
+    {
+        TryUnlock(Branch.Imaginary, 2);
+    }
+
+    // attempt path unlock and refresh window
+    void TryUnlock(Branch branch, int level)
+    {
+        if (SkillTree.instance != null)
+        {
+            SkillTree.instance.TryUnlockPath(branch, level);
+            RefreshWindow();
+        }
+    }
+}

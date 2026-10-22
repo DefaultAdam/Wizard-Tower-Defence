@@ -11,14 +11,17 @@ public class GridSelector : MonoBehaviour
     public GameObject towerPrefab;
     public int placementCost = 20; // recruit placement cost
     public GameObject veteranPrefab; // veteran tower prefab
-    public int veteranCost = 100; // veteran placement cost
-    public int veteranUnlockSP = 250; // sp milestone needed to unlock veteran
+    public int veteranCost = 150; // veteran placement cost
+    public int veteranUnlockSP = 350; // sp milestone needed to unlock veteran
     public int selectedTroopIndex = 0; // selected troop index 0 for recruit 1 for veteran
     public int maxTowers = 5; // current maximum allowed towers
 
     public int maxTowerLimit = 25; // absolute maximum tower limit
     public int placedTowers = 0;
     public bool isPlacing = false;
+
+    private Tower hoveredTower; // troop currently under the mouse
+    private Tower selectedTower; // troop clicked for upgrades
 
     // initialise instance on awake
     private void Awake()
@@ -90,12 +93,29 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
+        if (SkillTreeUI.instance != null && SkillTreeUI.instance.isOpen)
+        {
+            hoveredTower = null;
+
+            if (highlight != null)
+            {
+                highlight.enabled = false;
+            }
+            return;
+        }
+
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
         {
             CancelPlacement();
+            ClearSelection();
         }
 
         Ray ray = sceneCamera.ScreenPointToRay(Input.mousePosition);
+
+        if (!isPlacing)
+        {
+            UpdateTroopSelection(ray);
+        }
 
         Plane gridPlane = new Plane(
             Vector3.up,
@@ -165,6 +185,67 @@ public class GridSelector : MonoBehaviour
         }
     }
 
+    // update hovered troop and select it on click
+    void UpdateTroopSelection(Ray ray)
+    {
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
+        hoveredTower = GetTowerUnderMouse(ray);
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            selectedTower = hoveredTower;
+        }
+    }
+
+    // find closest troop hit by the mouse ray
+    Tower GetTowerUnderMouse(Ray ray)
+    {
+        RaycastHit[] hits = Physics.RaycastAll(ray, 1000f);
+        Tower closestTower = null;
+        float closestDistance = float.MaxValue;
+
+        foreach (RaycastHit hit in hits)
+        {
+            Tower tower = hit.collider.GetComponentInParent<Tower>();
+
+            if (tower != null && hit.distance < closestDistance)
+            {
+                closestDistance = hit.distance;
+                closestTower = tower;
+            }
+        }
+
+        return closestTower;
+    }
+
+    // get selected troop or hovered troop if none is selected
+    public Tower GetInspectedTower()
+    {
+        if (selectedTower != null)
+        {
+            return selectedTower;
+        }
+
+        return hoveredTower;
+    }
+
+    // get troop clicked for upgrades
+    public Tower GetSelectedTower()
+    {
+        return selectedTower;
+    }
+
+    // clear hovered and selected troop
+    public void ClearSelection()
+    {
+        hoveredTower = null;
+        selectedTower = null;
+    }
+
     // start tower placement mode and display recruit inspector
     public void StartPlacement()
     {
@@ -186,6 +267,7 @@ public class GridSelector : MonoBehaviour
 
         selectedTroopIndex = 0;
         isPlacing = true;
+        ClearSelection();
 
         if (HUD.instance != null)
         {
@@ -211,6 +293,7 @@ public class GridSelector : MonoBehaviour
 
         selectedTroopIndex = 1;
         isPlacing = true;
+        ClearSelection();
 
         if (HUD.instance != null)
         {

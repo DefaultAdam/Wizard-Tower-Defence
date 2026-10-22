@@ -26,7 +26,7 @@ public class HUD : MonoBehaviour
     private float deductionTimer = 0f; // countdown timer for deduction display
     public int startingSP = 100; // starting fortress energy pool
     public int maxSP = 500; // maximum energy value for slider bar
-    public int veteranUnlockSP = 250; // energy required to unlock veteran tower
+    public int veteranUnlockSP = 350; // energy required to unlock veteran tower
     public int currentSP; // current fortress energy pool
     public int currentWave = 1; // current wave number
     public float waveTimer = 30f; // countdown timer for wave
@@ -139,11 +139,11 @@ public class HUD : MonoBehaviour
         {
             milestoneText.text = "Milestone: Level 3 Master";
         }
-        else if (currentSP >= 250)
+        else if (currentSP >= 350)
         {
             milestoneText.text = "Milestone: Level 2 Veteran";
         }
-        else if (currentSP >= 150)
+        else if (currentSP >= 250)
         {
             milestoneText.text = "Milestone: Level 1 Apprentice";
         }
