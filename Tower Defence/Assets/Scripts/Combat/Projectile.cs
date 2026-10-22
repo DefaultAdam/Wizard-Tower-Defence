@@ -74,6 +74,13 @@ public class Projectile : MonoBehaviour
 
     void ShowSplashEffect(Vector3 center)
     {
+        Collider projectileCollider = GetComponent<Collider>();
+
+        if (projectileCollider != null)
+        {
+            projectileCollider.enabled = false;
+        }
+
         Renderer stoneRenderer = GetComponentInChildren<Renderer>();
 
         splashCenter = center + new Vector3(0f, 0.3f, 0f);
@@ -86,6 +93,7 @@ public class Projectile : MonoBehaviour
 
             stone.transform.position = splashCenter;
             stone.transform.localScale = transform.localScale;
+            stone.transform.parent = transform;
 
             if (stoneRenderer != null)
             {
@@ -111,16 +119,22 @@ public class Projectile : MonoBehaviour
 
         for (int i = 0; i < splashStones.Length; i++)
         {
-            float angle = i * Mathf.PI * 2f / splashStones.Length;
-            Vector3 direction = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
-            splashStones[i].transform.position = splashCenter + direction * (aoeRadius * progress);
+            if (splashStones[i] != null)
+            {
+                float angle = i * Mathf.PI * 2f / splashStones.Length;
+                Vector3 direction = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
+                splashStones[i].transform.position = splashCenter + direction * (aoeRadius * progress);
+            }
         }
 
         if (progress >= 1f)
         {
             for (int i = 0; i < splashStones.Length; i++)
             {
-                Destroy(splashStones[i]);
+                if (splashStones[i] != null)
+                {
+                    Destroy(splashStones[i]);
+                }
             }
 
             Destroy(gameObject);
