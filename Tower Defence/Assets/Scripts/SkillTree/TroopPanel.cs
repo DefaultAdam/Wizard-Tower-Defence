@@ -12,6 +12,16 @@ public class TroopPanel : MonoBehaviour
     public Text statsText; // troop combat stats text display
     public Text hintText; // interaction hint text display
 
+    public Button physicalButton; // button to upgrade to physical branch
+    public Button mechanicButton; // button to upgrade to mechanic branch
+    public Button magicButton; // button to upgrade to magic branch
+    public Button imaginaryButton; // button to upgrade to imaginary branch
+
+    public Text physicalButtonText; // text display for physical upgrade button
+    public Text mechanicButtonText; // text display for mechanic upgrade button
+    public Text magicButtonText; // text display for magic upgrade button
+    public Text imaginaryButtonText; // text display for imaginary upgrade button
+
     // initialise instance on awake
     void Awake()
     {
