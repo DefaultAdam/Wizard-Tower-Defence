@@ -9,6 +9,16 @@ public enum TargetPriority
     Weakest
 }
 
+// specialisation branch choices
+public enum Branch
+{
+    None,
+    Physical,
+    Mechanic,
+    Magic,
+    Imaginary
+}
+
 // tower combat and attack script
 public class Tower : MonoBehaviour
 {
@@ -24,8 +34,54 @@ public class Tower : MonoBehaviour
     public Transform towerHead; // rotating part of the tower
     public float rotationSpeed = 10f; // rotation speed towards target
 
+    public Branch branch = Branch.None; // chosen specialisation branch
+    public int level = 0; // troop level tier
+
     private float cooldownTimer = 0f; // timer to track attack cooldown
     private GameObject currentTarget; // current target enemy
+
+    // apply troop colour on start
+    void Start()
+    {
+        ApplyColour();
+    }
+
+    // get colour for a specialisation branch
+    public Color GetBranchColour()
+    {
+        if (branch == Branch.Physical)
+        {
+            return new Color(0.78f, 0.6f, 0.42f);
+        }
+
+        if (branch == Branch.Mechanic)
+        {
+            return new Color(0.45f, 0.56f, 0.68f);
+        }
+
+        if (branch == Branch.Magic)
+        {
+            return new Color(0.6f, 0.3f, 0.85f);
+        }
+
+        if (branch == Branch.Imaginary)
+        {
+            return new Color(1f, 0.85f, 0.2f);
+        }
+
+        return Color.white;
+    }
+
+    // apply branch colour to all troop renderers
+    public void ApplyColour()
+    {
+        Color colour = GetBranchColour();
+
+        foreach (Renderer troopRenderer in GetComponentsInChildren<Renderer>())
+        {
+            troopRenderer.material.color = colour;
+        }
+    }
 
     // update target tracking and attack cooldown
     void Update()
