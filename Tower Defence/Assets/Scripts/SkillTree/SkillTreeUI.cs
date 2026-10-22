@@ -19,6 +19,39 @@ public class SkillTreeUI : MonoBehaviour
         instance = this;
     }
 
+    // set up button click listeners on start
+    void Start()
+    {
+        if (openButton != null)
+        {
+            openButton.onClick.AddListener(Toggle);
+        }
+
+        if (closeButton != null)
+        {
+            closeButton.onClick.AddListener(Close);
+        }
+
+        if (window != null)
+        {
+            window.SetActive(false);
+        }
+    }
+
+    // handle toggle key and refresh open window
+    void Update()
+    {
+        if (Input.GetKeyDown(toggleKey))
+        {
+            Toggle();
+        }
+
+        if (isOpen)
+        {
+            RefreshWindow();
+        }
+    }
+
     // open or close skill tree window
     public void Toggle()
     {
