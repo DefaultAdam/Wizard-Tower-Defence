@@ -155,17 +155,60 @@ public class SkillTreeUI : MonoBehaviour
         }
     }
 
-    // update window display elements
+    // update window display elements and node buttons
     public void RefreshWindow()
     {
-        if (SkillTree.instance == null)
+        SkillTree skillTree = SkillTree.instance;
+
+        if (skillTree == null)
         {
             return;
         }
 
         if (spText != null)
         {
-            spText.text = "SP: " + SkillTree.instance.GetCurrentSP();
+            spText.text = "SP: " + skillTree.GetCurrentSP();
+        }
+
+        UpdateNodeButton(physicalApprenticeButton, physicalApprenticeText, Branch.Physical, 1);
+        UpdateNodeButton(mechanicApprenticeButton, mechanicApprenticeText, Branch.Mechanic, 1);
+        UpdateNodeButton(magicApprenticeButton, magicApprenticeText, Branch.Magic, 1);
+        UpdateNodeButton(imaginaryApprenticeButton, imaginaryApprenticeText, Branch.Imaginary, 1);
+
+        UpdateNodeButton(physicalVeteranButton, physicalVeteranText, Branch.Physical, 2);
+        UpdateNodeButton(mechanicVeteranButton, mechanicVeteranText, Branch.Mechanic, 2);
+        UpdateNodeButton(magicVeteranButton, magicVeteranText, Branch.Magic, 2);
+        UpdateNodeButton(imaginaryVeteranButton, imaginaryVeteranText, Branch.Imaginary, 2);
+    }
+
+    // update state and text for a tree node button
+    void UpdateNodeButton(Button button, Text label, Branch branch, int level)
+    {
+        if (button == null || SkillTree.instance == null)
+        {
+            return;
+        }
+
+        SkillTree skillTree = SkillTree.instance;
+        bool unlocked = skillTree.IsPathUnlocked(branch, level);
+        string reason;
+        bool canUnlock = skillTree.CanUnlockPath(branch, level, out reason);
+
+        if (unlocked)
+        {
+            button.interactable = false;
+            if (label != null)
+            {
+                label.text = SkillTree.GetTroopName(branch, level) + "\n(UNLOCKED)";
+            }
+        }
+        else
+        {
+            button.interactable = canUnlock;
+            if (label != null)
+            {
+                label.text = SkillTree.GetTroopName(branch, level) + "\n(" + reason + ")";
+            }
         }
     }
 
