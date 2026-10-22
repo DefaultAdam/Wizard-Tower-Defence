@@ -27,8 +27,8 @@ public class Tower : MonoBehaviour
     public float damage = 25f; // damage dealt per attack
 
     public float damagePerWave = 5f; // extra damage gained each round
-    public float aoeRadius = 0f;
-    public float aoeDamagePercent = 0.5f;
+    public float aoeRadius = 0f; // splash attack radius
+    public float aoeDamagePercent = 0.5f; // splash damage percentage
     public TargetPriority targetPriority = TargetPriority.Closest; // targeting priority criteria
 
     public GameObject projectilePrefab; // projectile prefab to shoot
@@ -85,12 +85,38 @@ public class Tower : MonoBehaviour
         }
     }
 
-    // upgrade recruit to apprentice branch
-    public void UpgradeToApprentice(Branch newBranch)
+    // upgrade recruit to apprentice branch with combat stats
+    public void UpgradeToApprentice(Branch newBranch, Tower apprenticeTemplate)
     {
         branch = newBranch;
         level = 1;
+
+        if (apprenticeTemplate != null)
+        {
+            attackRange = apprenticeTemplate.attackRange;
+            attackCooldown = apprenticeTemplate.attackCooldown;
+            damage = apprenticeTemplate.damage;
+            damagePerWave = apprenticeTemplate.damagePerWave;
+            aoeRadius = apprenticeTemplate.aoeRadius;
+            aoeDamagePercent = apprenticeTemplate.aoeDamagePercent;
+        }
+        else
+        {
+            attackRange = 7f;
+            attackCooldown = 2f;
+            damage = 35f;
+            damagePerWave = 5f;
+            aoeRadius = 2f;
+            aoeDamagePercent = 0.5f;
+        }
+
         ApplyColour();
+    }
+
+    // upgrade recruit to apprentice branch
+    public void UpgradeToApprentice(Branch newBranch)
+    {
+        UpgradeToApprentice(newBranch, null);
     }
 
     // upgrade apprentice to veteran with upgraded stats
