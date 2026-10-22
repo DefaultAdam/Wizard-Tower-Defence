@@ -60,6 +60,32 @@ public class TroopPanel : MonoBehaviour
     {
     }
 
+    // update state and label of an upgrade button
+    void UpdateButton(Button button, Text label, Tower tower, Branch branch, int nextLevel)
+    {
+        if (button == null || SkillTree.instance == null)
+        {
+            return;
+        }
+
+        bool show = nextLevel == 1 || (nextLevel > 1 && tower.branch == branch);
+        button.gameObject.SetActive(show && nextLevel <= 3);
+
+        if (!show || nextLevel > 3)
+        {
+            return;
+        }
+
+        string reason;
+        bool canUpgrade = SkillTree.instance.CanUpgradeTroop(tower, branch, nextLevel, out reason);
+        button.interactable = canUpgrade;
+
+        if (label != null)
+        {
+            label.text = branch + " (" + reason + ")";
+        }
+    }
+
     // set up button listeners on start
     void Start()
     {
