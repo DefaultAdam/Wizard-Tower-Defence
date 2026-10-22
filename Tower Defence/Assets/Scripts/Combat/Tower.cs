@@ -85,7 +85,7 @@ public class Tower : MonoBehaviour
         }
     }
 
-    // upgrade recruit to apprentice branch with combat stats
+    // upgrade recruit to apprentice branch with upgraded combat stats
     public void UpgradeToApprentice(Branch newBranch, Tower apprenticeTemplate)
     {
         branch = newBranch;
@@ -122,15 +122,27 @@ public class Tower : MonoBehaviour
     // upgrade apprentice to veteran with upgraded stats
     public void UpgradeToVeteran(Tower veteranTemplate)
     {
+        level = 2;
+
         if (veteranTemplate != null)
         {
-            attackRange = veteranTemplate.attackRange;
-            attackCooldown = veteranTemplate.attackCooldown;
-            damage = veteranTemplate.damage;
-            damagePerWave = veteranTemplate.damagePerWave;
+            attackRange = veteranTemplate.attackRange * 1.25f;
+            attackCooldown = veteranTemplate.attackCooldown * 0.75f;
+            damage = veteranTemplate.damage * 1.5f;
+            damagePerWave = veteranTemplate.damagePerWave * 1.5f;
+            aoeRadius = veteranTemplate.aoeRadius * 1.25f;
+            aoeDamagePercent = veteranTemplate.aoeDamagePercent;
+        }
+        else
+        {
+            attackRange = 8.5f;
+            attackCooldown = 1.5f;
+            damage = 50f;
+            damagePerWave = 7.5f;
+            aoeRadius = 2.5f;
+            aoeDamagePercent = 0.5f;
         }
 
-        level = 2;
         ApplyColour();
     }
 
@@ -224,12 +236,12 @@ public class Tower : MonoBehaviour
     // update target tracking and attack cooldown
     void Update()
     {
-        if (currentTarget != null && !IsTargetValid())
+        if (cooldownTimer > 0f)
         {
-            currentTarget = null;
+            cooldownTimer -= Time.deltaTime;
         }
 
-        if (currentTarget == null)
+        if (!IsTargetValid(currentTarget))
         {
             FindTarget();
         }
@@ -237,35 +249,30 @@ public class Tower : MonoBehaviour
         if (currentTarget != null)
         {
             RotateTowardsTarget();
-        }
 
-        if (cooldownTimer > 0f)
-        {
-            cooldownTimer -= Time.deltaTime;
-        }
-
-        if (cooldownTimer <= 0f && currentTarget != null)
-        {
-            Attack(currentTarget);
+            if (cooldownTimer <= 0f)
+            {
+                Attack(currentTarget);
+            }
         }
     }
 
     // check if current target is alive and in range
-    bool IsTargetValid()
+    bool IsTargetValid(GameObject target)
     {
-        if (currentTarget == null)
+        if (target == null)
         {
             return false;
         }
 
-        Health enemyHealth = currentTarget.GetComponent<Health>();
+        Health enemyHealth = target.GetComponent<Health>();
 
         if (enemyHealth != null && enemyHealth.isDead)
         {
             return false;
         }
 
-        float distance = Vector3.Distance(transform.position, currentTarget.transform.position);
+        float distance = Vector3.Distance(transform.position, target.transform.position);
 
         if (distance > attackRange)
         {
