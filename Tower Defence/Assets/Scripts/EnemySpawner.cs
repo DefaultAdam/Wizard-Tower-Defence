@@ -8,8 +8,7 @@ public class EnemySpawner : MonoBehaviour
     public GameObject juggernautPrefab;
     public int sprintStartWave = 3;
     public int juggernautStartWave = 5;
-    public float sprintChance = 0.25f;
-    public float juggernautChance = 0.15f;
+    public int healthScalingStartWave = 3; // wave when enemy health increase begins
     public Grid grid; // reference to grid
     public float timeBetweenWaves = 3f; // countdown between waves in seconds
     public float spawnInterval = 0.4f; // seconds between individual enemy spawns
@@ -212,7 +211,10 @@ public class EnemySpawner : MonoBehaviour
                 healthIncrease = levelOneHealthBonus;
             }
 
-            currentEnemyHealth += healthIncrease;
+            if (currentWave >= healthScalingStartWave)
+            {
+                currentEnemyHealth += healthIncrease;
+            }
         }
     }
 
@@ -229,16 +231,32 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    // choose enemy prefab based on current wave probabilities
     GameObject ChooseEnemyPrefab()
     {
+        if (currentWave < sprintStartWave)
+        {
+            return enemyPrefab;
+        }
+
         float roll = Random.value;
 
-        if (juggernautPrefab != null && currentWave >= juggernautStartWave && roll < juggernautChance)
+        if (currentWave < juggernautStartWave)
+        {
+            if (sprintPrefab != null && roll < 0.50f)
+            {
+                return sprintPrefab;
+            }
+
+            return enemyPrefab;
+        }
+
+        if (juggernautPrefab != null && roll < 0.20f)
         {
             return juggernautPrefab;
         }
 
-        if (sprintPrefab != null && currentWave >= sprintStartWave && roll >= 1f - sprintChance)
+        if (sprintPrefab != null && roll < 0.525f)
         {
             return sprintPrefab;
         }
@@ -269,15 +287,29 @@ public class EnemySpawner : MonoBehaviour
 
         if (enemyHealth != null)
         {
-            float multiplier = 1f;
+            float totalHealth = currentEnemyHealth;
 
             if (enemyScript != null)
             {
-                multiplier = enemyScript.healthMultiplier;
+                totalHealth = enemyScript.baseHealth;
+
+                // standard enemies begin scaling from round three
+                if (enemyScript.startWave <= 1)
+                {
+                    if (currentWave >= healthScalingStartWave)
+                    {
+                        totalHealth += (currentWave - healthScalingStartWave + 1) * enemyScript.healthPerWave;
+                    }
+                }
+                // special enemies start at base health on their first wave and scale thereafter
+                else if (currentWave > enemyScript.startWave)
+                {
+                    totalHealth += (currentWave - enemyScript.startWave) * enemyScript.healthPerWave;
+                }
             }
 
-            enemyHealth.maxHealth = currentEnemyHealth * multiplier;
-            enemyHealth.currentHealth = currentEnemyHealth * multiplier;
+            enemyHealth.maxHealth = totalHealth;
+            enemyHealth.currentHealth = totalHealth;
         }
 
         EnemyMovement movement = enemyObject.GetComponent<EnemyMovement>();
