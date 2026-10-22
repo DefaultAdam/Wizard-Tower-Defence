@@ -106,6 +106,21 @@ public class Tower : MonoBehaviour
         ApplyColour();
     }
 
+    // upgrade veteran to master with upgraded stats
+    public void UpgradeToMaster(Tower masterTemplate)
+    {
+        if (masterTemplate != null)
+        {
+            attackRange = masterTemplate.attackRange;
+            attackCooldown = masterTemplate.attackCooldown;
+            damage = masterTemplate.damage;
+            damagePerWave = masterTemplate.damagePerWave;
+        }
+
+        level = 3;
+        ApplyColour();
+    }
+
     // get display name for troop
     public string GetTroopName()
     {
@@ -121,7 +136,17 @@ public class Tower : MonoBehaviour
                 return "Apprentice";
             }
 
-            return "Veteran";
+            if (level == 2)
+            {
+                return "Veteran";
+            }
+
+            if (level == 3)
+            {
+                return "Master";
+            }
+
+            return "Recruit";
         }
 
         if (level == 1)
@@ -129,7 +154,17 @@ public class Tower : MonoBehaviour
             return branch + " Apprentice";
         }
 
-        return branch + " Veteran";
+        if (level == 2)
+        {
+            return branch + " Veteran";
+        }
+
+        if (level == 3)
+        {
+            return branch + " Master";
+        }
+
+        return branch + " Recruit";
     }
 
     // get current damage including wave bonus
