@@ -27,4 +27,70 @@ public class TroopPanel : MonoBehaviour
     {
         instance = this;
     }
+
+    // set up button listeners on start
+    void Start()
+    {
+        if (physicalButton != null)
+        {
+            physicalButton.onClick.AddListener(UpgradeToPhysical);
+        }
+
+        if (mechanicButton != null)
+        {
+            mechanicButton.onClick.AddListener(UpgradeToMechanic);
+        }
+
+        if (magicButton != null)
+        {
+            magicButton.onClick.AddListener(UpgradeToMagic);
+        }
+
+        if (imaginaryButton != null)
+        {
+            imaginaryButton.onClick.AddListener(UpgradeToImaginary);
+        }
+    }
+
+    // upgrade to physical branch
+    public void UpgradeToPhysical()
+    {
+        OnUpgradeClicked(Branch.Physical);
+    }
+
+    // upgrade to mechanic branch
+    public void UpgradeToMechanic()
+    {
+        OnUpgradeClicked(Branch.Mechanic);
+    }
+
+    // upgrade to magic branch
+    public void UpgradeToMagic()
+    {
+        OnUpgradeClicked(Branch.Magic);
+    }
+
+    // upgrade to imaginary branch
+    public void UpgradeToImaginary()
+    {
+        OnUpgradeClicked(Branch.Imaginary);
+    }
+
+    // upgrade selected troop on clicked branch
+    void OnUpgradeClicked(Branch branch)
+    {
+        if (GridSelector.instance == null || SkillTree.instance == null)
+        {
+            return;
+        }
+
+        Tower tower = GridSelector.instance.GetSelectedTower();
+
+        if (tower == null)
+        {
+            return;
+        }
+
+        SkillTree.instance.TryUpgradeTroop(tower, branch, tower.level + 1);
+    }
 }
