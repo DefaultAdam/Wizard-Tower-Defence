@@ -132,6 +132,25 @@ public class Tower : MonoBehaviour
         return branch + " Veteran";
     }
 
+    // get current damage including wave bonus
+    public float GetCurrentDamage()
+    {
+        float totalDamage = damage;
+
+        if (HUD.instance != null && HUD.instance.currentWave > 1)
+        {
+            totalDamage += (HUD.instance.currentWave - 1) * damagePerWave;
+        }
+
+        return totalDamage;
+    }
+
+    // get combat stats text for display
+    public string GetStatsText()
+    {
+        return "Damage: " + GetCurrentDamage() + "\nFire Rate: " + attackCooldown + "s\nRange: " + attackRange;
+    }
+
     // update target tracking and attack cooldown
     void Update()
     {
@@ -317,14 +336,7 @@ public class Tower : MonoBehaviour
 
             if (projectile != null)
             {
-                float totalDamage = damage;
-
-                if (HUD.instance != null && HUD.instance.currentWave > 1)
-                {
-                    totalDamage += (HUD.instance.currentWave - 1) * damagePerWave;
-                }
-
-                projectile.damage = totalDamage;
+                projectile.damage = GetCurrentDamage();
                 projectile.SetTarget(target.transform);
             }
         }
