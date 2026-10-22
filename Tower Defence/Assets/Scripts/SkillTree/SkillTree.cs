@@ -280,7 +280,14 @@ public class SkillTree : MonoBehaviour
 
         if (targetLevel == 1)
         {
-            tower.UpgradeToApprentice(branch);
+            Tower apprenticeTemplate = null;
+
+            if (GridSelector.instance != null && GridSelector.instance.veteranPrefab != null)
+            {
+                apprenticeTemplate = GridSelector.instance.veteranPrefab.GetComponent<Tower>();
+            }
+
+            tower.UpgradeToApprentice(branch, apprenticeTemplate);
         }
         else if (targetLevel == 2)
         {
@@ -299,6 +306,42 @@ public class SkillTree : MonoBehaviour
         }
 
         return true;
+    }
+
+    // get display name for a troop of a branch and level
+    public static string GetTroopName(Branch branch, int level)
+    {
+        if (level <= 0)
+        {
+            return "Recruit";
+        }
+
+        if (branch == Branch.None)
+        {
+            if (level == 1)
+            {
+                return "Apprentice";
+            }
+
+            if (level == 2)
+            {
+                return "Veteran";
+            }
+
+            return "Master";
+        }
+
+        if (level == 1)
+        {
+            return branch + " Apprentice";
+        }
+
+        if (level == 2)
+        {
+            return branch + " Veteran";
+        }
+
+        return branch + " Master";
     }
 
     // get display text for a level tier
