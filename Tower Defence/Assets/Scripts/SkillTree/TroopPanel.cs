@@ -31,9 +31,15 @@ public class TroopPanel : MonoBehaviour
     // check inspected troop each frame and toggle panel
     void Update()
     {
+        if (GridSelector.instance != null && GridSelector.instance.isPlacing)
+        {
+            HideUpgradeButtons();
+            return;
+        }
+
         Tower tower = null;
 
-        if (GridSelector.instance != null && !GridSelector.instance.isPlacing)
+        if (GridSelector.instance != null)
         {
             tower = GridSelector.instance.GetInspectedTower();
         }
@@ -58,6 +64,35 @@ public class TroopPanel : MonoBehaviour
         }
 
         Refresh(tower);
+    }
+
+    // hide upgrade buttons during placement preview
+    void HideUpgradeButtons()
+    {
+        if (physicalButton != null)
+        {
+            physicalButton.gameObject.SetActive(false);
+        }
+
+        if (mechanicButton != null)
+        {
+            mechanicButton.gameObject.SetActive(false);
+        }
+
+        if (magicButton != null)
+        {
+            magicButton.gameObject.SetActive(false);
+        }
+
+        if (imaginaryButton != null)
+        {
+            imaginaryButton.gameObject.SetActive(false);
+        }
+
+        if (hintText != null)
+        {
+            hintText.gameObject.SetActive(false);
+        }
     }
 
     // update panel content for the inspected troop
