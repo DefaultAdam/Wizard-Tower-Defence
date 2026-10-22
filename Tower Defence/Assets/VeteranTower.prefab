@@ -122,9 +122,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackRange: 7
-  attackCooldown: 0.8
+  attackCooldown: 2
   damage: 35
-  damagePerWave: 3
+  damagePerWave: 5
   aoeRadius: 2
   aoeDamagePercent: 0.5
   targetPriority: 1
