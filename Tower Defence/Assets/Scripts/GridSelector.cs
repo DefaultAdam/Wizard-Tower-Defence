@@ -9,9 +9,9 @@ public class GridSelector : MonoBehaviour
     public LineRenderer highlight;
     public float outlineWidth = 0.35f;
     public GameObject towerPrefab;
-    public int placementCost = 10;
+    public int placementCost = 20; // recruit placement cost
     public GameObject veteranPrefab; // veteran tower prefab
-    public int veteranCost = 50; // veteran placement cost
+    public int veteranCost = 100; // veteran placement cost
     public int veteranUnlockSP = 250; // sp milestone needed to unlock veteran
     public int selectedTroopIndex = 0; // selected troop index 0 for recruit 1 for veteran
     public int maxTowers = 5; // current maximum allowed towers
@@ -179,7 +179,7 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
-        if (HUD.instance != null && HUD.instance.currentSP < placementCost)
+        if (HUD.instance != null && HUD.instance.currentSP <= placementCost)
         {
             return;
         }
@@ -189,7 +189,7 @@ public class GridSelector : MonoBehaviour
 
         if (HUD.instance != null)
         {
-            HUD.instance.ShowUnitInspector("Recruit", "Level 0 Recruit", "Role: Stone Thrower\nDamage: 5\nRange: 6");
+            HUD.instance.ShowUnitInspector("Recruit", "Level 0 Recruit", "Role: Stone Thrower\nDamage: 20\nRate: 0.8/s\nRange: 5");
         }
     }
 
@@ -203,7 +203,7 @@ public class GridSelector : MonoBehaviour
 
         if (HUD.instance != null)
         {
-            if (HUD.instance.currentSP < veteranUnlockSP || HUD.instance.currentSP < veteranCost)
+            if (HUD.instance.currentSP < veteranUnlockSP || HUD.instance.currentSP <= veteranCost)
             {
                 return;
             }
@@ -214,7 +214,7 @@ public class GridSelector : MonoBehaviour
 
         if (HUD.instance != null)
         {
-            HUD.instance.ShowUnitInspector("Veteran", "Level 2 Veteran", "Role: Energy Caster\nDamage: 7\nRange: 7\nSplash: 2");
+            HUD.instance.ShowUnitInspector("Veteran", "Level 1 Veteran", "Role: Energy Caster\nDamage: 35\nRate: 0.5/s\nRange: 7\nSplash: 2");
         }
     }
 
@@ -293,7 +293,7 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
-        if (HUD.instance.currentSP < cost)
+        if (HUD.instance.currentSP <= cost)
         {
             return;
         }
