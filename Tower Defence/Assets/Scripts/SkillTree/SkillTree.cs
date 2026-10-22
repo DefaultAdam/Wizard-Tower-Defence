@@ -8,9 +8,14 @@ public class SkillTree : MonoBehaviour
     public static readonly Branch[] branches = { Branch.Physical, Branch.Mechanic, Branch.Magic, Branch.Imaginary }; // all specialisation branches
 
     public int apprenticeUnlockSP = 250; // sp milestone needed to unlock level 1 apprentices
+    public int apprenticePathCost = 25; // sp cost to unlock an apprentice path in the skill tree
     public int apprenticeUpgradeCost = 100; // fee to upgrade recruit to level 1 apprentice
     public int veteranUnlockSP = 350; // sp milestone needed to unlock level 2 veterans
+    public int veteranPathCost = 50; // sp cost to unlock a veteran path in the skill tree
     public int veteranUpgradeCost = 150; // fee to upgrade apprentice to level 2 veteran
+
+    private bool[] apprenticeUnlocked = new bool[5]; // unlocked apprentice paths indexed by branch
+    private bool[] veteranUnlocked = new bool[5]; // unlocked veteran paths indexed by branch
     public int masterUnlockSP = 400; // sp milestone needed to unlock level 3 masters
     public int masterUpgradeCost = 200; // fee to upgrade veteran to level 3 master
 
@@ -53,6 +58,22 @@ public class SkillTree : MonoBehaviour
         if (level == 3)
         {
             return masterUnlockSP;
+        }
+
+        return 0;
+    }
+
+    // get sp cost to unlock a level path in the skill tree
+    public int GetPathCost(int level)
+    {
+        if (level == 1)
+        {
+            return apprenticePathCost;
+        }
+
+        if (level == 2)
+        {
+            return veteranPathCost;
         }
 
         return 0;
