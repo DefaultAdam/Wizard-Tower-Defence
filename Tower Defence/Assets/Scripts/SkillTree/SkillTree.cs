@@ -25,4 +25,25 @@ public class SkillTree : MonoBehaviour
     {
         instance = this;
     }
+
+    // get display text for a level tier
+    public static string GetLevelName(int level)
+    {
+        if (level == 1)
+        {
+            return "Level 1 Apprentice";
+        }
+
+        if (level == 2)
+        {
+            return "Level 2 Veteran";
+        }
+
+        if (level == 3)
+        {
+            return "Level 3 Master";
+        }
+
+        return "Level 0 Recruit";
+    }
 }
