@@ -58,6 +58,49 @@ public class TroopPanel : MonoBehaviour
     // update panel content for the inspected troop
     void Refresh(Tower tower)
     {
+        if (tower == null || SkillTree.instance == null)
+        {
+            return;
+        }
+
+        if (nameText != null)
+        {
+            nameText.text = tower.GetTroopName();
+            nameText.color = SkillTree.instance.GetBranchColour(tower.branch);
+        }
+
+        if (levelText != null)
+        {
+            levelText.text = SkillTree.GetLevelName(tower.level);
+        }
+
+        if (statsText != null)
+        {
+            statsText.text = tower.GetStatsText();
+        }
+
+        int nextLevel = tower.level + 1;
+
+        UpdateButton(physicalButton, physicalButtonText, tower, Branch.Physical, nextLevel);
+        UpdateButton(mechanicButton, mechanicButtonText, tower, Branch.Mechanic, nextLevel);
+        UpdateButton(magicButton, magicButtonText, tower, Branch.Magic, nextLevel);
+        UpdateButton(imaginaryButton, imaginaryButtonText, tower, Branch.Imaginary, nextLevel);
+
+        if (hintText != null)
+        {
+            if (nextLevel > 3)
+            {
+                hintText.text = "Max level reached";
+            }
+            else if (GridSelector.instance != null && GridSelector.instance.GetSelectedTower() != tower)
+            {
+                hintText.text = "Click troop to upgrade";
+            }
+            else
+            {
+                hintText.text = "Right click to deselect";
+            }
+        }
     }
 
     // update state and label of an upgrade button
