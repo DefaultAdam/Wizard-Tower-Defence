@@ -20,7 +20,7 @@ Skill Points (SP) are the **currency pool, and health of the fortress**.
 flowchart TD
     subgraph FortressPool ["Fortress SP Energy Pool"]
         N0["0 SP\nFortress Falls\n(GAME OVER)"]
-        N1["100 SP Base Buffer\nLevel 0 Recruit (10 SP)\n(Throws Stones)"]
+        N1["100 SP Base Buffer\nLevel 0 Recruit (20 SP)\n(Throws Stones)"]
         N2["150 SP Milestone\nLevel 1 Specialisation\n(Fee: 25 SP)"]
         N3["250 SP Milestone\nLevel 2 Veteran Tier\n(Fee: 50 SP)"]
         N4["400 SP Milestone\nLevel 3 Master Tier\n(Fee: 100 SP & Fusion)"]
@@ -60,19 +60,19 @@ flowchart TD
     end
 
     subgraph Outflows ["Unit Placement & Upgrade Fees"]
-        Hire["Place Recruit (Bench or Field): 10 SP"]
+        Hire["Place Recruit (Bench or Field): 20 SP"]
         Fee1["Level 1 Upgrade Fee: 25 SP"]
         Fee2["Level 2 Upgrade Fee: 50 SP"]
         Fee3["Level 3 Upgrade Fee: 100 SP"]
     end
 
     subgraph Breaches ["Breach Damage (Instant Despawn)"]
-        BreachDrain["Sprint: -5 SP | Grunt: -8 SP\nDisrupt: -12 SP | Juggernaut: -20 SP"]
+        BreachDrain["Sprint: -5 SP | Grunt: -8 SP\nDisrupt: -12 SP | Juggernaut: -25 SP"]
     end
 
     Kills -->|"+SP"| Fortress
     Bench -->|"+1.5x SP"| Fortress
-    Fortress -.->|"Spend 10 SP"| Hire
+    Fortress -.->|"Spend 20 SP"| Hire
     Fortress -.->|"Spend Fee"| Fee1
     Fee1 -.-> Fee2
     Fee2 -.-> Fee3
@@ -89,8 +89,8 @@ flowchart TD
 ### A. How You Gain SP & The $1.5\times$ Bench Generation
 
 1. **Recruit Placement Cost (Bench or Field):**
-   * Placing any Level 0 Recruit costs **10 SP** (deducted from the fortress pool).
-   * Starting with 100 SP, hiring your first recruit leaves **90 SP** of fortress health.
+   * Placing any Level 0 Recruit costs **20 SP** (deducted from the fortress pool).
+   * Starting with 100 SP, hiring your first recruit leaves **80 SP** of fortress health.
 2. **Enemy Kill Rewards vs. Bench Generation:**
    * Keeping your recruit on the bench won't let you use them but they will generate $1.5\times$ the SP. How each enemy impacts SP pool/health: 
 
@@ -99,7 +99,7 @@ flowchart TD
 | **`Sprint`** (Fast runner) | **$-5$ SP** | **$+2$ SP** | **$+3$ SP** *(Clean integer)* |
 | **`Grunt`** (Standard swarmer) | **$-8$ SP** | **$+4$ SP** | **$+6$ SP** *(Clean integer)* |
 | **`Disrupt`** (Anti-magic) | **$-12$ SP** | **$+8$ SP** | **$+12$ SP** *(Clean integer)* |
-| **`Juggernaut`** (Heavy siege) | **$-20$ SP** | **$+16$ SP** | **$+24$ SP** *(Clean integer)* |
+| **`Juggernaut`** (Heavy siege) | **$-25$ SP** | **$+20$ SP** | **$+30$ SP** *(Clean integer)* |
 
 * **The Strategic Element:**
   * **On the field:** Recruits defend the path, preventing attacks.
@@ -111,7 +111,7 @@ flowchart TD
 
 #### 1. Skill Tree Milestones (Pool Thresholds)
 The fortress SP pool is a progress meter. When you achieve a new milestone you unlock the ability to train apprentices:
-* **100 SP (Starting Base):** Unlocks **Level 0 Basic Recruit** (10 SP to place, throws stones).
+* **100 SP (Starting Base):** Unlocks **Level 0 Basic Recruit** (20 SP to place, throws stones).
 * **150 SP Pool:** Unlocks **Level 1 Magic Specialisations** (Physical, Mechanic, Magic, Imaginary).
 * **250 SP Pool:** Unlocks **Level 2 Veterans** (+25% power and hit speed).
 * **400 SP Pool:** Unlocks **Level 3 Masters** (+50% power and hit speed & unlocks 3-to-1 Super Fusion).
@@ -122,7 +122,7 @@ Once a tier is unlocked in your skill tree, you pay a fee per apprentice to upgr
 
 | Action / Tier | Prerequisite Pool | SP Cost / Fee | What It Unlocks |
 | :--- | :---: | :---: | :--- |
-| **Place Level 0 Recruit** | **100 SP Base** | **10 SP** | Deploy recruit to bench (passive SP) or field (stone-thrower). |
+| **Place Level 0 Recruit** | **100 SP Base** | **20 SP** | Deploy recruit to bench (passive SP) or field (stone-thrower). |
 | **Upgrade to Level 1** | **150 SP** | **25 SP** | **Specialisation:** Select one of 4 branches (*Physical, Mechanic, Magic, or Imaginary*). |
 | **Upgrade to Level 2** | **250 SP** | **50 SP** | **Veteran Status:** $+25\%$ spell damage and cast rate. |
 | **Upgrade to Level 3** | **400 SP** | **100 SP** | **Master Status:** $+50\%$ damage/area, and **unlocks 3-to-1 Super Fusion**. |
@@ -131,7 +131,7 @@ Once a tier is unlocked in your skill tree, you pay a fee per apprentice to upgr
 ---
 
 ### C. Attacks & Skill Regression
-* When enemies attack the fortress, they deduct SP directly from the pool (Sprint $-5$, Grunt $-8$, Disrupt $-12$, Juggernaut $-20$).
+* When enemies attack the fortress, they deduct SP directly from the pool (Sprint $-5$, Grunt $-8$, Disrupt $-12$, Juggernaut $-25$).
 * **Milestone Re-Locking:**
   * If an attack puts your SP pool below an active milestone (e.g., from 152 SP down to 144 SP), that tier in the skill tree locks again until you regain enough SP to reach 150 SP.
 * **LIFO Regression on Negative SP:**
@@ -156,7 +156,7 @@ Once a tier is unlocked in your skill tree, you pay a fee per apprentice to upgr
 
 ### B. Apprentice Deployment Rules
 * **Bench:** Recruits wait on the bench. While unplaced, they generate an increased amount of SP.
-* **Direct Placement:** You can place Level 0 recruits directly onto the battlefield for a 10 SP fee. They fight by throwing stones.
+* **Direct Placement:** You can place Level 0 recruits directly onto the battlefield for a 20 SP fee. They fight by throwing stones.
 * **Field Upgrades:** You can upgrade apprentices directly on the battlefield by paying their small upgrade fee (25 SP for Lvl 1, 50 SP for Lvl 2, 100 SP for Lvl 3).
 * **Apprentice Limits:** There is a fixed maximum limit of apprentices you can place on the battlefield and bench.
 * **Apprentices Can't Die:** Once placed on the battlefield, apprentices don't die. But can be locked if they aren't in the right milestone. 
@@ -211,7 +211,7 @@ When an enemy reaches the fortress, it does attack damage directly against the S
 | **`Sprint`** | **5 SP** | Fast but fragile. Requires 20 solo attacks to drain the base 100 SP alone. |
 | **`Grunt`** | **8 SP** | Standard infantry swarmer. A dense swarm reaching the fortress quickly drains SP. |
 | **`Disrupt`** | **12 SP** | Anti-magic explodes upon reaching the fortress, dealing medium-high SP damage. |
-| **`Juggernaut`** | **20 SP** | Massive ram. Dangerous threat that drains 20 SP per attack (5 attacks destroy the fortress). |
+| **`Juggernaut`** | **25 SP** | Massive ram. Dangerous threat that drains 25 SP per attack (4 attacks destroy the fortress). |
 
 ---
 
@@ -223,3 +223,32 @@ When an enemy reaches the fortress, it does attack damage directly against the S
   * **Magic Bubbles:** Lifts enemies into midair, preventing movement or attacks until the bubble pops.
   * **Mechanic Throws:** Brings enemies backward down the path, forcing them to re-walk.
   * **Apprentices:** Apprentices can't die. They remain on the field to attack enemies continually.
+
+---
+
+## 8. Enemy Wave Progression & Health Scaling
+
+### A. Health Scaling Progression
+Enemy health increases from **Round 3**, and then steadily gains difficulty:
+* **Standard (Grunt):** 100 HP base; flat for Rounds 1–2; gains **+20 HP** each round starting from Round 3.
+* **Sprint:** 50 HP base; debuts on **Round 3** at base health; gains **+10 HP** each round starting from Round 4.
+* **Juggernaut:** 400 HP base; debuts on **Round 5** at base health; gains **+50 HP** each round starting from Round 6.
+
+| Wave | Standard Enemy (+20/wave) | Sprint Enemy (+10/wave) | Juggernaut Enemy (+50/wave) |
+| :---: | :---: | :---: | :---: |
+| **Wave 1** | **100 HP** | *(not spawning)* | *(not spawning)* |
+| **Wave 2** | **100 HP** *(flat base)* | *(not spawning)* | *(not spawning)* |
+| **Wave 3** | **120 HP** | **50 HP** *(debut base)* | *(not spawning)* |
+| **Wave 4** | **140 HP** | **60 HP** | *(not spawning)* |
+| **Wave 5** | **160 HP** | **70 HP** | **400 HP** *(debut base)* |
+| **Wave 6** | **180 HP** | **80 HP** | **450 HP** |
+
+### B. Wave-Tiered Spawn Distribution
+* **Waves 1–2:** 100% Standard enemies.
+* **Waves 3–4:** 50% Standard enemies, 50% Sprint enemies.
+* **Waves 5+:** 47.5% Standard enemies, 32.5% Sprint enemies, 20% Juggernaut enemies.
+
+### C. Movement Speeds
+* **Standard (Grunt):** 2.0 units/s
+* **Sprint:** 4.0 units/s
+* **Juggernaut:** 1.25 units/s
