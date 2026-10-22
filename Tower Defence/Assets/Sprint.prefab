@@ -138,6 +138,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a67e91041f24e86ad60c327e799174c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  baseHealth: 50
+  healthPerWave: 10
+  startWave: 3
   spReward: 2
   healthMultiplier: 0.5
   onKilled:
@@ -157,5 +160,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grid: {fileID: 0}
   pathNumber: 0
-  speed: 3.5
+  speed: 4
   fortressDamage: 5

@@ -138,8 +138,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a67e91041f24e86ad60c327e799174c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spReward: 16
-  healthMultiplier: 3
+  baseHealth: 400
+  healthPerWave: 50
+  startWave: 5
+  spReward: 20
+  healthMultiplier: 4
   onKilled:
     m_PersistentCalls:
       m_Calls: []
@@ -157,5 +160,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grid: {fileID: 0}
   pathNumber: 0
-  speed: 1
-  fortressDamage: 20
+  speed: 1.25
+  fortressDamage: 25
