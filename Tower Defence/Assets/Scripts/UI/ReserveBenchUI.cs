@@ -24,6 +24,19 @@ public class ReserveBenchUI : MonoBehaviour
         instance = this;
     }
 
+    // handle hotkey input each frame
+    void Update()
+    {
+        if (Input.GetKeyDown(toggleKey))
+        {
+            Toggle();
+        }
+        else if (Input.GetKeyDown(KeyCode.Escape) && isOpen)
+        {
+            Close();
+        }
+    }
+
     // toggle sliding menu open or closed with debounce check
     public void Toggle()
     {
