@@ -138,4 +138,26 @@ public class ReserveBenchUI : MonoBehaviour
             openMenuButton.gameObject.SetActive(true);
         }
     }
+
+    // handle slot button click to deploy or recruit into slot
+    public void OnSlotActionButtonClicked(int slotIndex)
+    {
+        if (ReserveBench.instance == null)
+        {
+            return;
+        }
+
+        if (ReserveBench.instance.IsSlotOccupied(slotIndex))
+        {
+            Close();
+            if (GridSelector.instance != null)
+            {
+                GridSelector.instance.StartBenchDeployment(slotIndex);
+            }
+        }
+        else
+        {
+            ReserveBench.instance.RecruitToSlot(slotIndex);
+        }
+    }
 }
