@@ -139,6 +139,70 @@ public class ReserveBenchUI : MonoBehaviour
         }
     }
 
+    // refresh drawer counters and slot buttons
+    public void Refresh()
+    {
+        if (menuPanel == null)
+        {
+            return;
+        }
+
+        int benched = 0;
+        int maxBench = 5;
+        int totalPassive = 0;
+
+        if (ReserveBench.instance != null)
+        {
+            benched = ReserveBench.instance.benchedUnits;
+            maxBench = ReserveBench.instance.maxBenchUnits;
+            totalPassive = ReserveBench.instance.totalPassiveSPEarned;
+        }
+
+        if (capacityText != null)
+        {
+            capacityText.text = "Benched: " + benched + " / " + maxBench + " Units";
+        }
+
+        if (passiveText != null)
+        {
+            passiveText.text = "Total Passive: +" + totalPassive + " SP";
+        }
+
+        for (int i = 0; i < 5; i++)
+        {
+            if (slotButtons[i] == null)
+            {
+                continue;
+            }
+
+            bool isOccupied = false;
+            bool canAfford = false;
+
+            if (ReserveBench.instance != null)
+            {
+                isOccupied = ReserveBench.instance.IsSlotOccupied(i);
+                canAfford = ReserveBench.instance.CanRecruitToSlot(i);
+            }
+
+            if (isOccupied)
+            {
+                slotButtons[i].interactable = true;
+                if (slotButtonTexts[i] != null)
+                {
+                    slotButtonTexts[i].text = "DEPLOY";
+                }
+            }
+            else
+            {
+                slotButtons[i].interactable = canAfford;
+                if (slotButtonTexts[i] != null)
+                {
+                    slotButtonTexts[i].text = "+ HIRE (20 SP)";
+                }
+            }
+        }
+    }
+
     // click first bench slot
     public void ClickSlot0()
     {
