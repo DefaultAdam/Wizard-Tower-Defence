@@ -61,6 +61,47 @@ public class ReserveBench : MonoBehaviour
         return allowPassiveOutsideSpawner;
     }
 
+    // calculate passive sp reward for one unit
+    public int CalculateUnitPassiveSP(int baseKillReward)
+    {
+        return Mathf.RoundToInt(baseKillReward * passiveMultiplier);
+    }
+
+    // calculate total passive sp reward for all benched units
+    public int CalculateTotalPassiveSP(int baseKillReward)
+    {
+        UpdateBenchedCount();
+        if (benchedUnits <= 0)
+        {
+            return 0;
+        }
+
+        return CalculateUnitPassiveSP(baseKillReward) * benchedUnits;
+    }
+
+    // process kill reward during active wave and give passive sp
+    public int OnEnemyKilled(int baseKillReward)
+    {
+        if (!IsWaveActive())
+        {
+            return 0;
+        }
+
+        int passiveSP = CalculateTotalPassiveSP(baseKillReward);
+        if (passiveSP > 0)
+        {
+            totalPassiveSPEarned += passiveSP;
+
+            if (HUD.instance != null)
+            {
+                HUD.instance.AddSP(passiveSP);
+                HUD.instance.ShowPassiveSPBonus(passiveSP);
+            }
+        }
+
+        return passiveSP;
+    }
+
     // refresh hud displays
     public void UpdateUI()
     {
