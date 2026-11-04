@@ -16,10 +16,31 @@ public class ReserveBenchUI : MonoBehaviour
     public float slideSpeed = 14f; // sliding animation speed
     public float panelWidth = 460f; // width of sliding drawer
 
+    private float lastToggleTime = -1f; // debounce timer for toggling menu
+
     // initialise instance on awake
     void Awake()
     {
         instance = this;
+    }
+
+    // toggle sliding menu open or closed with debounce check
+    public void Toggle()
+    {
+        if (Time.unscaledTime - lastToggleTime < 0.2f)
+        {
+            return;
+        }
+        lastToggleTime = Time.unscaledTime;
+
+        if (isOpen)
+        {
+            Close();
+        }
+        else
+        {
+            Open();
+        }
     }
 
     // slide open reserve bench menu drawer
