@@ -43,6 +43,71 @@ public class ReserveBench : MonoBehaviour
         benchedUnits = count;
     }
 
+    // check if bench slot is occupied
+    public bool IsSlotOccupied(int slotIndex)
+    {
+        if (slots == null || slotIndex < 0 || slotIndex >= slots.Length)
+        {
+            return false;
+        }
+        return slots[slotIndex];
+    }
+
+    // check if player can afford to hire into slot
+    public bool CanRecruitToSlot(int slotIndex)
+    {
+        if (slots == null || slotIndex < 0 || slotIndex >= slots.Length)
+        {
+            return false;
+        }
+
+        if (slots[slotIndex])
+        {
+            return false;
+        }
+
+        if (HUD.instance == null)
+        {
+            return false;
+        }
+
+        return HUD.instance.currentSP > recruitCost;
+    }
+
+    // hire recruit directly into bench slot
+    public bool RecruitToSlot(int slotIndex)
+    {
+        if (!CanRecruitToSlot(slotIndex))
+        {
+            return false;
+        }
+
+        if (HUD.instance != null)
+        {
+            HUD.instance.DeductSP(recruitCost);
+            HUD.instance.ShowDeduction(recruitCost);
+        }
+
+        slots[slotIndex] = true;
+        UpdateBenchedCount();
+        UpdateUI();
+        return true;
+    }
+
+    // deploy recruit from bench slot
+    public bool DeployFromSlot(int slotIndex)
+    {
+        if (!IsSlotOccupied(slotIndex))
+        {
+            return false;
+        }
+
+        slots[slotIndex] = false;
+        UpdateBenchedCount();
+        UpdateUI();
+        return true;
+    }
+
     // check if bench has free space
     public bool HasCapacity()
     {
@@ -59,6 +124,77 @@ public class ReserveBench : MonoBehaviour
         }
 
         return allowPassiveOutsideSpawner;
+    }
+
+    // check if player can afford to recruit to bench
+    public bool CanRecruitToBench()
+    {
+        if (!HasCapacity())
+        {
+            return false;
+        }
+
+        if (HUD.instance == null)
+        {
+            return false;
+        }
+
+        return HUD.instance.currentSP > recruitCost;
+    }
+
+    // recruit level 0 recruit to first free bench slot
+    public bool RecruitToBench()
+    {
+        if (!CanRecruitToBench())
+        {
+            return false;
+        }
+
+        for (int i = 0; i < slots.Length; i++)
+        {
+            if (!slots[i])
+            {
+                return RecruitToSlot(i);
+            }
+        }
+
+        return false;
+    }
+
+    // deploy recruit from first occupied bench slot
+    public bool DeployFromBench()
+    {
+        for (int i = 0; i < slots.Length; i++)
+        {
+            if (slots[i])
+            {
+                return DeployFromSlot(i);
+            }
+        }
+
+        return false;
+    }
+
+    // bench recruit from battlefield to first free slot
+    public bool BenchFromField()
+    {
+        if (!HasCapacity())
+        {
+            return false;
+        }
+
+        for (int i = 0; i < slots.Length; i++)
+        {
+            if (!slots[i])
+            {
+                slots[i] = true;
+                UpdateBenchedCount();
+                UpdateUI();
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // calculate passive sp reward for one unit
