@@ -16,6 +16,7 @@ public class ReserveBenchUI : MonoBehaviour
     public float slideSpeed = 14f; // sliding animation speed
     public float panelWidth = 460f; // width of sliding drawer
 
+    private float currentX = 520f; // current animated position
     private float lastToggleTime = -1f; // debounce timer for toggling menu
 
     // initialise instance on awake
@@ -37,6 +38,12 @@ public class ReserveBenchUI : MonoBehaviour
             closeMenuButton.onClick.AddListener(Close);
         }
 
+        currentX = panelWidth + 60f;
+        if (panelRect != null)
+        {
+            panelRect.anchoredPosition = new Vector2(currentX, 0f);
+        }
+
         if (menuPanel != null)
         {
             menuPanel.SetActive(false);
@@ -53,6 +60,31 @@ public class ReserveBenchUI : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Escape) && isOpen)
         {
             Close();
+        }
+
+        UpdateSlideAnimation();
+    }
+
+    // update drawer slide position towards target
+    void UpdateSlideAnimation()
+    {
+        float targetX = isOpen ? 0f : (panelWidth + 60f);
+
+        currentX = Mathf.Lerp(currentX, targetX, Time.unscaledDeltaTime * slideSpeed);
+
+        if (Mathf.Abs(currentX - targetX) < 0.5f)
+        {
+            currentX = targetX;
+
+            if (!isOpen && menuPanel != null && menuPanel.activeSelf)
+            {
+                menuPanel.SetActive(false);
+            }
+        }
+
+        if (panelRect != null)
+        {
+            panelRect.anchoredPosition = new Vector2(currentX, 0f);
         }
     }
 
@@ -80,6 +112,11 @@ public class ReserveBenchUI : MonoBehaviour
     {
         isOpen = true;
 
+        if (openMenuButton != null)
+        {
+            openMenuButton.gameObject.SetActive(false);
+        }
+
         if (menuPanel != null)
         {
             menuPanel.SetActive(true);
@@ -91,9 +128,9 @@ public class ReserveBenchUI : MonoBehaviour
     {
         isOpen = false;
 
-        if (menuPanel != null)
+        if (openMenuButton != null)
         {
-            menuPanel.SetActive(false);
+            openMenuButton.gameObject.SetActive(true);
         }
     }
 }
