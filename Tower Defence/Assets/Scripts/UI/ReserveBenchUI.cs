@@ -24,6 +24,25 @@ public class ReserveBenchUI : MonoBehaviour
         instance = this;
     }
 
+    // set up button listeners on start
+    void Start()
+    {
+        if (openMenuButton != null)
+        {
+            openMenuButton.onClick.AddListener(Toggle);
+        }
+
+        if (closeMenuButton != null)
+        {
+            closeMenuButton.onClick.AddListener(Close);
+        }
+
+        if (menuPanel != null)
+        {
+            menuPanel.SetActive(false);
+        }
+    }
+
     // handle hotkey input each frame
     void Update()
     {
