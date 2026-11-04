@@ -139,6 +139,36 @@ public class ReserveBenchUI : MonoBehaviour
         }
     }
 
+    // click first bench slot
+    public void ClickSlot0()
+    {
+        OnSlotActionButtonClicked(0);
+    }
+
+    // click second bench slot
+    public void ClickSlot1()
+    {
+        OnSlotActionButtonClicked(1);
+    }
+
+    // click third bench slot
+    public void ClickSlot2()
+    {
+        OnSlotActionButtonClicked(2);
+    }
+
+    // click fourth bench slot
+    public void ClickSlot3()
+    {
+        OnSlotActionButtonClicked(3);
+    }
+
+    // click fifth bench slot
+    public void ClickSlot4()
+    {
+        OnSlotActionButtonClicked(4);
+    }
+
     // handle slot button click to deploy or recruit into slot
     public void OnSlotActionButtonClicked(int slotIndex)
     {
