@@ -37,9 +37,17 @@ public class EnemySpawner : MonoBehaviour
     private int enemiesLeftToSpawn = 0; // remaining enemies to spawn in wave
     private int currentPathIndex = 0; // current path index to spawn on
 
-    private bool isWaveInProgress = false; // check if wave is actively running
+    public bool isWaveInProgress = false; // check if wave is actively running
     private float currentEnemyHealth = 100f; // total health assigned to spawned enemies
     private int highestMilestone = 0; // highest reached milestone level
+
+    public static EnemySpawner instance; // static reference to enemy spawner
+
+    // initialise instance on awake
+    void Awake()
+    {
+        instance = this;
+    }
 
     // initialise references on start
     void Start()
