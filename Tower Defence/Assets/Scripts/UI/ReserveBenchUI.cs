@@ -16,6 +16,11 @@ public class ReserveBenchUI : MonoBehaviour
     public float slideSpeed = 14f; // sliding animation speed
     public float panelWidth = 460f; // width of sliding drawer
 
+    public Button[] slotButtons = new Button[5]; // action buttons for five bench slots
+    public Text[] slotButtonTexts = new Text[5]; // text labels on slot action buttons
+    public Text capacityText; // text display for benched units count
+    public Text passiveText; // text display for total passive sp gained
+
     private float currentX = 520f; // current animated position
     private float lastToggleTime = -1f; // debounce timer for toggling menu
 
