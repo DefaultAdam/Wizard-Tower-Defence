@@ -21,4 +21,26 @@ public class ReserveBenchUI : MonoBehaviour
     {
         instance = this;
     }
+
+    // slide open reserve bench menu drawer
+    public void Open()
+    {
+        isOpen = true;
+
+        if (menuPanel != null)
+        {
+            menuPanel.SetActive(true);
+        }
+    }
+
+    // slide closed reserve bench menu drawer
+    public void Close()
+    {
+        isOpen = false;
+
+        if (menuPanel != null)
+        {
+            menuPanel.SetActive(false);
+        }
+    }
 }
