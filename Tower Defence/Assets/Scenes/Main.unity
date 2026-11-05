@@ -72693,9 +72693,6 @@ MonoBehaviour:
   width: 50
   height: 30
   cellSize: 1
-  groundPrefab: {fileID: 7200000001, guid: eecec26c1490435ab528b7888257c8f5, type: 3}
-  pathPrefab: {fileID: 7100000001, guid: c4e33c39c3f2481c91e7685ea6a316d6, type: 3}
-  wallPrefab: {fileID: 7300000001, guid: d71a8f902b4e47c1a892b51829e1fa3c, type: 3}
   fortressMin: {x: 23, y: 13}
   fortressMax: {x: 26, y: 16}
 --- !u!1 &1300867288
@@ -74708,6 +74705,56 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1328384904}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1329367753
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1329367755}
+  - component: {fileID: 1329367754}
+  m_Layer: 0
+  m_Name: ReserveBench
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1329367754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1329367753}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30bb3a93553f486790c56bc0798441ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  benchedUnits: 0
+  maxBenchUnits: 5
+  recruitCost: 20
+  passiveMultiplier: 1.5
+  totalPassiveSPEarned: 0
+  allowPassiveOutsideSpawner: 0
+--- !u!4 &1329367755
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1329367753}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1329792712
 GameObject:
   m_ObjectHideFlags: 0
@@ -114801,15 +114848,15 @@ MonoBehaviour:
   grid: {fileID: 1300000003}
   timeBetweenWaves: 3
   spawnInterval: 0.4
-  enemiesPerWave: 9
-  currentWave: 0
   spawnRateIncrease: 0.05
   minimumSpawnInterval: 0.15
-  groupSize: 1
+  enemiesPerWave: 9
   baseEnemyBonus: 2
   roundFiveEnemyBonus: 3
   roundTenEnemyBonus: 4
   roundFifteenEnemyBonus: 5
+  currentWave: 0
+  groupSize: 1
   enemyBaseHealth: 100
   levelZeroHealthBonus: 10
   levelOneHealthBonus: 20
@@ -120758,6 +120805,63 @@ MonoBehaviour:
   pausePanel: {fileID: 0}
   menuSceneName: MainMenu
   isPaused: 0
+--- !u!1 &2100000004
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2100000005}
+  - component: {fileID: 2100000006}
+  m_Layer: 0
+  m_Name: Skill Tree
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2100000005
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100000004}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2100000006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100000004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ef4ac85f3ad3ec4689bb3a25dd2e0c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  apprenticeUnlockSP: 250
+  apprenticePathCost: 25
+  apprenticeUpgradeCost: 100
+  veteranUnlockSP: 350
+  veteranPathCost: 50
+  veteranUpgradeCost: 150
+  masterUnlockSP: 400
+  masterUpgradeCost: 200
+  recruitColour: {r: 1, g: 1, b: 1, a: 1}
+  physicalColour: {r: 0.78, g: 0.6, b: 0.42, a: 1}
+  mechanicColour: {r: 0.45, g: 0.56, b: 0.68, a: 1}
+  magicColour: {r: 0.6, g: 0.3, b: 0.85, a: 1}
+  imaginaryColour: {r: 1, g: 0.85, b: 0.2, a: 1}
 --- !u!1 &2102531636
 GameObject:
   m_ObjectHideFlags: 0
@@ -123777,56 +123881,4 @@ SceneRoots:
   - {fileID: 6839535679635656835}
   - {fileID: 1200000002}
   - {fileID: 2100000005}
---- !u!1 &2100000004
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2100000005}
-  - component: {fileID: 2100000006}
-  m_Layer: 0
-  m_Name: Skill Tree
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2100000005
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2100000004}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2100000006
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2100000004}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ef4ac85f3ad3ec4689bb3a25dd2e0c0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  apprenticeUnlockSP: 250
-  apprenticePathCost: 25
-  apprenticeUpgradeCost: 100
-  veteranUnlockSP: 350
-  veteranPathCost: 50
-  veteranUpgradeCost: 150
-  masterUnlockSP: 400
-  masterUpgradeCost: 200
-
+  - {fileID: 1329367755}
