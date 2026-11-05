@@ -22,6 +22,11 @@ public class HUD : MonoBehaviour
     public Text towerCountText; // text display for placed towers count
     public Button towerButton; // button to trigger tower placement
     public Button veteranButton; // button to trigger veteran tower placement
+    public Text benchCountText; // text display for reserve bench count
+    public Button benchButton; // button to trigger recruitment to reserve bench
+    public Text passiveBonusText; // text display for passive sp bonus gained
+    public float bonusDuration = 1.5f; // display duration for passive bonus text
+    private float bonusTimer = 0f; // countdown timer for bonus display
     public float deductionDuration = 1.5f; // display duration for deduction text
     private float deductionTimer = 0f; // countdown timer for deduction display
     public int startingSP = 100; // starting fortress energy pool
@@ -35,6 +40,18 @@ public class HUD : MonoBehaviour
     void Awake()
     {
         instance = this;
+
+        if (ReserveBench.instance == null)
+        {
+            GameObject benchObj = new GameObject("ReserveBench");
+            benchObj.AddComponent<ReserveBench>();
+        }
+
+        if (GetComponent<ReserveBenchUI>() == null)
+        {
+            gameObject.AddComponent<ReserveBenchUI>();
+        }
+
         Time.timeScale = 1f;
     }
 
@@ -91,11 +108,20 @@ public class HUD : MonoBehaviour
             veteranButton.onClick.AddListener(OnVeteranButtonClicked);
         }
 
+        EnsurePassiveBonusText();
+
+        if (passiveBonusText != null)
+        {
+            passiveBonusText.text = "";
+            passiveBonusText.color = new Color(0.2f, 0.9f, 0.3f);
+        }
+
         UpdateSPText();
         UpdateMilestoneText();
         UpdateWaveText();
         UpdateTimerText();
         UpdateVeteranButtonState();
+        UpdateBenchButtonState();
     }
 
     // count down deduction timer and clear text
@@ -112,6 +138,20 @@ public class HUD : MonoBehaviour
                 }
             }
         }
+
+        if (bonusTimer > 0f)
+        {
+            bonusTimer -= Time.deltaTime;
+            if (bonusTimer <= 0f)
+            {
+                if (passiveBonusText != null)
+                {
+                    passiveBonusText.text = "";
+                }
+            }
+        }
+
+        UpdateBenchButtonState();
     }
 
     // update sp text display
@@ -250,6 +290,7 @@ public class HUD : MonoBehaviour
         UpdateMilestoneText();
         UpdateSPSlider();
         UpdateVeteranButtonState();
+        UpdateBenchButtonState();
         CheckGameOver();
         CheckVictory();
     }
@@ -283,6 +324,78 @@ public class HUD : MonoBehaviour
         {
             towerCountText.text = "Towers: " + current + "/" + max;
         }
+    }
+
+    // update bench display
+    public void UpdateBenchCount(int current, int max)
+    {
+        UpdateBenchButtonState();
+    }
+
+    // show passive sp bonus in green colour
+    public void ShowPassiveSPBonus(int amount)
+    {
+        if (passiveBonusText != null)
+        {
+            passiveBonusText.text = "+" + amount + " SP (1.5x Bench)";
+            bonusTimer = bonusDuration;
+        }
+    }
+
+    // handle bench recruitment button click to toggle drawer menu
+    public void OnBenchButtonClicked()
+    {
+        if (ReserveBenchUI.instance != null)
+        {
+            ReserveBenchUI.instance.Toggle();
+        }
+        else if (ReserveBench.instance != null)
+        {
+            ReserveBench.instance.RecruitToBench();
+        }
+    }
+
+    // bench open button is managed directly by ReserveBenchUI
+    void EnsureBenchHUDButton()
+    {
+    }
+
+    // ensure passive bonus floating text exists near sp display
+    void EnsurePassiveBonusText()
+    {
+        if (passiveBonusText != null)
+        {
+            return;
+        }
+
+        if (spText != null)
+        {
+            GameObject bonusObj = new GameObject("PassiveBonusText");
+            bonusObj.transform.SetParent(spText.transform.parent, false);
+            RectTransform rt = bonusObj.AddComponent<RectTransform>();
+            RectTransform spRt = spText.GetComponent<RectTransform>();
+            if (spRt != null)
+            {
+                rt.anchorMin = spRt.anchorMin;
+                rt.anchorMax = spRt.anchorMax;
+                rt.pivot = spRt.pivot;
+                rt.anchoredPosition = spRt.anchoredPosition + new Vector2(0f, -26f);
+                rt.sizeDelta = new Vector2(250f, 25f);
+            }
+
+            passiveBonusText = bonusObj.AddComponent<Text>();
+            passiveBonusText.font = spText.font;
+            passiveBonusText.fontSize = 13;
+            passiveBonusText.fontStyle = FontStyle.Bold;
+            passiveBonusText.color = new Color(0.25f, 0.95f, 0.45f);
+            passiveBonusText.alignment = TextAnchor.MiddleLeft;
+            passiveBonusText.text = "";
+        }
+    }
+
+    // bench open button is managed directly by ReserveBenchUI
+    public void UpdateBenchButtonState()
+    {
     }
 
     // handle tower placement button click
