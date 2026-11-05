@@ -53,6 +53,8 @@ public class ReserveBenchUI : MonoBehaviour
         {
             menuPanel.SetActive(false);
         }
+
+        Refresh();
     }
 
     // handle hotkey input each frame
@@ -68,6 +70,11 @@ public class ReserveBenchUI : MonoBehaviour
         }
 
         UpdateSlideAnimation();
+
+        if (isOpen)
+        {
+            Refresh();
+        }
     }
 
     // update drawer slide position towards target
@@ -126,6 +133,19 @@ public class ReserveBenchUI : MonoBehaviour
         {
             menuPanel.SetActive(true);
         }
+
+        if (SkillTreeUI.instance != null && SkillTreeUI.instance.isOpen)
+        {
+            SkillTreeUI.instance.Close();
+        }
+
+        if (GridSelector.instance != null)
+        {
+            GridSelector.instance.CancelPlacement();
+            GridSelector.instance.ClearSelection();
+        }
+
+        Refresh();
     }
 
     // slide closed reserve bench menu drawer
@@ -253,5 +273,7 @@ public class ReserveBenchUI : MonoBehaviour
         {
             ReserveBench.instance.RecruitToSlot(slotIndex);
         }
+
+        Refresh();
     }
 }
