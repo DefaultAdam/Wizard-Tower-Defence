@@ -130,6 +130,11 @@ public class SkillTreeUI : MonoBehaviour
     {
         isOpen = true;
 
+        if (ReserveBenchUI.instance != null && ReserveBenchUI.instance.isOpen)
+        {
+            ReserveBenchUI.instance.Close();
+        }
+
         if (window != null)
         {
             window.SetActive(true);
