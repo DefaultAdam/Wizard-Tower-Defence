@@ -19,6 +19,7 @@ public class GridSelector : MonoBehaviour
     public int maxTowerLimit = 25; // absolute maximum tower limit
     public int placedTowers = 0;
     public bool isPlacing = false;
+    public int deployingSlotIndex = -1; // bench slot currently being placed
 
     private Tower hoveredTower; // troop currently under the mouse
     private Tower selectedTower; // troop clicked for upgrades
@@ -102,6 +103,15 @@ public class GridSelector : MonoBehaviour
                 highlight.enabled = false;
             }
             return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            Tower target = selectedTower != null ? selectedTower : hoveredTower;
+            if (target != null && target.level == 0)
+            {
+                BenchTower(target);
+            }
         }
 
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
@@ -265,13 +275,34 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
+        deployingSlotIndex = -1;
         selectedTroopIndex = 0;
         isPlacing = true;
         ClearSelection();
 
         if (HUD.instance != null)
         {
-            HUD.instance.ShowUnitInspector("Recruit", "Level 0 Recruit", "Role: Stone Thrower\nDamage: 20\nRate: 0.8/s\nRange: 5");
+            HUD.instance.ShowUnitInspector("Recruit", "Level 0 Recruit", "Role: Stone Thrower\nCost: 20 SP\nDamage: 20\nRate: 0.8/s\nRange: 5");
+            return;
+        }
+    }
+
+    // start placing recruit from chosen bench slot
+    public void StartBenchDeployment(int slotIndex)
+    {
+        if (placedTowers >= maxTowers)
+        {
+            return;
+        }
+
+        deployingSlotIndex = slotIndex;
+        selectedTroopIndex = 0;
+        isPlacing = true;
+        ClearSelection();
+
+        if (HUD.instance != null)
+        {
+            HUD.instance.ShowUnitInspector("Recruit", "Level 0 Recruit (Bench Slot " + (slotIndex + 1) + ")", "Deploying from bench slot " + (slotIndex + 1) + " (0 SP)\nDamage: 20\nRate: 0.8/s\nRange: 5");
         }
     }
 
@@ -291,6 +322,7 @@ public class GridSelector : MonoBehaviour
             }
         }
 
+        deployingSlotIndex = -1;
         selectedTroopIndex = 1;
         isPlacing = true;
         ClearSelection();
@@ -305,6 +337,7 @@ public class GridSelector : MonoBehaviour
     public void CancelPlacement()
     {
         isPlacing = false;
+        deployingSlotIndex = -1;
         if (highlight != null)
         {
             highlight.enabled = false;
@@ -358,7 +391,11 @@ public class GridSelector : MonoBehaviour
         int cost = placementCost;
         GameObject prefabToPlace = towerPrefab;
 
-        if (selectedTroopIndex == 1)
+        if (deployingSlotIndex >= 0)
+        {
+            cost = 0;
+        }
+        else if (selectedTroopIndex == 1)
         {
             cost = veteranCost;
             prefabToPlace = veteranPrefab;
@@ -376,13 +413,21 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
-        if (HUD.instance.currentSP <= cost)
+        if (cost > 0 && HUD.instance.currentSP <= cost)
         {
             return;
         }
 
-        HUD.instance.DeductSP(cost);
-        HUD.instance.ShowDeduction(cost);
+        if (cost > 0)
+        {
+            HUD.instance.DeductSP(cost);
+            HUD.instance.ShowDeduction(cost);
+        }
+        else if (deployingSlotIndex >= 0 && ReserveBench.instance != null)
+        {
+            ReserveBench.instance.DeployFromSlot(deployingSlotIndex);
+        }
+        deployingSlotIndex = -1;
 
         Instantiate(prefabToPlace, center, Quaternion.identity);
         
@@ -391,6 +436,51 @@ public class GridSelector : MonoBehaviour
         HUD.instance.UpdateTowerCount(placedTowers, maxTowers);
 
         CancelPlacement();
+    }
+
+    // bench an active recruit from the battlefield back to reserve bench
+    public bool BenchTower(Tower tower)
+    {
+        if (tower == null || tower.level != 0)
+        {
+            return false;
+        }
+
+        if (grid == null)
+        {
+            return false;
+        }
+
+        if (ReserveBench.instance == null || !ReserveBench.instance.HasCapacity())
+        {
+            return false;
+        }
+
+        Vector2Int cell = grid.convertWorldPosToCell(tower.transform.position);
+        grid.SetCellType(cell, Grid.CellType.Free);
+
+        if (selectedTower == tower)
+        {
+            ClearSelection();
+        }
+
+        Destroy(tower.gameObject);
+
+        placedTowers--;
+        if (placedTowers < 0)
+        {
+            placedTowers = 0;
+        }
+
+        ReserveBench.instance.BenchFromField();
+
+        if (HUD.instance != null)
+        {
+            HUD.instance.UpdateTowerCount(placedTowers, maxTowers);
+            HUD.instance.HideUnitInspector();
+        }
+
+        return true;
     }
 
     // set highlight line colour

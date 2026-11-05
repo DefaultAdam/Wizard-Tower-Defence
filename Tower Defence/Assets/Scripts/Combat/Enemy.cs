@@ -44,6 +44,11 @@ public class Enemy : MonoBehaviour
             HUD.instance.AddSP(spReward);
         }
 
+        if (ReserveBench.instance != null)
+        {
+            ReserveBench.instance.OnEnemyKilled(spReward);
+        }
+
         if (onKilled != null)
         {
             onKilled.Invoke();

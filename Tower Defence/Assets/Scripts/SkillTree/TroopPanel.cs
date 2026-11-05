@@ -21,6 +21,8 @@ public class TroopPanel : MonoBehaviour
     public Text mechanicButtonText; // text display for mechanic upgrade button
     public Text magicButtonText; // text display for magic upgrade button
     public Text imaginaryButtonText; // text display for imaginary upgrade button
+    public Button benchButton; // button to bench inspected recruit
+    public Text benchButtonText; // text display for bench button
 
     // initialise instance on awake
     void Awake()
@@ -44,7 +46,8 @@ public class TroopPanel : MonoBehaviour
             tower = GridSelector.instance.GetInspectedTower();
         }
 
-        if (SkillTreeUI.instance != null && SkillTreeUI.instance.isOpen)
+        if ((SkillTreeUI.instance != null && SkillTreeUI.instance.isOpen) ||
+            (ReserveBenchUI.instance != null && ReserveBenchUI.instance.isOpen))
         {
             tower = null;
         }
@@ -89,6 +92,11 @@ public class TroopPanel : MonoBehaviour
             imaginaryButton.gameObject.SetActive(false);
         }
 
+        if (benchButton != null)
+        {
+            benchButton.gameObject.SetActive(false);
+        }
+
         if (hintText != null)
         {
             hintText.gameObject.SetActive(false);
@@ -126,6 +134,24 @@ public class TroopPanel : MonoBehaviour
         UpdateButton(magicButton, magicButtonText, tower, Branch.Magic, nextLevel);
         UpdateButton(imaginaryButton, imaginaryButtonText, tower, Branch.Imaginary, nextLevel);
 
+        if (benchButton != null)
+        {
+            if (tower.level == 0 && ReserveBench.instance != null)
+            {
+                benchButton.gameObject.SetActive(true);
+                bool canBench = ReserveBench.instance.HasCapacity();
+                benchButton.interactable = canBench;
+                if (benchButtonText != null)
+                {
+                    benchButtonText.text = canBench ? "Send to Bench [X]" : "Bench Full (5/5)";
+                }
+            }
+            else
+            {
+                benchButton.gameObject.SetActive(false);
+            }
+        }
+
         if (hintText != null)
         {
             if (nextLevel > 3)
@@ -134,11 +160,11 @@ public class TroopPanel : MonoBehaviour
             }
             else if (GridSelector.instance != null && GridSelector.instance.GetSelectedTower() != tower)
             {
-                hintText.text = "Click troop to upgrade";
+                hintText.text = tower.level == 0 ? "Click troop to upgrade (or 'X' to bench)" : "Click troop to upgrade";
             }
             else
             {
-                hintText.text = "Right click to deselect";
+                hintText.text = tower.level == 0 ? "Right click to deselect (or 'X' to bench)" : "Right click to deselect";
             }
         }
     }
@@ -172,6 +198,16 @@ public class TroopPanel : MonoBehaviour
     // set up button listeners on start
     void Start()
     {
+        if (benchButton == null && panel != null)
+        {
+            Transform found = panel.transform.Find("Bench Button");
+            if (found != null)
+            {
+                benchButton = found.GetComponent<Button>();
+                benchButtonText = found.GetComponentInChildren<Text>();
+            }
+        }
+
         if (physicalButton != null)
         {
             physicalButton.onClick.AddListener(UpgradeToPhysical);
@@ -190,6 +226,26 @@ public class TroopPanel : MonoBehaviour
         if (imaginaryButton != null)
         {
             imaginaryButton.onClick.AddListener(UpgradeToImaginary);
+        }
+
+        if (benchButton != null)
+        {
+            benchButton.onClick.AddListener(OnBenchButtonClicked);
+        }
+    }
+
+    // handle bench button click to send inspected recruit to reserve bench
+    public void OnBenchButtonClicked()
+    {
+        Tower tower = null;
+        if (GridSelector.instance != null)
+        {
+            tower = GridSelector.instance.GetInspectedTower();
+        }
+
+        if (tower != null && tower.level == 0 && GridSelector.instance != null)
+        {
+            GridSelector.instance.BenchTower(tower);
         }
     }
 
