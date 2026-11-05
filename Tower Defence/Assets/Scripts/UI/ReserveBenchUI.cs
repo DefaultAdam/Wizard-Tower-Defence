@@ -49,12 +49,76 @@ public class ReserveBenchUI : MonoBehaviour
             panelRect.anchoredPosition = new Vector2(currentX, 0f);
         }
 
+        FindSlotReferences();
+
         if (menuPanel != null)
         {
             menuPanel.SetActive(false);
         }
 
         Refresh();
+    }
+
+    // find slot buttons and counters from panel if not assigned
+    void FindSlotReferences()
+    {
+        if (menuPanel == null)
+        {
+            return;
+        }
+
+        if (capacityText == null)
+        {
+            Transform cap = menuPanel.transform.Find("Footer/CapacityText");
+            if (cap != null)
+            {
+                capacityText = cap.GetComponent<Text>();
+            }
+        }
+
+        if (passiveText == null)
+        {
+            Transform pas = menuPanel.transform.Find("Footer/TotalPassiveText");
+            if (pas != null)
+            {
+                passiveText = pas.GetComponent<Text>();
+            }
+        }
+
+        Transform container = menuPanel.transform.Find("SlotsContainer");
+        if (container != null)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                Transform slot = container.Find("Slot_" + i);
+                if (slot != null)
+                {
+                    if (slotButtons[i] == null)
+                    {
+                        Transform btn = slot.Find("ActionButton");
+                        if (btn != null)
+                        {
+                            slotButtons[i] = btn.GetComponent<Button>();
+                        }
+                    }
+
+                    if (slotButtonTexts[i] == null && slotButtons[i] != null)
+                    {
+                        Transform txt = slotButtons[i].transform.Find("ActionText");
+                        if (txt != null)
+                        {
+                            slotButtonTexts[i] = txt.GetComponent<Text>();
+                        }
+                    }
+                }
+            }
+        }
+
+        if (slotButtons[0] != null) slotButtons[0].onClick.AddListener(ClickSlot0);
+        if (slotButtons[1] != null) slotButtons[1].onClick.AddListener(ClickSlot1);
+        if (slotButtons[2] != null) slotButtons[2].onClick.AddListener(ClickSlot2);
+        if (slotButtons[3] != null) slotButtons[3].onClick.AddListener(ClickSlot3);
+        if (slotButtons[4] != null) slotButtons[4].onClick.AddListener(ClickSlot4);
     }
 
     // handle hotkey input each frame
