@@ -63,16 +63,6 @@ jobs:
     outputs:
       built: ${{ steps.check.outputs.run_unity }}
     steps:
-      - name: Free Disk Space
-        uses: jlumbroso/free-disk-space@v1.3.1
-        with:
-          tool-cache: true
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          swap-storage: true
-
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -89,6 +79,16 @@ jobs:
           fi
           echo "project_path=$(dirname "$(dirname "$PROJECT_FILE")")" >> $GITHUB_OUTPUT
           echo "run_unity=true" >> $GITHUB_OUTPUT
+
+      - if: steps.check.outputs.run_unity == 'true'
+        name: Free Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache
+          sudo rm -rf /usr/local/share/boost
+          sudo docker system prune -af || true
 
       - if: steps.check.outputs.run_unity == 'true'
         uses: actions/cache@v4
