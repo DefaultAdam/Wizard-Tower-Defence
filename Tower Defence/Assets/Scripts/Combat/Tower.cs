@@ -39,6 +39,11 @@ public class Tower : MonoBehaviour
     public Branch branch = Branch.None; // chosen specialisation branch
     public int level = 0; // troop level tier
 
+    public float boltCooldown = 0.8f; // physical apprentice bolts fire this often, seperate to the normal attack
+    public float veteranBoltCooldown = 0.5f; // veterans fire the same bolts but more often
+    public float boltDamagePercent = 0.5f; // each bolt does half the troops damage since theres loads of them
+    private float boltTimer = 0f; // countdown till the next physical bolt
+
     private float cooldownTimer = 0f; // timer to track attack cooldown
     private GameObject currentTarget; // current target enemy
 
@@ -255,6 +260,77 @@ public class Tower : MonoBehaviour
                 Attack(currentTarget);
             }
         }
+
+        //PHYSICAL BRANCH
+
+
+        // physical troops also shoot energy bolts on their own timer
+        if (branch == Branch.Physical && level >= 1)
+        {
+            UpdateBolts();
+        }
+    }
+
+    // checks bolt timer and fires when its ready, independant from the normal attack cooldown
+    void UpdateBolts()
+    {
+        if (boltTimer > 0f)
+        {
+            boltTimer -= Time.deltaTime;
+        }
+
+        if (currentTarget != null && boltTimer <= 0f)
+        {
+            FireBolt(currentTarget);
+        }
+    }
+
+    // shoots one energy bolt at the target
+    void FireBolt(GameObject target)
+    {
+        boltTimer = boltCooldown;
+
+        // veteran and up = faster bolts
+        if (level >= 2)
+        {
+            boltTimer = veteranBoltCooldown;
+        }
+
+        if (projectilePrefab == null)
+        {
+            return;
+        }
+
+        Vector3 spawnPosition = transform.position;
+
+        if (firePoint != null)
+        {
+            spawnPosition = firePoint.position;
+        }
+
+        GameObject boltObject = Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
+        Projectile bolt = boltObject.GetComponent<Projectile>();
+
+        if (bolt != null)
+        {
+            bolt.damage = GetCurrentDamage() * boltDamagePercent;
+
+            // bolts are just a straight hit, no splash or power of their own
+            bolt.aoeRadius = 0f;
+            bolt.SetTarget(target.transform);
+        }
+
+
+
+
+
+
+
+
+
+
+
+        
     }
 
     // check if current target is alive and in range
