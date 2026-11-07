@@ -17,6 +17,7 @@ public class Projectile : MonoBehaviour
 
     public float magicFreezeTime = 1.5f; // how long a magic apprentice hit freezes an enemy
     public float veteranFreezeTime = 2.5f; // veterans keep them stuck longer
+    public Material bubbleMaterial; // see through purple material for the bubble, set on the projectile prefab
 
     private Transform target; // target to follow
     private GameObject[] splashStones;
@@ -171,7 +172,7 @@ public class Projectile : MonoBehaviour
         }
 
         // just the enemy that got hit, splash ones keep walking
-        movement.Bubble(freezeTime);
+        movement.Bubble(freezeTime, bubbleMaterial);
     }
 
     // imaginary -walls on the path stop eneme

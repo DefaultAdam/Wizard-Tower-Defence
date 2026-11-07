@@ -24,6 +24,8 @@ public class EnemyMovement : MonoBehaviour
     public float floatHeight = 1f; // how high a bubbled enemy floats up
     public float floatSpeed = 3f; // how fast it rises into the air
     private bool isFloating = false; // true while its stuck in a magic bubble
+    public float bubbleSize = 1.8f; // bubble size compared to the enemy, a bit bigger so it fits round it
+    private GameObject bubble; // the bubble sphere, only exists while its bubbled
 
     private void Start()
     {
@@ -74,6 +76,7 @@ public class EnemyMovement : MonoBehaviour
             if (pauseTimer <= 0f)
             {
                 isFloating = false;
+                PopBubble();
             }
 
             return;
@@ -111,10 +114,41 @@ public class EnemyMovement : MonoBehaviour
     }
 
     // magic bubble - freezes the enemy like Pause but also lifts it up into the air
-    public void Bubble(float duration)
+    public void Bubble(float duration, Material bubbleMaterial)
     {
         Pause(duration);
         isFloating = true;
+        ShowBubble(bubbleMaterial);
+    }
+
+    // puts a see through sphere round the enemy, if theres already one we just keep it
+    void ShowBubble(Material bubbleMaterial)
+    {
+        if (bubble != null || bubbleMaterial == null)
+        {
+            return;
+        }
+
+        bubble = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+
+        // its just for looks so get rid of the collider, dont want towers or projectiles hitting it
+        Destroy(bubble.GetComponent<Collider>());
+
+        // child of the enemy so it moves with it and gets destroyed with it if it dies
+        bubble.transform.SetParent(transform, false);
+        bubble.transform.localPosition = Vector3.zero;
+        bubble.transform.localScale = Vector3.one * bubbleSize;
+        bubble.GetComponent<Renderer>().sharedMaterial = bubbleMaterial;
+    }
+
+    // removes the bubble when the freeze runs out
+    void PopBubble()
+    {
+        if (bubble != null)
+        {
+            Destroy(bubble);
+            bubble = null;
+        }
     }
 
     // raises the enemy a bit each frame till its at float height above the path
