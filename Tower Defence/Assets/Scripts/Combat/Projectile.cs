@@ -64,6 +64,9 @@ public class Projectile : MonoBehaviour
             targetHealth.TakeDamage(damage);
         }
 
+        // path power goes on top of the normal hit and splash
+        ApplyPower();
+
         if (aoeRadius > 0f)
         {
             DealAreaDamage(hitPosition);
@@ -72,6 +75,54 @@ public class Projectile : MonoBehaviour
         }
 
         Destroy(gameObject);
+    }
+
+    // picks the right power based on what path the troop that fired is on
+    // recruits (level 0 / no branch) dont have a power so nothing happens
+    void ApplyPower()
+    {
+        if (level <= 0 || branch == Branch.None)
+        {
+            return;
+        }
+
+        if (branch == Branch.Physical)
+        {
+            ApplyPhysicalPower();
+        }
+        else if (branch == Branch.Mechanic)
+        {
+            ApplyMechanicPower();
+        }
+        else if (branch == Branch.Magic)
+        {
+            ApplyMagicPower();
+        }
+        else if (branch == Branch.Imaginary)
+        {
+            ApplyImaginaryPower();
+
+        }
+    }
+
+    // physical -energy bolts
+    void ApplyPhysicalPower()
+    {
+    }
+
+    // mechanic - throws enemies back down the path
+    void ApplyMechanicPower()
+    {
+    }
+
+    // magic - traps enemies in a floating bubble
+    void ApplyMagicPower()
+    {
+    }
+
+    // imaginary -walls on the path stop eneme
+    void ApplyImaginaryPower()
+    {
     }
 
     void ShowSplashEffect(Vector3 center)
