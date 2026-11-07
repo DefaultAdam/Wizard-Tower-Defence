@@ -42,6 +42,8 @@ public class Tower : MonoBehaviour
     public float boltCooldown = 0.8f; // physical apprentice bolts fire this often, seperate to the normal attack
     public float veteranBoltCooldown = 0.5f; // veterans fire the same bolts but more often
     public float boltDamagePercent = 0.5f; // each bolt does half the troops damage since theres loads of them
+    public float boltSpeedMultiplier = 1.75f; // bolts fly 75% faster than normal stones
+    public float boltSizeMultiplier = 1.8f; // and theyre bigger so you can tell them apart
     private float boltTimer = 0f; // countdown till the next physical bolt
 
     private float cooldownTimer = 0f; // timer to track attack cooldown
@@ -315,10 +317,21 @@ public class Tower : MonoBehaviour
         {
             bolt.damage = GetCurrentDamage() * boltDamagePercent;
 
-            // bolts are just a straight hit, no splash or power of their own
+            // bolts are just a straight hit, no splash
             bolt.aoeRadius = 0f;
+            bolt.speed *= boltSpeedMultiplier;
             bolt.SetTarget(target.transform);
         }
+
+        // making it big and brown so it looks like a physical energy bolt, different from regular
+        boltObject.transform.localScale *= boltSizeMultiplier;
+
+        foreach (Renderer boltRenderer in boltObject.GetComponentsInChildren<Renderer>())
+        {
+            boltRenderer.material.color = GetBranchColour();
+        }
+
+
 
 
 
