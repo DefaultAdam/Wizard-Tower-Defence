@@ -46,6 +46,14 @@ public class Tower : MonoBehaviour
     public float boltSizeMultiplier = 1.8f; // and theyre bigger so you can tell them apart
     private float boltTimer = 0f; // countdown till the next physical bolt
 
+    public float wallCooldown = 6f; // imaginary apprentices build a wall this often
+    public float veteranWallCooldown = 4f; // veterans rebuild quicker
+    public float wallHealth = 100f; // how tough an apprentice wall is
+    public float veteranWallHealth = 200f; // veteran walls take twice as much to break
+    public int wallCellsAhead = 2; // how many cells in front of the target the wall goes
+    private float wallTimer = 0f; // countdown till the next wall can go down
+    private ImaginaryWall currentWall; // the wall this troop has out right now, only one at a time
+
     private float cooldownTimer = 0f; // timer to track attack cooldown
     private GameObject currentTarget; // current target enemy
 
@@ -271,6 +279,78 @@ public class Tower : MonoBehaviour
         {
             UpdateBolts();
         }
+
+        // imaginary troops build walls on the path
+        if (branch == Branch.Imaginary && level >= 1)
+        {
+            UpdateWalls();
+        }
+    }
+
+    // waits for the troops last wall to be gone, then counts down and builds a new one
+    void UpdateWalls()
+    {
+        // still got a wall out, dont make another
+        if (currentWall != null)
+        {
+            return;
+        }
+
+        if (wallTimer > 0f)
+        {
+            wallTimer -= Time.deltaTime;
+        }
+
+        if (currentTarget != null && wallTimer <= 0f)
+        {
+            BuildWall(currentTarget);
+        }
+    }
+
+    // puts a wall on the path a couple of cells in front of the target so it walks into it
+    void BuildWall(GameObject target)
+    {
+        EnemyMovement movement = target.GetComponent<EnemyMovement>();
+
+        if (movement == null)
+        {
+            return;
+        }
+
+        Vector2Int wallCell;
+
+        // target's too close to the end of its path, try again next frame
+        if (!movement.GetCellAhead(wallCellsAhead, out wallCell))
+        {
+            return;
+        }
+
+        // someone elses wall is already there
+        if (ImaginaryWall.GetWallAt(wallCell) != null)
+        {
+            return;
+        }
+
+        // just a yellow block for now, slightly smaller than the cell so you can see the gaps
+        GameObject wallObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        Destroy(wallObject.GetComponent<Collider>());
+
+        float cellSize = movement.grid.cellSize;
+        wallObject.transform.position = movement.grid.GetCellCenter(wallCell) + new Vector3(0f, 0.5f, 0f);
+        wallObject.transform.localScale = new Vector3(cellSize * 0.9f, 1f, cellSize * 0.9f);
+        wallObject.GetComponent<Renderer>().material.color = GetBranchColour();
+
+        float health = wallHealth;
+        wallTimer = wallCooldown;
+
+        if (level >= 2)
+        {
+            health = veteranWallHealth;
+            wallTimer = veteranWallCooldown;
+        }
+
+        currentWall = wallObject.AddComponent<ImaginaryWall>();
+        currentWall.Setup(wallCell, health);
     }
 
     // checks bolt timer and fires when its ready, independant from the normal attack cooldown

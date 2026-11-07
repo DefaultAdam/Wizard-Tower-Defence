@@ -124,6 +124,29 @@ public class EnemyMovement : MonoBehaviour
         return pauseTimer > 0f;
     }
 
+    // gives the path cell a few steps in front of the enemy (imaginary walls go here)
+    // returns false if thats past the end of the path
+    public bool GetCellAhead(int cellsAhead, out Vector2Int cell)
+    {
+        cell = Vector2Int.zero;
+
+        if (path == null)
+        {
+            return false;
+        }
+
+        // nextGridNumber is the cell its walking into, so count on from there
+        int index = nextGridNumber + cellsAhead - 1;
+
+        if (index < 0 || index >= path.Length)
+        {
+            return false;
+        }
+
+        cell = path[index];
+        return true;
+    }
+
     // magic bubble - freezes the enemy like Pause but also lifts it up into the air
     public void Bubble(float duration, Material bubbleMaterial)
     {
