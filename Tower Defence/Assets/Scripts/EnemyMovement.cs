@@ -26,6 +26,8 @@ public class EnemyMovement : MonoBehaviour
     private bool isFloating = false; // true while its stuck in a magic bubble
     public float bubbleSize = 1.8f; // bubble size compared to the enemy, a bit bigger so it fits round it
     private GameObject bubble; // the bubble sphere, only exists while its bubbled
+    public float bubbleImmunity = 2f; // after a bubble pops it cant be bubbled again for this long
+    private float bubbleImmunityTimer = 0f; // time left before it can be bubbled again
 
     private void Start()
     {
@@ -55,6 +57,12 @@ public class EnemyMovement : MonoBehaviour
             throwCooldownTimer -= Time.deltaTime;
         }
 
+        // same thing for the bubble immunity
+        if (bubbleImmunityTimer > 0f)
+        {
+            bubbleImmunityTimer -= Time.deltaTime;
+        }
+
         // flying through the air from a mechanic throw, cant walk till it lands
         if (isThrown)
         {
@@ -77,6 +85,9 @@ public class EnemyMovement : MonoBehaviour
             {
                 isFloating = false;
                 PopBubble();
+
+                // give it a couple of seconds where magic cant freeze it again
+                bubbleImmunityTimer = bubbleImmunity;
             }
 
             return;
@@ -116,6 +127,12 @@ public class EnemyMovement : MonoBehaviour
     // magic bubble - freezes the enemy like Pause but also lifts it up into the air
     public void Bubble(float duration, Material bubbleMaterial)
     {
+        // bubble only just popped, let it walk for a bit so it cant be frozen forever
+        if (bubbleImmunityTimer > 0f)
+        {
+            return;
+        }
+
         Pause(duration);
         isFloating = true;
         ShowBubble(bubbleMaterial);
