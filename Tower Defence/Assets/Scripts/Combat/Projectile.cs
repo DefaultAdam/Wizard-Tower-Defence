@@ -171,7 +171,7 @@ public class Projectile : MonoBehaviour
         }
 
         // just the enemy that got hit, splash ones keep walking
-        movement.Pause(freezeTime);
+        movement.Bubble(freezeTime);
     }
 
     // imaginary -walls on the path stop eneme

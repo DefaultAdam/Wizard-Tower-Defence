@@ -21,6 +21,10 @@ public class EnemyMovement : MonoBehaviour
     private Vector3 throwStart; // where the throw started from
     private Vector3 throwEnd; // the cell its going to land on
 
+    public float floatHeight = 1f; // how high a bubbled enemy floats up
+    public float floatSpeed = 3f; // how fast it rises into the air
+    private bool isFloating = false; // true while its stuck in a magic bubble
+
     private void Start()
     {
         if (grid == null)
@@ -60,6 +64,18 @@ public class EnemyMovement : MonoBehaviour
         if (pauseTimer > 0f)
         {
             pauseTimer -= Time.deltaTime;
+
+            if (isFloating)
+            {
+                FloatUp();
+            }
+
+            // bubble's done, once it starts walking again it'll drift back down to the path
+            if (pauseTimer <= 0f)
+            {
+                isFloating = false;
+            }
+
             return;
         }
 
@@ -92,6 +108,32 @@ public class EnemyMovement : MonoBehaviour
     public bool IsPaused()
     {
         return pauseTimer > 0f;
+    }
+
+    // magic bubble - freezes the enemy like Pause but also lifts it up into the air
+    public void Bubble(float duration)
+    {
+        Pause(duration);
+        isFloating = true;
+    }
+
+    // raises the enemy a bit each frame till its at float height above the path
+    void FloatUp()
+    {
+        // use the path cell its on for the ground height, not where it is now
+        // (otherwise if it gets bubbled mid throw it would float from up in the air)
+        int currentCell = nextGridNumber - 1;
+
+        if (currentCell < 0)
+        {
+            currentCell = 0;
+        }
+
+        float groundY = grid.GetCellCenter(path[currentCell]).y;
+
+        Vector3 position = transform.position;
+        position.y = Mathf.MoveTowards(position.y, groundY + floatHeight, floatSpeed * Time.deltaTime);
+        transform.position = position;
     }
 
     // sends the enemy back down its path by a number of cells (for the mechanic throw)
