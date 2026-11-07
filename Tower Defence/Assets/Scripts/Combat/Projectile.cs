@@ -15,6 +15,9 @@ public class Projectile : MonoBehaviour
     public int mechanicThrowCells = 2; // how many cells back a mechanic apprentice throws an enemy
     public int veteranThrowCells = 3; // veterans throw them a bit further
 
+    public float magicFreezeTime = 1.5f; // how long a magic apprentice hit freezes an enemy
+    public float veteranFreezeTime = 2.5f; // veterans keep them stuck longer
+
     private Transform target; // target to follow
     private GameObject[] splashStones;
     private Vector3 splashCenter;
@@ -145,6 +148,30 @@ public class Projectile : MonoBehaviour
     // magic - traps enemies in a floating bubble
     void ApplyMagicPower()
     {
+        // dont bother if the hit already killed it
+        Health enemyHealth = target.GetComponent<Health>();
+
+        if (enemyHealth != null && enemyHealth.isDead)
+        {
+            return;
+        }
+
+        EnemyMovement movement = target.GetComponent<EnemyMovement>();
+
+        if (movement == null)
+        {
+            return;
+        }
+
+        float freezeTime = magicFreezeTime;
+
+        if (level >= 2)
+        {
+            freezeTime = veteranFreezeTime;
+        }
+
+        // just the enemy that got hit, splash ones keep walking
+        movement.Pause(freezeTime);
     }
 
     // imaginary -walls on the path stop eneme
