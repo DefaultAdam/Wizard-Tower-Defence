@@ -14,6 +14,13 @@ public class EnemyMovement : MonoBehaviour
     public float throwCooldown = 3f; // after being thrown it cant be thrown again for this long
     private float throwCooldownTimer = 0f; // time left before it can be thrown again
 
+    public float throwDuration = 0.5f; // how long the enemy is in the air when thrown
+    public float throwHeight = 2f; // how high it goes at the top of the arc
+    private bool isThrown = false; // true while its flying through the air
+    private float throwTimer = 0f; // how far through the throw it is
+    private Vector3 throwStart; // where the throw started from
+    private Vector3 throwEnd; // the cell its going to land on
+
     private void Start()
     {
         if (grid == null)
@@ -40,6 +47,13 @@ public class EnemyMovement : MonoBehaviour
         if (throwCooldownTimer > 0f)
         {
             throwCooldownTimer -= Time.deltaTime;
+        }
+
+        // flying through the air from a mechanic throw, cant walk till it lands
+        if (isThrown)
+        {
+            UpdateThrow();
+            return;
         }
 
         // dont move while paused, just count down till its free again
@@ -81,7 +95,7 @@ public class EnemyMovement : MonoBehaviour
     }
 
     // sends the enemy back down its path by a number of cells (for the mechanic throw)
-    // just snaps it there for now, can make it fly in an arc later
+    // it flies there in an arc, see UpdateThrow
     public void PushBack(int cells)
     {
         if (path == null || cells <= 0)
@@ -107,8 +121,30 @@ public class EnemyMovement : MonoBehaviour
             landingCell = 0;
         }
 
-        transform.position = grid.GetCellCenter(path[landingCell]);
+        // set up the flight instead of snapping straight there
+        throwStart = transform.position;
+        throwEnd = grid.GetCellCenter(path[landingCell]);
+        throwTimer = 0f;
+        isThrown = true;
+
         nextGridNumber = landingCell + 1;
+    }
+
+    // moves the enemy along the arc each frame until it lands
+    void UpdateThrow()
+    {
+        throwTimer += Time.deltaTime;
+        float progress = Mathf.Clamp01(throwTimer / throwDuration);
+
+        // straight line from start to landing spot, then lift it up with a sine so it goes up and back down
+        Vector3 position = Vector3.Lerp(throwStart, throwEnd, progress);
+        position.y += Mathf.Sin(progress * Mathf.PI) * throwHeight;
+        transform.position = position;
+
+        if (progress >= 1f)
+        {
+            isThrown = false;
+        }
     }
 
     // damage fortress sp and destroy enemy
