@@ -10,6 +10,7 @@ public class EnemyMovement : MonoBehaviour
     private int nextGridNumber;
     public float speed = 2f;
     public int fortressDamage = 8; // sp damage dealt to fortress on breach
+    private float pauseTimer = 0f; // how long the enemy is stuck for, 0 means it can move
 
     private void Start()
     {
@@ -33,6 +34,13 @@ public class EnemyMovement : MonoBehaviour
             return;
         }
 
+        // dont move while paused, just count down till its free again
+        if (pauseTimer > 0f)
+        {
+            pauseTimer -= Time.deltaTime;
+            return;
+        }
+
         if (nextGridNumber >= path.Length)
         {
             ReachFortress();
@@ -46,6 +54,22 @@ public class EnemyMovement : MonoBehaviour
         {
             nextGridNumber++;
         }
+    }
+
+    // stops the enemy where it is for a bit (used by powers like the magic bubble)
+    // if its already paused we keep whichever time is longer so a short hit doesnt cut a long one
+    public void Pause(float duration)
+    {
+        if (duration > pauseTimer)
+        {
+            pauseTimer = duration;
+        }
+    }
+
+    // true while the enemy is frozen
+    public bool IsPaused()
+    {
+        return pauseTimer > 0f;
     }
 
     // damage fortress sp and destroy enemy
