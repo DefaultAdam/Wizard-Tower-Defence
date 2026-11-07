@@ -31,6 +31,7 @@ public class EnemyMovement : MonoBehaviour
 
     public float wallStopDistance = 0.6f; // how close it gets to a wall cell before stopping (in cells)
     private ImaginaryWall blockingWall; // the wall in its way right now, null if the path is clear
+    public float wallDamagePerSecond = 25f; // how fast this enemy chips away at a wall
 
     private void Start()
     {
@@ -109,6 +110,9 @@ public class EnemyMovement : MonoBehaviour
 
         if (blockingWall != null && Vector3.Distance(transform.position, targetPosition) <= wallStopDistance * grid.cellSize)
         {
+            // hit the wall while its waiting, every enemy stuck here adds damage so groups break it faster
+            // once it breaks GetWallAt comes back null and it carries on walking
+            blockingWall.TakeDamage(wallDamagePerSecond * Time.deltaTime);
             return;
         }
 

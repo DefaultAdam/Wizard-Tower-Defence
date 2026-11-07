@@ -53,6 +53,9 @@ public class Tower : MonoBehaviour
     public int wallCellsAhead = 2; // how many cells in front of the target the wall goes
     private float wallTimer = 0f; // countdown till the next wall can go down
     private ImaginaryWall currentWall; // the wall this troop has out right now, only one at a time
+    public float wallLifetime = 8f; // walls disappear on their own after this if nobody breaks them
+    public float veteranWallLifetime = 10f; // veteran walls stick around longer
+    private float wallLifeTimer = 0f; // time left before the current wall vanishes
 
     private float cooldownTimer = 0f; // timer to track attack cooldown
     private GameObject currentTarget; // current target enemy
@@ -290,9 +293,10 @@ public class Tower : MonoBehaviour
     // waits for the troops last wall to be gone, then counts down and builds a new one
     void UpdateWalls()
     {
-        // still got a wall out, dont make another
+        // still got a wall out, keep it updated and dont make another
         if (currentWall != null)
         {
+            UpdateCurrentWall();
             return;
         }
 
@@ -351,6 +355,39 @@ public class Tower : MonoBehaviour
 
         currentWall = wallObject.AddComponent<ImaginaryWall>();
         currentWall.Setup(wallCell, health);
+
+        wallLifeTimer = wallLifetime;
+
+        if (level >= 2)
+        {
+            wallLifeTimer = veteranWallLifetime;
+        }
+    }
+
+    // shrinks the wall as it gets damaged and gets rid of it when its time is up
+    void UpdateCurrentWall()
+    {
+        wallLifeTimer -= Time.deltaTime;
+
+        if (wallLifeTimer <= 0f)
+        {
+            currentWall.Break();
+            return;
+        }
+
+        // squash it down to show how much health is left, never fully flat so you can still see it
+        float healthLeft = currentWall.currentHealth / currentWall.maxHealth;
+        float height = Mathf.Max(0.2f, healthLeft);
+
+        Vector3 scale = currentWall.transform.localScale;
+        Vector3 position = currentWall.transform.position;
+
+        // keep the bottom on the ground while it shrinks, so move it down by half the height it lost
+        position.y += (height - scale.y) * 0.5f;
+        scale.y = height;
+
+        currentWall.transform.localScale = scale;
+        currentWall.transform.position = position;
     }
 
     // checks bolt timer and fires when its ready, independant from the normal attack cooldown
