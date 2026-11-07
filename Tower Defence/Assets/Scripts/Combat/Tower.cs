@@ -416,6 +416,8 @@ public class Tower : MonoBehaviour
                 projectile.damage = GetCurrentDamage();
                 projectile.aoeRadius = aoeRadius;
                 projectile.aoeDamagePercent = aoeDamagePercent;
+                projectile.branch = branch;
+                projectile.level = level;
                 projectile.SetTarget(target.transform);
             }
         }

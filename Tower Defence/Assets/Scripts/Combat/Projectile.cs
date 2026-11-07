@@ -7,6 +7,8 @@ public class Projectile : MonoBehaviour
     public float damage = 20f; // damage dealt on hit
     public float aoeRadius = 0f;
     public float aoeDamagePercent = 0.5f;
+    public Branch branch = Branch.None; // specialisation branch of the troop that fired
+    public int level = 0; // level of the troop that fired
     public int splashStoneCount = 8;
     public float splashEffectDuration = 0.35f;
 
