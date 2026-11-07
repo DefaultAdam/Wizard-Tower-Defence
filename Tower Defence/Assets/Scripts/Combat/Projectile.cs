@@ -12,6 +12,9 @@ public class Projectile : MonoBehaviour
     public int splashStoneCount = 8;
     public float splashEffectDuration = 0.35f;
 
+    public int mechanicThrowCells = 2; // how many cells back a mechanic apprentice throws an enemy
+    public int veteranThrowCells = 3; // veterans throw them a bit further
+
     private Transform target; // target to follow
     private GameObject[] splashStones;
     private Vector3 splashCenter;
@@ -113,6 +116,30 @@ public class Projectile : MonoBehaviour
     // mechanic - throws enemies back down the path
     void ApplyMechanicPower()
     {
+        // no point throwing it if the hit already killed it
+        Health enemyHealth = target.GetComponent<Health>();
+
+        if (enemyHealth != null && enemyHealth.isDead)
+        {
+            return;
+        }
+
+        EnemyMovement movement = target.GetComponent<EnemyMovement>();
+
+        if (movement == null)
+        {
+            return;
+        }
+
+        int cells = mechanicThrowCells;
+
+        if (level >= 2)
+        {
+            cells = veteranThrowCells;
+        }
+
+        // only the enemy that got hit gets thrown, not the ones in the splash
+        movement.PushBack(cells);
     }
 
     // magic - traps enemies in a floating bubble
