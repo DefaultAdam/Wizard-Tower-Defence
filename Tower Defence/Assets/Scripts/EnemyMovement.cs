@@ -11,6 +11,8 @@ public class EnemyMovement : MonoBehaviour
     public float speed = 2f;
     public int fortressDamage = 8; // sp damage dealt to fortress on breach
     private float pauseTimer = 0f; // how long the enemy is stuck for, 0 means it can move
+    public float throwCooldown = 3f; // after being thrown it cant be thrown again for this long
+    private float throwCooldownTimer = 0f; // time left before it can be thrown again
 
     private void Start()
     {
@@ -32,6 +34,12 @@ public class EnemyMovement : MonoBehaviour
         if (path == null)
         {
             return;
+        }
+
+        // throw cooldown ticks down even while paused
+        if (throwCooldownTimer > 0f)
+        {
+            throwCooldownTimer -= Time.deltaTime;
         }
 
         // dont move while paused, just count down till its free again
@@ -80,6 +88,14 @@ public class EnemyMovement : MonoBehaviour
         {
             return;
         }
+
+        // was thrown not long ago, so ignore it this time (stops enemies getting juggled forever)
+        if (throwCooldownTimer > 0f)
+        {
+            return;
+        }
+
+        throwCooldownTimer = throwCooldown;
 
         // enemy is somewhere between the cell before nextGridNumber and nextGridNumber,
         // so go back from the one its just left
