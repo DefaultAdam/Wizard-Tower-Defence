@@ -72,6 +72,29 @@ public class EnemyMovement : MonoBehaviour
         return pauseTimer > 0f;
     }
 
+    // sends the enemy back down its path by a number of cells (for the mechanic throw)
+    // just snaps it there for now, can make it fly in an arc later
+    public void PushBack(int cells)
+    {
+        if (path == null || cells <= 0)
+        {
+            return;
+        }
+
+        // enemy is somewhere between the cell before nextGridNumber and nextGridNumber,
+        // so go back from the one its just left
+        int landingCell = nextGridNumber - 1 - cells;
+
+        // cant go further back than where it spawned
+        if (landingCell < 0)
+        {
+            landingCell = 0;
+        }
+
+        transform.position = grid.GetCellCenter(path[landingCell]);
+        nextGridNumber = landingCell + 1;
+    }
+
     // damage fortress sp and destroy enemy
     private void ReachFortress()
     {
