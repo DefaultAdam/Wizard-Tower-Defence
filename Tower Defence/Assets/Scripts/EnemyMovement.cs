@@ -29,6 +29,9 @@ public class EnemyMovement : MonoBehaviour
     public float bubbleImmunity = 2f; // after a bubble pops it cant be bubbled again for this long
     private float bubbleImmunityTimer = 0f; // time left before it can be bubbled again
 
+    public float wallStopDistance = 0.6f; // how close it gets to a wall cell before stopping (in cells)
+    private ImaginaryWall blockingWall; // the wall in its way right now, null if the path is clear
+
     private void Start()
     {
         if (grid == null)
@@ -100,6 +103,15 @@ public class EnemyMovement : MonoBehaviour
         }
 
         Vector3 targetPosition = grid.GetCellCenter(path[nextGridNumber]);
+
+        // imaginary wall on the next cell, stop just before it instead of walking through
+        blockingWall = ImaginaryWall.GetWallAt(path[nextGridNumber]);
+
+        if (blockingWall != null && Vector3.Distance(transform.position, targetPosition) <= wallStopDistance * grid.cellSize)
+        {
+            return;
+        }
+
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
 
         if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
