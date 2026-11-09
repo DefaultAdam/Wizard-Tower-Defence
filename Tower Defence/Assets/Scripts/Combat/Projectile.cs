@@ -7,8 +7,17 @@ public class Projectile : MonoBehaviour
     public float damage = 20f; // damage dealt on hit
     public float aoeRadius = 0f;
     public float aoeDamagePercent = 0.5f;
+    public Branch branch = Branch.None; // specialisation branch of the troop that fired
+    public int level = 0; // level of the troop that fired
     public int splashStoneCount = 8;
     public float splashEffectDuration = 0.35f;
+
+    public int mechanicThrowCells = 2; // how many cells back a mechanic apprentice throws an enemy
+    public int veteranThrowCells = 3; // veterans throw them a bit further
+
+    public float magicFreezeTime = 1.5f; // how long a magic apprentice hit freezes an enemy
+    public float veteranFreezeTime = 2.5f; // veterans keep them stuck longer
+    public Material bubbleMaterial; // see through purple material for the bubble, set on the projectile prefab
 
     private Transform target; // target to follow
     private GameObject[] splashStones;
@@ -62,6 +71,9 @@ public class Projectile : MonoBehaviour
             targetHealth.TakeDamage(damage);
         }
 
+        // path power goes on top of the normal hit and splash
+        ApplyPower();
+
         if (aoeRadius > 0f)
         {
             DealAreaDamage(hitPosition);
@@ -70,6 +82,102 @@ public class Projectile : MonoBehaviour
         }
 
         Destroy(gameObject);
+    }
+
+    // picks the right power based on what path the troop that fired is on
+    // recruits (level 0 / no branch) dont have a power so nothing happens
+    void ApplyPower()
+    {
+        if (level <= 0 || branch == Branch.None)
+        {
+            return;
+        }
+
+        if (branch == Branch.Physical)
+        {
+            ApplyPhysicalPower();
+        }
+        else if (branch == Branch.Mechanic)
+        {
+            ApplyMechanicPower();
+        }
+        else if (branch == Branch.Magic)
+        {
+            ApplyMagicPower();
+        }
+        else if (branch == Branch.Imaginary)
+        {
+            ApplyImaginaryPower();
+
+        }
+    }
+
+    // physical -energy bolts
+    void ApplyPhysicalPower()
+    {
+    }
+
+    // mechanic - throws enemies back down the path
+    void ApplyMechanicPower()
+    {
+        // no point throwing it if the hit already killed it
+        Health enemyHealth = target.GetComponent<Health>();
+
+        if (enemyHealth != null && enemyHealth.isDead)
+        {
+            return;
+        }
+
+        EnemyMovement movement = target.GetComponent<EnemyMovement>();
+
+        if (movement == null)
+        {
+            return;
+        }
+
+        int cells = mechanicThrowCells;
+
+        if (level >= 2)
+        {
+            cells = veteranThrowCells;
+        }
+
+        // only the enemy that got hit gets thrown, not the ones in the splash
+        movement.PushBack(cells);
+    }
+
+    // magic - traps enemies in a floating bubble
+    void ApplyMagicPower()
+    {
+        // dont bother if the hit already killed it
+        Health enemyHealth = target.GetComponent<Health>();
+
+        if (enemyHealth != null && enemyHealth.isDead)
+        {
+            return;
+        }
+
+        EnemyMovement movement = target.GetComponent<EnemyMovement>();
+
+        if (movement == null)
+        {
+            return;
+        }
+
+        float freezeTime = magicFreezeTime;
+
+        if (level >= 2)
+        {
+            freezeTime = veteranFreezeTime;
+        }
+
+        // just the enemy that got hit, splash ones keep walking
+        movement.Bubble(freezeTime, bubbleMaterial);
+    }
+
+    // imaginary -walls on the path stop eneme
+    void ApplyImaginaryPower()
+    {
     }
 
     void ShowSplashEffect(Vector3 center)

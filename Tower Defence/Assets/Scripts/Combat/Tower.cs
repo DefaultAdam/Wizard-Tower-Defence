@@ -39,6 +39,24 @@ public class Tower : MonoBehaviour
     public Branch branch = Branch.None; // chosen specialisation branch
     public int level = 0; // troop level tier
 
+    public float boltCooldown = 0.8f; // physical apprentice bolts fire this often, seperate to the normal attack
+    public float veteranBoltCooldown = 0.5f; // veterans fire the same bolts but more often
+    public float boltDamagePercent = 0.5f; // each bolt does half the troops damage since theres loads of them
+    public float boltSpeedMultiplier = 1.75f; // bolts fly 75% faster than normal stones
+    public float boltSizeMultiplier = 1.8f; // and theyre bigger so you can tell them apart
+    private float boltTimer = 0f; // countdown till the next physical bolt
+
+    public float wallCooldown = 6f; // imaginary apprentices build a wall this often
+    public float veteranWallCooldown = 4f; // veterans rebuild quicker
+    public float wallHealth = 100f; // how tough an apprentice wall is
+    public float veteranWallHealth = 200f; // veteran walls take twice as much to break
+    public int wallCellsAhead = 2; // how many cells in front of the target the wall goes
+    private float wallTimer = 0f; // countdown till the next wall can go down
+    private ImaginaryWall currentWall; // the wall this troop has out right now, only one at a time
+    public float wallLifetime = 8f; // walls disappear on their own after this if nobody breaks them
+    public float veteranWallLifetime = 10f; // veteran walls stick around longer
+    private float wallLifeTimer = 0f; // time left before the current wall vanishes
+
     private float cooldownTimer = 0f; // timer to track attack cooldown
     private GameObject currentTarget; // current target enemy
 
@@ -255,6 +273,194 @@ public class Tower : MonoBehaviour
                 Attack(currentTarget);
             }
         }
+
+        //PHYSICAL BRANCH
+
+
+        // physical troops also shoot energy bolts on their own timer
+        if (branch == Branch.Physical && level >= 1)
+        {
+            UpdateBolts();
+        }
+
+        // imaginary troops build walls on the path
+        if (branch == Branch.Imaginary && level >= 1)
+        {
+            UpdateWalls();
+        }
+    }
+
+    // waits for the troops last wall to be gone, then counts down and builds a new one
+    void UpdateWalls()
+    {
+        // still got a wall out, keep it updated and dont make another
+        if (currentWall != null)
+        {
+            UpdateCurrentWall();
+            return;
+        }
+
+        if (wallTimer > 0f)
+        {
+            wallTimer -= Time.deltaTime;
+        }
+
+        if (currentTarget != null && wallTimer <= 0f)
+        {
+            BuildWall(currentTarget);
+        }
+    }
+
+    // puts a wall on the path a couple of cells in front of the target so it walks into it
+    void BuildWall(GameObject target)
+    {
+        EnemyMovement movement = target.GetComponent<EnemyMovement>();
+
+        if (movement == null)
+        {
+            return;
+        }
+
+        Vector2Int wallCell;
+
+        // target's too close to the end of its path, try again next frame
+        if (!movement.GetCellAhead(wallCellsAhead, out wallCell))
+        {
+            return;
+        }
+
+        // someone elses wall is already there
+        if (ImaginaryWall.GetWallAt(wallCell) != null)
+        {
+            return;
+        }
+
+        // just a yellow block for now, slightly smaller than the cell so you can see the gaps
+        GameObject wallObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        Destroy(wallObject.GetComponent<Collider>());
+
+        float cellSize = movement.grid.cellSize;
+        wallObject.transform.position = movement.grid.GetCellCenter(wallCell) + new Vector3(0f, 0.5f, 0f);
+        wallObject.transform.localScale = new Vector3(cellSize * 0.9f, 1f, cellSize * 0.9f);
+        wallObject.GetComponent<Renderer>().material.color = GetBranchColour();
+
+        float health = wallHealth;
+        wallTimer = wallCooldown;
+
+        if (level >= 2)
+        {
+            health = veteranWallHealth;
+            wallTimer = veteranWallCooldown;
+        }
+
+        currentWall = wallObject.AddComponent<ImaginaryWall>();
+        currentWall.Setup(wallCell, health);
+
+        wallLifeTimer = wallLifetime;
+
+        if (level >= 2)
+        {
+            wallLifeTimer = veteranWallLifetime;
+        }
+    }
+
+    // shrinks the wall as it gets damaged and gets rid of it when its time is up
+    void UpdateCurrentWall()
+    {
+        wallLifeTimer -= Time.deltaTime;
+
+        if (wallLifeTimer <= 0f)
+        {
+            currentWall.Break();
+            return;
+        }
+
+        // squash it down to show how much health is left, never fully flat so you can still see it
+        float healthLeft = currentWall.currentHealth / currentWall.maxHealth;
+        float height = Mathf.Max(0.2f, healthLeft);
+
+        Vector3 scale = currentWall.transform.localScale;
+        Vector3 position = currentWall.transform.position;
+
+        // keep the bottom on the ground while it shrinks, so move it down by half the height it lost
+        position.y += (height - scale.y) * 0.5f;
+        scale.y = height;
+
+        currentWall.transform.localScale = scale;
+        currentWall.transform.position = position;
+    }
+
+    // checks bolt timer and fires when its ready, independant from the normal attack cooldown
+    void UpdateBolts()
+    {
+        if (boltTimer > 0f)
+        {
+            boltTimer -= Time.deltaTime;
+        }
+
+        if (currentTarget != null && boltTimer <= 0f)
+        {
+            FireBolt(currentTarget);
+        }
+    }
+
+    // shoots one energy bolt at the target
+    void FireBolt(GameObject target)
+    {
+        boltTimer = boltCooldown;
+
+        // veteran and up = faster bolts
+        if (level >= 2)
+        {
+            boltTimer = veteranBoltCooldown;
+        }
+
+        if (projectilePrefab == null)
+        {
+            return;
+        }
+
+        Vector3 spawnPosition = transform.position;
+
+        if (firePoint != null)
+        {
+            spawnPosition = firePoint.position;
+        }
+
+        GameObject boltObject = Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
+        Projectile bolt = boltObject.GetComponent<Projectile>();
+
+        if (bolt != null)
+        {
+            bolt.damage = GetCurrentDamage() * boltDamagePercent;
+
+            // bolts are just a straight hit, no splash
+            bolt.aoeRadius = 0f;
+            bolt.speed *= boltSpeedMultiplier;
+            bolt.SetTarget(target.transform);
+        }
+
+        // making it big and brown so it looks like a physical energy bolt, different from regular
+        boltObject.transform.localScale *= boltSizeMultiplier;
+
+        foreach (Renderer boltRenderer in boltObject.GetComponentsInChildren<Renderer>())
+        {
+            boltRenderer.material.color = GetBranchColour();
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
     }
 
     // check if current target is alive and in range
@@ -416,6 +622,8 @@ public class Tower : MonoBehaviour
                 projectile.damage = GetCurrentDamage();
                 projectile.aoeRadius = aoeRadius;
                 projectile.aoeDamagePercent = aoeDamagePercent;
+                projectile.branch = branch;
+                projectile.level = level;
                 projectile.SetTarget(target.transform);
             }
         }
