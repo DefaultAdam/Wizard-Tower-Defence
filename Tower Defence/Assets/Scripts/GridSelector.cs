@@ -473,6 +473,55 @@ public class GridSelector : MonoBehaviour
         }
     }
 
+    // origin is the lowest-x, lowest-y cell of the proposed 2x2 footprint
+    public bool CanPlaceFusedTower(Vector2Int origin)
+    {
+        if (grid == null || fusionTowers.Count != 3)
+        {
+            return false;
+        }
+
+        string reason;
+        if (!Tower.CanFuse(fusionTowers[0], fusionTowers[1], fusionTowers[2], out reason))
+        {
+            return false;
+        }
+
+        for (int x = 0; x < 2; x++)
+        {
+            for (int y = 0; y < 2; y++)
+            {
+                Vector2Int cell = origin + new Vector2Int(x, y);
+                if (!grid.IsInsideGrid(cell))
+                {
+                    return false;
+                }
+
+                Grid.CellType type = grid.GetCellType(cell);
+                if (type == Grid.CellType.Free)
+                {
+                    continue;
+                }
+
+                bool isOriginalTowerCell = false;
+                foreach (Tower tower in fusionTowers)
+                {
+                    if (grid.convertWorldPosToCell(tower.transform.position) == cell)
+                    {
+                        isOriginalTowerCell = true;
+                    }
+                }
+
+                if (type != Grid.CellType.Used || !isOriginalTowerCell)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     private void TryPlaceTower(Vector2Int cell, Vector3 center)
     {
         if (grid.GetCellType(cell) != Grid.CellType.Free)
