@@ -200,14 +200,21 @@ public class GridSelector : MonoBehaviour
             highlight.enabled = true;
         }
 
-        if (isPlacing && Input.GetMouseButtonDown(0))
+        if ((isPlacing || isPlacingFusion) && Input.GetMouseButtonDown(0))
         {
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             {
                 return;
             }
 
-            TryPlaceTower(cell, center);
+            if (isPlacingFusion)
+            {
+                TryPlaceFusedTower(cell, center);
+            }
+            else
+            {
+                TryPlaceTower(cell, center);
+            }
         }
     }
 
@@ -551,6 +558,47 @@ public class GridSelector : MonoBehaviour
         }
 
         return true;
+    }
+
+    // keep the first selected unit and consume the other two only after valid confirmation
+    private void TryPlaceFusedTower(Vector2Int origin, Vector3 center)
+    {
+        if (!isPlacingFusion || !CanPlaceFusedTower(origin))
+        {
+            return;
+        }
+
+        Tower fusedTower = fusionTowers[0];
+        foreach (Tower tower in fusionTowers)
+        {
+            grid.SetCellType(grid.convertWorldPosToCell(tower.transform.position), Grid.CellType.Free);
+            if (tower != fusedTower)
+            {
+                tower.enabled = false;
+                Destroy(tower.gameObject);
+            }
+        }
+
+        fusedTower.isSuper = true;
+        ClearSelection();
+        fusedTower.transform.position = center;
+        fusedTower.transform.localScale = Vector3.Scale(fusedTower.transform.localScale, new Vector3(2f, 1f, 2f));
+        for (int x = 0; x < 2; x++)
+        {
+            for (int y = 0; y < 2; y++)
+            {
+                grid.SetCellType(origin + new Vector2Int(x, y), Grid.CellType.Used);
+            }
+        }
+
+        placedTowers -= 2;
+        if (HUD.instance != null)
+        {
+            HUD.instance.UpdateTowerCount(placedTowers, maxTowers);
+        }
+
+        CancelPlacement();
+        selectedTower = fusedTower;
     }
 
     private void TryPlaceTower(Vector2Int cell, Vector3 center)
