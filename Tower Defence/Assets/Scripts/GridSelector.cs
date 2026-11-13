@@ -19,6 +19,7 @@ public class GridSelector : MonoBehaviour
     public int maxTowerLimit = 25; // absolute maximum tower limit
     public int placedTowers = 0;
     public bool isPlacing = false;
+    public bool isSelectingFusion = false; // true after pressing the inspector Fuse button
     public int deployingSlotIndex = -1; // bench slot currently being placed
 
     private Tower hoveredTower; // troop currently under the mouse
@@ -252,8 +253,23 @@ public class GridSelector : MonoBehaviour
     // clear hovered and selected troop
     public void ClearSelection()
     {
+        isSelectingFusion = false;
         hoveredTower = null;
         selectedTower = null;
+    }
+
+    // enter fusion selection from an eligible inspected Master
+    public void StartFusionSelection()
+    {
+        Tower tower = GetInspectedTower();
+        if (tower == null || tower.level != 3 || tower.isSuper || tower.branch == Branch.None)
+        {
+            return;
+        }
+
+        CancelPlacement();
+        selectedTower = tower;
+        isSelectingFusion = true;
     }
 
     // start tower placement mode and display recruit inspector

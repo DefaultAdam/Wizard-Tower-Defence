@@ -23,6 +23,7 @@ public class TroopPanel : MonoBehaviour
     public Text imaginaryButtonText; // text display for imaginary upgrade button
     public Button benchButton; // button to bench inspected recruit
     public Text benchButtonText; // text display for bench button
+    private Button fuseButton; // shares the bench button position, shown only for Masters
 
     // initialise instance on awake
     void Awake()
@@ -72,6 +73,11 @@ public class TroopPanel : MonoBehaviour
     // hide upgrade buttons during placement preview
     void HideUpgradeButtons()
     {
+        if (fuseButton != null)
+        {
+            fuseButton.gameObject.SetActive(false);
+        }
+
         if (physicalButton != null)
         {
             physicalButton.gameObject.SetActive(false);
@@ -129,6 +135,11 @@ public class TroopPanel : MonoBehaviour
 
         int nextLevel = tower.level + 1;
 
+        if (fuseButton != null)
+        {
+            fuseButton.gameObject.SetActive(tower.level == 3 && !tower.isSuper && tower.branch != Branch.None);
+        }
+
         UpdateButton(physicalButton, physicalButtonText, tower, Branch.Physical, nextLevel);
         UpdateButton(mechanicButton, mechanicButtonText, tower, Branch.Mechanic, nextLevel);
         UpdateButton(magicButton, magicButtonText, tower, Branch.Magic, nextLevel);
@@ -154,7 +165,11 @@ public class TroopPanel : MonoBehaviour
 
         if (hintText != null)
         {
-            if (nextLevel > 3)
+            if (GridSelector.instance != null && GridSelector.instance.isSelectingFusion)
+            {
+                hintText.text = "Fusion selection active. Right click or Escape to cancel.";
+            }
+            else if (nextLevel > 3)
             {
                 hintText.text = "Max level reached";
             }
@@ -231,6 +246,20 @@ public class TroopPanel : MonoBehaviour
         if (benchButton != null)
         {
             benchButton.onClick.AddListener(OnBenchButtonClicked);
+            fuseButton = Instantiate(benchButton, benchButton.transform.parent);
+            fuseButton.gameObject.name = "Fuse Button";
+            fuseButton.onClick = new Button.ButtonClickedEvent();
+            fuseButton.onClick.AddListener(OnFuseButtonClicked);
+            fuseButton.GetComponentInChildren<Text>().text = "Fuse";
+            fuseButton.gameObject.SetActive(false);
+        }
+    }
+
+    void OnFuseButtonClicked()
+    {
+        if (GridSelector.instance != null)
+        {
+            GridSelector.instance.StartFusionSelection();
         }
     }
 
