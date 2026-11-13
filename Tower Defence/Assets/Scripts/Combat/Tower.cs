@@ -94,9 +94,9 @@ public class Tower : MonoBehaviour
     }
 
     // apply branch colour to all troop renderers
-    public void ApplyColour()
+    public void ApplyColour(bool fusionSelected = false)
     {
-        Color colour = GetBranchColour();
+        Color colour = fusionSelected ? Color.green : GetBranchColour();
 
         foreach (Renderer troopRenderer in GetComponentsInChildren<Renderer>())
         {

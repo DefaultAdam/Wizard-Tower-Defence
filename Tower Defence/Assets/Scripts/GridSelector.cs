@@ -27,6 +27,7 @@ public class GridSelector : MonoBehaviour
     private Tower selectedTower; // troop clicked for upgrades
     private List<Tower> fusionTowers = new List<Tower>(); // units chosen for battlefield fusion
     public int FusionSelectionCount => fusionTowers.Count;
+    public string FusionSelectionMessage { get; private set; } = "";
 
     // initialise instance on awake
     private void Awake()
@@ -224,19 +225,35 @@ public class GridSelector : MonoBehaviour
     // toggle a candidate while keeping all chosen units inside one 3x3 area
     void ToggleFusionTower(Tower tower)
     {
+        FusionSelectionMessage = "";
         if (tower == null)
         {
+            FusionSelectionMessage = "Click a tower to select it.";
             return;
         }
 
         if (fusionTowers.Contains(tower))
         {
             fusionTowers.Remove(tower);
+            tower.ApplyColour();
             return;
         }
 
-        if (fusionTowers.Count >= 3 || tower.level != 3 || tower.isSuper || tower.branch == Branch.None)
+        if (fusionTowers.Count >= 3)
         {
+            FusionSelectionMessage = "Three towers selected. Deselect one to choose another.";
+            return;
+        }
+
+        if (tower.level != 3 || tower.branch == Branch.None)
+        {
+            FusionSelectionMessage = "Choose a Level 3 tower with a specialisation branch.";
+            return;
+        }
+
+        if (tower.isSuper)
+        {
+            FusionSelectionMessage = "Super Apprentices cannot fuse again.";
             return;
         }
 
@@ -246,6 +263,7 @@ public class GridSelector : MonoBehaviour
         {
             if (selected.branch != tower.branch)
             {
+                FusionSelectionMessage = "Choose towers from the same specialisation branch.";
                 return;
             }
 
@@ -257,6 +275,11 @@ public class GridSelector : MonoBehaviour
         if (maxCell.x - minCell.x <= 2 && maxCell.y - minCell.y <= 2)
         {
             fusionTowers.Add(tower);
+            tower.ApplyColour(true);
+        }
+        else
+        {
+            FusionSelectionMessage = "All three towers must fit inside one 3x3 area.";
         }
     }
 
@@ -301,7 +324,16 @@ public class GridSelector : MonoBehaviour
     // clear hovered and selected troop
     public void ClearSelection()
     {
+        foreach (Tower tower in fusionTowers)
+        {
+            if (tower != null)
+            {
+                tower.ApplyColour();
+            }
+        }
+
         fusionTowers.Clear();
+        FusionSelectionMessage = "";
         isSelectingFusion = false;
         hoveredTower = null;
         selectedTower = null;
@@ -317,7 +349,7 @@ public class GridSelector : MonoBehaviour
         }
 
         CancelPlacement();
-        fusionTowers.Clear();
+        ClearSelection();
         selectedTower = tower;
         isSelectingFusion = true;
     }
