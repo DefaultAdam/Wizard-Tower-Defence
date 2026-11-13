@@ -180,6 +180,44 @@ public class Tower : MonoBehaviour
         ApplyColour();
     }
 
+    // check three units without changing or consuming them
+    public static bool CanFuse(Tower first, Tower second, Tower third, out string reason)
+    {
+        reason = "";
+
+        if (first == null || second == null || third == null)
+        {
+            reason = "Select three units";
+            return false;
+        }
+
+        if (first == second || first == third || second == third)
+        {
+            reason = "Select three different units";
+            return false;
+        }
+
+        if (first.level != 3 || second.level != 3 || third.level != 3)
+        {
+            reason = "All three units must be Level 3";
+            return false;
+        }
+
+        if (first.isSuper || second.isSuper || third.isSuper)
+        {
+            reason = "Super Apprentices cannot fuse again";
+            return false;
+        }
+
+        if (first.branch == Branch.None || first.branch != second.branch || first.branch != third.branch)
+        {
+            reason = "All three units must have the same specialisation branch";
+            return false;
+        }
+
+        return true;
+    }
+
     // get display name for troop
     public string GetTroopName()
     {
