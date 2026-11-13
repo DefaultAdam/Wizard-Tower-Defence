@@ -165,9 +165,13 @@ public class TroopPanel : MonoBehaviour
 
         if (hintText != null)
         {
-            if (GridSelector.instance != null && GridSelector.instance.isSelectingFusion)
+            if (GridSelector.instance != null && GridSelector.instance.isPlacingFusion)
             {
-                hintText.text = "Fusion: " + GridSelector.instance.FusionSelectionCount + "/3 selected. Click to toggle; right click or Escape to cancel.";
+                hintText.text = "Choose a green 2x2 area. Right click or Escape to cancel.";
+            }
+            else if (GridSelector.instance != null && GridSelector.instance.isSelectingFusion)
+            {
+                hintText.text = "Fusion: " + GridSelector.instance.FusionSelectionCount + "/3 selected. Click to toggle; press Fuse to preview placement. Right click or Escape to cancel.";
                 hintText.text += "\n" + GridSelector.instance.FusionSelectionMessage;
             }
             else if (nextLevel > 3)

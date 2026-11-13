@@ -21,6 +21,7 @@ public class GridSelector : MonoBehaviour
     public int placedTowers = 0;
     public bool isPlacing = false;
     public bool isSelectingFusion = false; // true after pressing the inspector Fuse button
+    public bool isPlacingFusion = false; // preview the fused tower before consuming the originals
     public int deployingSlotIndex = -1; // bench slot currently being placed
 
     private Tower hoveredTower; // troop currently under the mouse
@@ -127,7 +128,7 @@ public class GridSelector : MonoBehaviour
 
         Ray ray = sceneCamera.ScreenPointToRay(Input.mousePosition);
 
-        if (!isPlacing)
+        if (!isPlacing && !isPlacingFusion)
         {
             UpdateTroopSelection(ray);
         }
@@ -160,6 +161,12 @@ public class GridSelector : MonoBehaviour
 
         Vector3 center = grid.GetCellCenter(cell);
         float halfSize = grid.cellSize * 0.49f;
+        if (isPlacingFusion)
+        {
+            center += new Vector3(grid.cellSize * 0.5f, 0f, grid.cellSize * 0.5f);
+            halfSize = grid.cellSize * 0.99f;
+        }
+
         float y = center.y + 0.28f;
 
         if (highlight != null)
@@ -170,7 +177,11 @@ public class GridSelector : MonoBehaviour
             highlight.SetPosition(3, new Vector3(center.x + halfSize, y, center.z - halfSize));
             highlight.SetPosition(4, new Vector3(center.x - halfSize, y, center.z - halfSize));
 
-            if (isPlacing)
+            if (isPlacingFusion)
+            {
+                SetHighlightColour(CanPlaceFusedTower(cell) ? Color.green : Color.red);
+            }
+            else if (isPlacing)
             {
                 if (grid.GetCellType(cell) == Grid.CellType.Free)
                 {
@@ -335,6 +346,7 @@ public class GridSelector : MonoBehaviour
         fusionTowers.Clear();
         FusionSelectionMessage = "";
         isSelectingFusion = false;
+        isPlacingFusion = false;
         hoveredTower = null;
         selectedTower = null;
     }
@@ -342,6 +354,25 @@ public class GridSelector : MonoBehaviour
     // enter fusion selection from an eligible inspected Master
     public void StartFusionSelection()
     {
+        if (isSelectingFusion)
+        {
+            if (fusionTowers.Count != 3)
+            {
+                FusionSelectionMessage = "Select three towers, then press Fuse again.";
+                return;
+            }
+
+            if (!Tower.CanFuse(fusionTowers[0], fusionTowers[1], fusionTowers[2], out string reason))
+            {
+                FusionSelectionMessage = reason;
+                return;
+            }
+
+            isPlacingFusion = true;
+            FusionSelectionMessage = "";
+            return;
+        }
+
         Tower tower = GetInspectedTower();
         if (tower == null || tower.level != 3 || tower.isSuper || tower.branch == Branch.None)
         {
