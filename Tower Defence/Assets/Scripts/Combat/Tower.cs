@@ -38,6 +38,7 @@ public class Tower : MonoBehaviour
 
     public Branch branch = Branch.None; // chosen specialisation branch
     public int level = 0; // troop level tier
+    public bool isSuper = false; // true when this unit has been created by fusion
 
     public float boltCooldown = 0.8f; // physical apprentice bolts fire this often, seperate to the normal attack
     public float veteranBoltCooldown = 0.5f; // veterans fire the same bolts but more often
@@ -219,6 +220,11 @@ public class Tower : MonoBehaviour
 
         if (level == 3)
         {
+            if (isSuper)
+            {
+                return "Super " + branch;
+            }
+
             return branch + " Master";
         }
 
