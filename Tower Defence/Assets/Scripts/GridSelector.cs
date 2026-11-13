@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class GridSelector : MonoBehaviour
 {
@@ -24,6 +25,8 @@ public class GridSelector : MonoBehaviour
 
     private Tower hoveredTower; // troop currently under the mouse
     private Tower selectedTower; // troop clicked for upgrades
+    private List<Tower> fusionTowers = new List<Tower>(); // units chosen for battlefield fusion
+    public int FusionSelectionCount => fusionTowers.Count;
 
     // initialise instance on awake
     private void Awake()
@@ -208,7 +211,52 @@ public class GridSelector : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            if (isSelectingFusion)
+            {
+                ToggleFusionTower(hoveredTower);
+                return;
+            }
+
             selectedTower = hoveredTower;
+        }
+    }
+
+    // toggle a candidate while keeping all chosen units inside one 3x3 area
+    void ToggleFusionTower(Tower tower)
+    {
+        if (tower == null)
+        {
+            return;
+        }
+
+        if (fusionTowers.Contains(tower))
+        {
+            fusionTowers.Remove(tower);
+            return;
+        }
+
+        if (fusionTowers.Count >= 3 || tower.level != 3 || tower.isSuper || tower.branch == Branch.None)
+        {
+            return;
+        }
+
+        Vector2Int minCell = grid.convertWorldPosToCell(tower.transform.position);
+        Vector2Int maxCell = minCell;
+        foreach (Tower selected in fusionTowers)
+        {
+            if (selected.branch != tower.branch)
+            {
+                return;
+            }
+
+            Vector2Int cell = grid.convertWorldPosToCell(selected.transform.position);
+            minCell = Vector2Int.Min(minCell, cell);
+            maxCell = Vector2Int.Max(maxCell, cell);
+        }
+
+        if (maxCell.x - minCell.x <= 2 && maxCell.y - minCell.y <= 2)
+        {
+            fusionTowers.Add(tower);
         }
     }
 
@@ -253,6 +301,7 @@ public class GridSelector : MonoBehaviour
     // clear hovered and selected troop
     public void ClearSelection()
     {
+        fusionTowers.Clear();
         isSelectingFusion = false;
         hoveredTower = null;
         selectedTower = null;
@@ -268,6 +317,7 @@ public class GridSelector : MonoBehaviour
         }
 
         CancelPlacement();
+        fusionTowers.Clear();
         selectedTower = tower;
         isSelectingFusion = true;
     }

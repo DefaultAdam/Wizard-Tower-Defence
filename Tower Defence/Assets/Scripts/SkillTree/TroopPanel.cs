@@ -167,7 +167,7 @@ public class TroopPanel : MonoBehaviour
         {
             if (GridSelector.instance != null && GridSelector.instance.isSelectingFusion)
             {
-                hintText.text = "Fusion selection active. Right click or Escape to cancel.";
+                hintText.text = "Fusion: " + GridSelector.instance.FusionSelectionCount + "/3 selected. Click to toggle; right click or Escape to cancel.";
             }
             else if (nextLevel > 3)
             {
