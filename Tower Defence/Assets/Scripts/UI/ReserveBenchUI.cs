@@ -403,6 +403,8 @@ public class ReserveBenchUI : MonoBehaviour
         {
             if (!ReserveBench.instance.IsSlotOccupied(slotIndex))
             {
+                fusionMessage = "Choose an occupied slot.";
+                Refresh();
                 return;
             }
 
@@ -411,12 +413,29 @@ public class ReserveBenchUI : MonoBehaviour
             {
                 fusionSlots.Remove(slotIndex);
             }
-            else if (fusionSlots.Count < 3 && unit.level == 3 && !unit.isSuper && unit.branch != Branch.None)
+            else if (fusionSlots.Count >= 3)
             {
-                if (fusionSlots.Count == 0 || unit.branch == ReserveBench.instance.slots[fusionSlots[0]].branch)
-                {
-                    fusionSlots.Add(slotIndex);
-                }
+                fusionMessage = "Too many selected units";
+            }
+            else if (unit.level != 3)
+            {
+                fusionMessage = "Can only select level 3 units for fusion.";
+            }
+            else if (unit.isSuper)
+            {
+                fusionMessage = "Super units cannot fuse again.";
+            }
+            else if (unit.branch == Branch.None)
+            {
+                fusionMessage = "Choose a unit with a branch.";
+            }
+            else if (fusionSlots.Count > 0 && unit.branch != ReserveBench.instance.slots[fusionSlots[0]].branch)
+            {
+                fusionMessage = "Choose units from same branch.";
+            }
+            else
+            {
+                fusionSlots.Add(slotIndex);
             }
             Refresh();
             return;
