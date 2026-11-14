@@ -322,7 +322,7 @@ public class Tower : MonoBehaviour
 
 
         // physical troops also shoot energy bolts on their own timer
-        if (branch == Branch.Physical && level >= 1)
+        if (branch == Branch.Physical && level >= 1 && !isSuper)
         {
             UpdateBolts();
         }
@@ -642,10 +642,47 @@ public class Tower : MonoBehaviour
         }
     }
 
+    private void FireRailBlast(GameObject target)
+    {
+        Vector3 spawnPosition = firePoint != null ? firePoint.position : transform.position;
+        spawnPosition.y = target.transform.position.y;
+        Vector3 direction = target.transform.position - spawnPosition;
+        if (direction.sqrMagnitude <= 0.0001f)
+        {
+            return;
+        }
+
+        float cellSize = 1f;
+        if (GridSelector.instance != null && GridSelector.instance.grid != null)
+        {
+            cellSize = GridSelector.instance.grid.cellSize;
+        }
+
+        GameObject blast = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        blast.name = "Piercing Rail-Blast";
+        Destroy(blast.GetComponent<Collider>());
+        blast.transform.position = spawnPosition;
+        blast.transform.rotation = Quaternion.LookRotation(direction);
+        blast.transform.localScale = new Vector3(cellSize * 0.5f, cellSize * 0.5f, cellSize);
+        blast.GetComponent<Renderer>().material.color = GetBranchColour();
+
+        RailBlastProjectile projectile = blast.AddComponent<RailBlastProjectile>();
+        projectile.damage = GetCurrentDamage() * 6f;
+        projectile.maxDistance = attackRange;
+        projectile.explosionRadius = aoeRadius;
+        projectile.beamWidth = cellSize * 0.5f;
+    }
+
     // attack target by spawning a projectile
     void Attack(GameObject target)
     {
         cooldownTimer = attackCooldown;
+
+        if (isSuper && branch == Branch.Physical && level == 3)
+        {
+            FireRailBlast(target);
+            return;
+        }
 
         if (projectilePrefab != null)
         {
