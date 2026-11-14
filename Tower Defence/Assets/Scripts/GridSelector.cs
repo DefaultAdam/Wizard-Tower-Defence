@@ -477,6 +477,12 @@ public class GridSelector : MonoBehaviour
                     stats += "\nStorm: " + damage + " | Interval: " + displayUnit.attackCooldown + "s"
                         + "\nRadius: 6 tiles | Freeze: " + duration + "s";
                 }
+                else if (unit.isSuper && unit.branch == Branch.Imaginary && unit.level == 3)
+                {
+                    stats += "\nFortified Wall HP: " + (displayUnit.veteranWallHealth * 6f)
+                        + "\nCooldown: " + displayUnit.veteranWallCooldown + "s | Life: " + displayUnit.veteranWallLifetime + "s"
+                        + "\nActive Limit: 1 | Path Cells: 1";
+                }
                 else
                 {
                     stats += "\nDamage: " + damage + "\nFire Rate: " + displayUnit.attackCooldown + "s\nRange: " + displayUnit.attackRange;

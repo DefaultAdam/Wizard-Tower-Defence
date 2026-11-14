@@ -17,6 +17,9 @@ public struct BenchUnit
     public TargetPriority targetPriority;
     public float rotationSpeed;
     public GameObject projectilePrefab;
+    public float veteranWallHealth;
+    public float veteranWallCooldown;
+    public float veteranWallLifetime;
 
     public string GetTroopName()
     {
@@ -45,6 +48,9 @@ public struct BenchUnit
             tower.targetPriority = targetPriority;
             tower.rotationSpeed = rotationSpeed;
             tower.projectilePrefab = projectilePrefab;
+            tower.veteranWallHealth = veteranWallHealth;
+            tower.veteranWallCooldown = veteranWallCooldown;
+            tower.veteranWallLifetime = veteranWallLifetime;
         }
 
         tower.ApplyColour();
@@ -73,7 +79,10 @@ public struct BenchUnit
             aoeDamagePercent = tower.aoeDamagePercent,
             targetPriority = tower.targetPriority,
             rotationSpeed = tower.rotationSpeed,
-            projectilePrefab = tower.projectilePrefab
+            projectilePrefab = tower.projectilePrefab,
+            veteranWallHealth = tower.veteranWallHealth,
+            veteranWallCooldown = tower.veteranWallCooldown,
+            veteranWallLifetime = tower.veteranWallLifetime
         };
     }
 }

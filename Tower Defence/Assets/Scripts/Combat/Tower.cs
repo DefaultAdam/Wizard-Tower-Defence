@@ -312,6 +312,13 @@ public class Tower : MonoBehaviour
                 + "\nRadius: 6 tiles | Freeze: " + duration + "s";
         }
 
+        if (isSuper && branch == Branch.Imaginary && level == 3)
+        {
+            return "Fortified Wall HP: " + (veteranWallHealth * 6f)
+                + "\nCooldown: " + veteranWallCooldown + "s | Life: " + veteranWallLifetime + "s"
+                + "\nActive Limit: 1 | Path Cells: 1";
+        }
+
         string text = "Damage: " + GetCurrentDamage() + "\nFire Rate: " + attackCooldown + "s\nRange: " + attackRange;
 
         if (aoeRadius > 0f)
