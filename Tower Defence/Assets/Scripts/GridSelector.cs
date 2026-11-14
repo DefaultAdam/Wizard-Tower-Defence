@@ -161,7 +161,8 @@ public class GridSelector : MonoBehaviour
 
         Vector3 center = grid.GetCellCenter(cell);
         float halfSize = grid.cellSize * 0.49f;
-        if (isPlacingFusion)
+        bool deployingSuper = IsDeployingSuper();
+        if (isPlacingFusion || deployingSuper)
         {
             center += new Vector3(grid.cellSize * 0.5f, 0f, grid.cellSize * 0.5f);
             halfSize = grid.cellSize * 0.99f;
@@ -183,7 +184,7 @@ public class GridSelector : MonoBehaviour
             }
             else if (isPlacing)
             {
-                if (grid.GetCellType(cell) == Grid.CellType.Free)
+                if (CanPlaceTowerFootprint(cell, deployingSuper ? 2 : 1))
                 {
                     SetHighlightColour(Color.green);
                 }
@@ -620,9 +621,35 @@ public class GridSelector : MonoBehaviour
         selectedTower = fusedTower;
     }
 
+    private bool IsDeployingSuper()
+    {
+        return ReserveBench.instance != null
+            && ReserveBench.instance.IsSlotOccupied(deployingSlotIndex)
+            && ReserveBench.instance.slots[deployingSlotIndex].isSuper;
+    }
+
+    // ordinary units need one free cell; Super units need a free 2x2 square
+    private bool CanPlaceTowerFootprint(Vector2Int origin, int size)
+    {
+        for (int x = 0; x < size; x++)
+        {
+            for (int y = 0; y < size; y++)
+            {
+                Vector2Int cell = origin + new Vector2Int(x, y);
+                if (!grid.IsInsideGrid(cell) || grid.GetCellType(cell) != Grid.CellType.Free)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     private void TryPlaceTower(Vector2Int cell, Vector3 center)
     {
-        if (grid.GetCellType(cell) != Grid.CellType.Free)
+        int footprintSize = IsDeployingSuper() ? 2 : 1;
+        if (!CanPlaceTowerFootprint(cell, footprintSize))
         {
             return;
         }
@@ -638,7 +665,7 @@ public class GridSelector : MonoBehaviour
 
         if (deployingSlotIndex >= 0)
         {
-            if (ReserveBench.instance == null || !ReserveBench.instance.IsSlotOccupied(deployingSlotIndex) || ReserveBench.instance.slots[deployingSlotIndex].isSuper)
+            if (ReserveBench.instance == null || !ReserveBench.instance.IsSlotOccupied(deployingSlotIndex))
             {
                 return;
             }
@@ -684,11 +711,22 @@ public class GridSelector : MonoBehaviour
             }
 
             ReserveBench.instance.slots[deployingSlotIndex].RestoreTo(deployedTower);
+            if (deployedTower.isSuper)
+            {
+                placedTower.transform.localScale = Vector3.Scale(placedTower.transform.localScale, new Vector3(2f, 1f, 2f));
+            }
+
             ReserveBench.instance.DeployFromSlot(deployingSlotIndex);
         }
         deployingSlotIndex = -1;
 
-        grid.SetCellType(cell, Grid.CellType.Used);
+        for (int x = 0; x < footprintSize; x++)
+        {
+            for (int y = 0; y < footprintSize; y++)
+            {
+                grid.SetCellType(cell + new Vector2Int(x, y), Grid.CellType.Used);
+            }
+        }
         placedTowers++;
         HUD.instance.UpdateTowerCount(placedTowers, maxTowers);
 
