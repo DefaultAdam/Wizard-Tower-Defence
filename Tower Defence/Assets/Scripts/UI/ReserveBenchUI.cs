@@ -25,6 +25,7 @@ public class ReserveBenchUI : MonoBehaviour
     private bool isSelectingFusion;
     private List<int> fusionSlots = new List<int>();
     private Text fuseButtonText;
+    private string fusionMessage = "";
 
     private float currentX = 520f; // current animated position
     private float lastToggleTime = -1f; // debounce timer for toggling menu
@@ -241,6 +242,7 @@ public class ReserveBenchUI : MonoBehaviour
     public void Close()
     {
         fusionSlots.Clear();
+        fusionMessage = "";
         isSelectingFusion = false;
         isOpen = false;
 
@@ -252,7 +254,35 @@ public class ReserveBenchUI : MonoBehaviour
 
     private void StartFusionSelection()
     {
-        isSelectingFusion = true;
+        if (ReserveBench.instance == null)
+        {
+            return;
+        }
+
+        if (!isSelectingFusion)
+        {
+            isSelectingFusion = true;
+            fusionMessage = "Choose 3 matching Level 3 units.";
+        }
+        else if (fusionSlots.Count != 3)
+        {
+            fusionMessage = "Select three units before confirming fusion.";
+        }
+        else
+        {
+            string reason;
+            if (ReserveBench.instance.TryFuseSlots(fusionSlots[0], fusionSlots[1], fusionSlots[2], out reason))
+            {
+                fusionSlots.Clear();
+                isSelectingFusion = false;
+                fusionMessage = "Fusion complete.";
+            }
+            else
+            {
+                fusionMessage = reason;
+            }
+        }
+
         Refresh();
     }
 
@@ -282,7 +312,7 @@ public class ReserveBenchUI : MonoBehaviour
 
         if (passiveText != null)
         {
-            passiveText.text = "Total Passive: +" + totalPassive + " SP";
+            passiveText.text = fusionMessage != "" ? fusionMessage : "Total Passive: +" + totalPassive + " SP";
         }
 
         if (fuseButtonText != null)
@@ -368,6 +398,7 @@ public class ReserveBenchUI : MonoBehaviour
             return;
         }
 
+        fusionMessage = "";
         if (isSelectingFusion)
         {
             if (!ReserveBench.instance.IsSlotOccupied(slotIndex))
