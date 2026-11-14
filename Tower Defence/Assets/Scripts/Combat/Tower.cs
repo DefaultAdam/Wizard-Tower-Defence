@@ -294,6 +294,15 @@ public class Tower : MonoBehaviour
                 + "\nBlast: " + (beamDamage * 0.5f) + " | Radius: " + aoeRadius;
         }
 
+        if (isSuper && branch == Branch.Mechanic && level == 3)
+        {
+            Projectile template = projectilePrefab != null ? projectilePrefab.GetComponent<Projectile>() : null;
+            int throwCells = template != null ? template.veteranThrowCells * 6 : 18;
+            return "Slam: " + GetCurrentDamage() + " | Interval: " + attackCooldown + "s"
+                + "\nRadius: " + attackRange + " | Pushback: " + throwCells + " tiles"
+                + "\nThrow Duration: 1.5x";
+        }
+
         string text = "Damage: " + GetCurrentDamage() + "\nFire Rate: " + attackCooldown + "s\nRange: " + attackRange;
 
         if (aoeRadius > 0f)

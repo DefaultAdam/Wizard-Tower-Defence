@@ -462,6 +462,14 @@ public class GridSelector : MonoBehaviour
                         + "\nRange: " + displayUnit.attackRange + " | Pierces: 2"
                         + "\nBlast: " + (damage * 0.5f) + " | Radius: " + displayUnit.aoeRadius;
                 }
+                else if (unit.isSuper && unit.branch == Branch.Mechanic && unit.level == 3)
+                {
+                    Projectile template = displayUnit.projectilePrefab != null ? displayUnit.projectilePrefab.GetComponent<Projectile>() : null;
+                    int throwCells = template != null ? template.veteranThrowCells * 6 : 18;
+                    stats += "\nSlam: " + damage + " | Interval: " + displayUnit.attackCooldown + "s"
+                        + "\nRadius: " + displayUnit.attackRange + " | Pushback: " + throwCells + " tiles"
+                        + "\nThrow Duration: 1.5x";
+                }
                 else
                 {
                     stats += "\nDamage: " + damage + "\nFire Rate: " + displayUnit.attackCooldown + "s\nRange: " + displayUnit.attackRange;
