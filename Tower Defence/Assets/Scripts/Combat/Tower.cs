@@ -722,10 +722,46 @@ public class Tower : MonoBehaviour
         }
     }
 
+    private void StasisStorm()
+    {
+        Projectile template = projectilePrefab != null ? projectilePrefab.GetComponent<Projectile>() : null;
+        float duration = template != null ? template.veteranFreezeTime * 6f : 15f;
+        Material bubbleMaterial = template != null ? template.bubbleMaterial : null;
+        float radius = 6f; // 6x a one-tile baseline radius
+        if (GridSelector.instance != null && GridSelector.instance.grid != null)
+        {
+            radius *= GridSelector.instance.grid.cellSize;
+        }
+
+        List<Health> hitEnemies = new List<Health>();
+        foreach (Collider hit in Physics.OverlapSphere(transform.position, radius))
+        {
+            Health enemy = hit.GetComponentInParent<Health>();
+            if (enemy == null || enemy.isDead || !enemy.CompareTag("Enemy") || hitEnemies.Contains(enemy))
+            {
+                continue;
+            }
+
+            hitEnemies.Add(enemy);
+            enemy.TakeDamage(GetCurrentDamage());
+            EnemyMovement movement = enemy.GetComponent<EnemyMovement>();
+            if (!enemy.isDead && movement != null)
+            {
+                movement.Bubble(duration, bubbleMaterial);
+            }
+        }
+    }
+
     // attack target by spawning a projectile
     void Attack(GameObject target)
     {
         cooldownTimer = attackCooldown;
+
+        if (isSuper && branch == Branch.Magic && level == 3)
+        {
+            StasisStorm();
+            return;
+        }
 
         if (isSuper && branch == Branch.Mechanic && level == 3)
         {
