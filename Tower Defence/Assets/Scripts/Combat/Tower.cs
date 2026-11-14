@@ -448,6 +448,18 @@ public class Tower : MonoBehaviour
         }
     }
 
+    // called only after a bench transfer or battlefield fusion is confirmed
+    public void RemoveActiveWall()
+    {
+        if (currentWall != null)
+        {
+            currentWall.Break();
+            currentWall = null;
+        }
+
+        wallLifeTimer = 0f;
+    }
+
     // shrinks the wall as it gets damaged and gets rid of it when its time is up
     void UpdateCurrentWall()
     {

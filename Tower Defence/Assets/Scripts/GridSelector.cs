@@ -623,6 +623,7 @@ public class GridSelector : MonoBehaviour
         foreach (Tower tower in fusionTowers)
         {
             grid.SetCellType(grid.convertWorldPosToCell(tower.transform.position), Grid.CellType.Free);
+            tower.RemoveActiveWall();
             if (tower != fusedTower)
             {
                 tower.enabled = false;
@@ -782,6 +783,7 @@ public class GridSelector : MonoBehaviour
             return false;
         }
 
+        tower.RemoveActiveWall();
         Vector3 originPosition = tower.transform.position;
         int footprintSize = 1;
         if (tower.isSuper)
