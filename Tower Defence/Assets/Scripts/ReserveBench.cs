@@ -7,6 +7,43 @@ public struct BenchUnit
     public int level;
     public Branch branch;
     public bool isSuper;
+    public bool hasCombatStats; // newly recruited bench units still use prefab defaults
+    public float attackRange;
+    public float attackCooldown;
+    public float damage;
+    public float damagePerWave;
+    public float aoeRadius;
+    public float aoeDamagePercent;
+    public TargetPriority targetPriority;
+    public float rotationSpeed;
+    public GameObject projectilePrefab;
+
+    // copy base stats, leaving wave bonuses to be calculated when the unit fights
+    public static BenchUnit FromTower(Tower tower)
+    {
+        if (tower == null)
+        {
+            return new BenchUnit();
+        }
+
+        return new BenchUnit
+        {
+            occupied = true,
+            level = tower.level,
+            branch = tower.branch,
+            isSuper = tower.isSuper,
+            hasCombatStats = true,
+            attackRange = tower.attackRange,
+            attackCooldown = tower.attackCooldown,
+            damage = tower.damage,
+            damagePerWave = tower.damagePerWave,
+            aoeRadius = tower.aoeRadius,
+            aoeDamagePercent = tower.aoeDamagePercent,
+            targetPriority = tower.targetPriority,
+            rotationSpeed = tower.rotationSpeed,
+            projectilePrefab = tower.projectilePrefab
+        };
+    }
 }
 
 // reserve bench manager for unplaced units and passive sp generation
