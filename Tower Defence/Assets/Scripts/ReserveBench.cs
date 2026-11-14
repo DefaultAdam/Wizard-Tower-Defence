@@ -171,6 +171,22 @@ public class ReserveBench : MonoBehaviour
         return true;
     }
 
+    // keep the first selected unit's saved stats, matching battlefield fusion
+    public bool TryFuseSlots(int firstIndex, int secondIndex, int thirdIndex, out string reason)
+    {
+        if (!CanFuseSlots(firstIndex, secondIndex, thirdIndex, out reason))
+        {
+            return false;
+        }
+
+        slots[firstIndex].isSuper = true;
+        slots[secondIndex] = new BenchUnit();
+        slots[thirdIndex] = new BenchUnit();
+        UpdateBenchedCount();
+        UpdateUI();
+        return true;
+    }
+
     // check if player can afford to hire into slot
     public bool CanRecruitToSlot(int slotIndex)
     {
