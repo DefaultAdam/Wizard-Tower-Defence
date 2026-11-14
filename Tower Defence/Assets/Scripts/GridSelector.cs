@@ -619,6 +619,11 @@ public class GridSelector : MonoBehaviour
 
         if (deployingSlotIndex >= 0)
         {
+            if (ReserveBench.instance == null || !ReserveBench.instance.IsSlotOccupied(deployingSlotIndex) || ReserveBench.instance.slots[deployingSlotIndex].isSuper)
+            {
+                return;
+            }
+
             cost = 0;
         }
         else if (selectedTroopIndex == 1)
@@ -644,6 +649,7 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
+        GameObject placedTower = Instantiate(prefabToPlace, center, Quaternion.identity);
         if (cost > 0)
         {
             HUD.instance.DeductSP(cost);
@@ -651,12 +657,18 @@ public class GridSelector : MonoBehaviour
         }
         else if (deployingSlotIndex >= 0 && ReserveBench.instance != null)
         {
+            Tower deployedTower = placedTower.GetComponent<Tower>();
+            if (deployedTower == null)
+            {
+                Destroy(placedTower);
+                return;
+            }
+
+            ReserveBench.instance.slots[deployingSlotIndex].RestoreTo(deployedTower);
             ReserveBench.instance.DeployFromSlot(deployingSlotIndex);
         }
         deployingSlotIndex = -1;
 
-        Instantiate(prefabToPlace, center, Quaternion.identity);
-        
         grid.SetCellType(cell, Grid.CellType.Used);
         placedTowers++;
         HUD.instance.UpdateTowerCount(placedTowers, maxTowers);

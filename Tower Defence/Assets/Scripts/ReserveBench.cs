@@ -18,6 +18,33 @@ public struct BenchUnit
     public float rotationSpeed;
     public GameObject projectilePrefab;
 
+    // restore saved values without charging upgrade fees again
+    public void RestoreTo(Tower tower)
+    {
+        if (!occupied || tower == null)
+        {
+            return;
+        }
+
+        tower.level = level;
+        tower.branch = branch;
+        tower.isSuper = isSuper;
+        if (hasCombatStats)
+        {
+            tower.attackRange = attackRange;
+            tower.attackCooldown = attackCooldown;
+            tower.damage = damage;
+            tower.damagePerWave = damagePerWave;
+            tower.aoeRadius = aoeRadius;
+            tower.aoeDamagePercent = aoeDamagePercent;
+            tower.targetPriority = targetPriority;
+            tower.rotationSpeed = rotationSpeed;
+            tower.projectilePrefab = projectilePrefab;
+        }
+
+        tower.ApplyColour();
+    }
+
     // copy base stats, leaving wave bonuses to be calculated when the unit fights
     public static BenchUnit FromTower(Tower tower)
     {
