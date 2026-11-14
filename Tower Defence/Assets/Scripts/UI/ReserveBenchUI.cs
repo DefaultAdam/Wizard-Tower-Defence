@@ -18,6 +18,7 @@ public class ReserveBenchUI : MonoBehaviour
 
     public Button[] slotButtons = new Button[5]; // action buttons for five bench slots
     public Text[] slotButtonTexts = new Text[5]; // text labels on slot action buttons
+    private Text[] slotTitleTexts = new Text[5]; // unit names above the action buttons
     public Text capacityText; // text display for benched units count
     public Text passiveText; // text display for total passive sp gained
 
@@ -93,6 +94,12 @@ public class ReserveBenchUI : MonoBehaviour
                 Transform slot = container.Find("Slot_" + i);
                 if (slot != null)
                 {
+                    Transform title = slot.Find("TitleText");
+                    if (title != null)
+                    {
+                        slotTitleTexts[i] = title.GetComponent<Text>();
+                    }
+
                     if (slotButtons[i] == null)
                     {
                         Transform btn = slot.Find("ActionButton");
@@ -266,6 +273,11 @@ public class ReserveBenchUI : MonoBehaviour
             {
                 isOccupied = ReserveBench.instance.IsSlotOccupied(i);
                 canAfford = ReserveBench.instance.CanRecruitToSlot(i);
+            }
+
+            if (slotTitleTexts[i] != null)
+            {
+                slotTitleTexts[i].text = isOccupied ? ReserveBench.instance.slots[i].GetTroopName() : "EMPTY BENCH SLOT";
             }
 
             if (isOccupied)

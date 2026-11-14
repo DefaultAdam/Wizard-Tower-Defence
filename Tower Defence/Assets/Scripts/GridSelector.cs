@@ -423,7 +423,7 @@ public class GridSelector : MonoBehaviour
         }
     }
 
-    // start placing recruit from chosen bench slot
+    // start placing the saved unit from the chosen bench slot
     public void StartBenchDeployment(int slotIndex)
     {
         if (placedTowers >= maxTowers)
@@ -431,6 +431,12 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
+        if (ReserveBench.instance == null || !ReserveBench.instance.IsSlotOccupied(slotIndex))
+        {
+            return;
+        }
+
+        BenchUnit unit = ReserveBench.instance.slots[slotIndex];
         deployingSlotIndex = slotIndex;
         selectedTroopIndex = 0;
         isPlacing = true;
@@ -438,7 +444,20 @@ public class GridSelector : MonoBehaviour
 
         if (HUD.instance != null)
         {
-            HUD.instance.ShowUnitInspector("Recruit", "Level 0 Recruit (Bench Slot " + (slotIndex + 1) + ")", "Deploying from bench slot " + (slotIndex + 1) + " (0 SP)\nDamage: 20\nRate: 0.8/s\nRange: 5");
+            BenchUnit displayUnit = unit;
+            if (!unit.hasCombatStats && towerPrefab != null)
+            {
+                displayUnit = BenchUnit.FromTower(towerPrefab.GetComponent<Tower>());
+            }
+
+            string stats = "Deploying from bench slot " + (slotIndex + 1) + " (0 SP)";
+            if (displayUnit.hasCombatStats)
+            {
+                float damage = displayUnit.damage + Mathf.Max(0, HUD.instance.currentWave - 1) * displayUnit.damagePerWave;
+                stats += "\nDamage: " + damage + "\nFire Rate: " + displayUnit.attackCooldown + "s\nRange: " + displayUnit.attackRange;
+            }
+
+            HUD.instance.ShowUnitInspector(unit.GetTroopName(), SkillTree.GetLevelName(unit.level), stats);
         }
     }
 

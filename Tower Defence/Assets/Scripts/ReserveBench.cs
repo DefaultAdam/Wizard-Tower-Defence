@@ -18,6 +18,11 @@ public struct BenchUnit
     public float rotationSpeed;
     public GameObject projectilePrefab;
 
+    public string GetTroopName()
+    {
+        return isSuper ? "Super " + branch : SkillTree.GetTroopName(branch, level);
+    }
+
     // restore saved values without charging upgrade fees again
     public void RestoreTo(Tower tower)
     {
