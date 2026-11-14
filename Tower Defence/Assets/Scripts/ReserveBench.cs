@@ -1,5 +1,14 @@
 using UnityEngine;
 
+[System.Serializable]
+public struct BenchUnit
+{
+    public bool occupied;
+    public int level;
+    public Branch branch;
+    public bool isSuper;
+}
+
 // reserve bench manager for unplaced units and passive sp generation
 public class ReserveBench : MonoBehaviour
 {
@@ -11,7 +20,7 @@ public class ReserveBench : MonoBehaviour
     public float passiveMultiplier = 1.5f; // passive sp multiplier
     public int totalPassiveSPEarned = 0; // total passive sp earned
     public bool allowPassiveOutsideSpawner = false; // fallback for testing outside spawner
-    public bool[] slots = new bool[5]; // bench slots array
+    public BenchUnit[] slots = new BenchUnit[5]; // unit details for each bench slot
 
     // initialise instance on awake
     void Awake()
@@ -34,7 +43,7 @@ public class ReserveBench : MonoBehaviour
         {
             for (int i = 0; i < slots.Length; i++)
             {
-                if (slots[i])
+                if (slots[i].occupied)
                 {
                     count++;
                 }
@@ -50,7 +59,7 @@ public class ReserveBench : MonoBehaviour
         {
             return false;
         }
-        return slots[slotIndex];
+        return slots[slotIndex].occupied;
     }
 
     // check if player can afford to hire into slot
@@ -61,7 +70,7 @@ public class ReserveBench : MonoBehaviour
             return false;
         }
 
-        if (slots[slotIndex])
+        if (slots[slotIndex].occupied)
         {
             return false;
         }
@@ -88,7 +97,7 @@ public class ReserveBench : MonoBehaviour
             HUD.instance.ShowDeduction(recruitCost);
         }
 
-        slots[slotIndex] = true;
+        slots[slotIndex] = new BenchUnit { occupied = true };
         UpdateBenchedCount();
         UpdateUI();
         return true;
@@ -102,7 +111,7 @@ public class ReserveBench : MonoBehaviour
             return false;
         }
 
-        slots[slotIndex] = false;
+        slots[slotIndex] = new BenchUnit();
         UpdateBenchedCount();
         UpdateUI();
         return true;
@@ -152,7 +161,7 @@ public class ReserveBench : MonoBehaviour
 
         for (int i = 0; i < slots.Length; i++)
         {
-            if (!slots[i])
+            if (!slots[i].occupied)
             {
                 return RecruitToSlot(i);
             }
@@ -166,7 +175,7 @@ public class ReserveBench : MonoBehaviour
     {
         for (int i = 0; i < slots.Length; i++)
         {
-            if (slots[i])
+            if (slots[i].occupied)
             {
                 return DeployFromSlot(i);
             }
@@ -185,9 +194,9 @@ public class ReserveBench : MonoBehaviour
 
         for (int i = 0; i < slots.Length; i++)
         {
-            if (!slots[i])
+            if (!slots[i].occupied)
             {
-                slots[i] = true;
+                slots[i] = new BenchUnit { occupied = true };
                 UpdateBenchedCount();
                 UpdateUI();
                 return true;
