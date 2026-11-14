@@ -58,6 +58,7 @@ public class Tower : MonoBehaviour
     public float wallLifetime = 8f; // walls disappear on their own after this if nobody breaks them
     public float veteranWallLifetime = 10f; // veteran walls stick around longer
     private float wallLifeTimer = 0f; // time left before the current wall vanishes
+    private float currentWallHeight = 1f; // preserve the height chosen when this wall was built
 
     private float cooldownTimer = 0f; // timer to track attack cooldown
     private GameObject currentTarget; // current target enemy
@@ -410,8 +411,9 @@ public class Tower : MonoBehaviour
         Destroy(wallObject.GetComponent<Collider>());
 
         float cellSize = movement.grid.cellSize;
-        wallObject.transform.position = movement.grid.GetCellCenter(wallCell) + new Vector3(0f, 0.5f, 0f);
-        wallObject.transform.localScale = new Vector3(cellSize * 0.9f, 1f, cellSize * 0.9f);
+        currentWallHeight = isSuper && level == 3 ? 2f : 1f;
+        wallObject.transform.position = movement.grid.GetCellCenter(wallCell) + new Vector3(0f, currentWallHeight * 0.5f, 0f);
+        wallObject.transform.localScale = new Vector3(cellSize * 0.9f, currentWallHeight, cellSize * 0.9f);
         wallObject.GetComponent<Renderer>().material.color = GetBranchColour();
 
         float health = wallHealth;
@@ -421,6 +423,11 @@ public class Tower : MonoBehaviour
         {
             health = veteranWallHealth;
             wallTimer = veteranWallCooldown;
+        }
+
+        if (isSuper && level == 3)
+        {
+            health *= 6f;
         }
 
         currentWall = wallObject.AddComponent<ImaginaryWall>();
@@ -447,7 +454,7 @@ public class Tower : MonoBehaviour
 
         // squash it down to show how much health is left, never fully flat so you can still see it
         float healthLeft = currentWall.currentHealth / currentWall.maxHealth;
-        float height = Mathf.Max(0.2f, healthLeft);
+        float height = Mathf.Max(0.2f, healthLeft) * currentWallHeight;
 
         Vector3 scale = currentWall.transform.localScale;
         Vector3 position = currentWall.transform.position;
@@ -764,6 +771,11 @@ public class Tower : MonoBehaviour
     void Attack(GameObject target)
     {
         cooldownTimer = attackCooldown;
+
+        if (isSuper && branch == Branch.Imaginary && level == 3)
+        {
+            return; // walls are built by UpdateWalls on their own timer
+        }
 
         if (isSuper && branch == Branch.Magic && level == 3)
         {
