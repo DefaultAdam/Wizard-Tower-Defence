@@ -221,10 +221,10 @@ public class ReserveBench : MonoBehaviour
         return false;
     }
 
-    // bench recruit from battlefield to first free slot
-    public bool BenchFromField()
+    // save a battlefield unit in the first free slot before its object is removed
+    public bool BenchFromField(Tower tower)
     {
-        if (!HasCapacity())
+        if (tower == null || !HasCapacity())
         {
             return false;
         }
@@ -233,7 +233,7 @@ public class ReserveBench : MonoBehaviour
         {
             if (!slots[i].occupied)
             {
-                slots[i] = new BenchUnit { occupied = true };
+                slots[i] = BenchUnit.FromTower(tower);
                 UpdateBenchedCount();
                 UpdateUI();
                 return true;

@@ -677,7 +677,7 @@ public class GridSelector : MonoBehaviour
             return false;
         }
 
-        if (ReserveBench.instance == null || !ReserveBench.instance.HasCapacity())
+        if (ReserveBench.instance == null || !ReserveBench.instance.BenchFromField(tower))
         {
             return false;
         }
@@ -697,8 +697,6 @@ public class GridSelector : MonoBehaviour
         {
             placedTowers = 0;
         }
-
-        ReserveBench.instance.BenchFromField();
 
         if (HUD.instance != null)
         {
