@@ -131,6 +131,46 @@ public class ReserveBench : MonoBehaviour
         return slots[slotIndex].occupied;
     }
 
+    // bench fusion uses unit identity only; benched units have no grid positions
+    public bool CanFuseSlots(int firstIndex, int secondIndex, int thirdIndex, out string reason)
+    {
+        reason = "";
+        if (!IsSlotOccupied(firstIndex) || !IsSlotOccupied(secondIndex) || !IsSlotOccupied(thirdIndex))
+        {
+            reason = "Select three occupied bench slots";
+            return false;
+        }
+
+        if (firstIndex == secondIndex || firstIndex == thirdIndex || secondIndex == thirdIndex)
+        {
+            reason = "Select three different bench slots";
+            return false;
+        }
+
+        BenchUnit first = slots[firstIndex];
+        BenchUnit second = slots[secondIndex];
+        BenchUnit third = slots[thirdIndex];
+        if (first.level != 3 || second.level != 3 || third.level != 3)
+        {
+            reason = "All three units must be Level 3";
+            return false;
+        }
+
+        if (first.isSuper || second.isSuper || third.isSuper)
+        {
+            reason = "Super Apprentices cannot fuse again";
+            return false;
+        }
+
+        if (first.branch == Branch.None || first.branch != second.branch || first.branch != third.branch)
+        {
+            reason = "All three units must have the same specialisation branch";
+            return false;
+        }
+
+        return true;
+    }
+
     // check if player can afford to hire into slot
     public bool CanRecruitToSlot(int slotIndex)
     {
