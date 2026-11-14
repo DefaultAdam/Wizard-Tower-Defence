@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 // targeting priority options
 public enum TargetPriority
@@ -681,10 +682,47 @@ public class Tower : MonoBehaviour
         projectile.beamWidth = cellSize * 0.5f;
     }
 
+    private void GravitationalSlam()
+    {
+        int throwCells = 3;
+        if (projectilePrefab != null)
+        {
+            Projectile template = projectilePrefab.GetComponent<Projectile>();
+            if (template != null)
+            {
+                throwCells = template.veteranThrowCells;
+            }
+        }
+
+        List<Health> hitEnemies = new List<Health>();
+        foreach (Collider hit in Physics.OverlapSphere(transform.position, attackRange))
+        {
+            Health enemy = hit.GetComponentInParent<Health>();
+            if (enemy == null || enemy.isDead || !enemy.CompareTag("Enemy") || hitEnemies.Contains(enemy))
+            {
+                continue;
+            }
+
+            hitEnemies.Add(enemy);
+            enemy.TakeDamage(GetCurrentDamage());
+            EnemyMovement movement = enemy.GetComponent<EnemyMovement>();
+            if (!enemy.isDead && movement != null)
+            {
+                movement.PushBack(throwCells * 6, 1.5f);
+            }
+        }
+    }
+
     // attack target by spawning a projectile
     void Attack(GameObject target)
     {
         cooldownTimer = attackCooldown;
+
+        if (isSuper && branch == Branch.Mechanic && level == 3)
+        {
+            GravitationalSlam();
+            return;
+        }
 
         if (isSuper && branch == Branch.Physical && level == 3)
         {
