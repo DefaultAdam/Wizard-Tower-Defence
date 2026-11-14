@@ -23,7 +23,7 @@ public class TroopPanel : MonoBehaviour
     public Text imaginaryButtonText; // text display for imaginary upgrade button
     public Button benchButton; // button to bench inspected recruit
     public Text benchButtonText; // text display for bench button
-    private Button fuseButton; // shares the bench button position, shown only for Masters
+    private Button fuseButton; // uses an upgrade button position, shown only for Masters
 
     // initialise instance on awake
     void Awake()
@@ -147,7 +147,7 @@ public class TroopPanel : MonoBehaviour
 
         if (benchButton != null)
         {
-            if (tower.level == 0 && ReserveBench.instance != null)
+            if (!tower.isSuper && ReserveBench.instance != null && !GridSelector.instance.isSelectingFusion)
             {
                 benchButton.gameObject.SetActive(true);
                 bool canBench = ReserveBench.instance.HasCapacity();
@@ -176,15 +176,15 @@ public class TroopPanel : MonoBehaviour
             }
             else if (nextLevel > 3)
             {
-                hintText.text = "Max level reached";
+                hintText.text = tower.isSuper ? "Max level reached" : "Max level reached (or 'X' to bench)";
             }
             else if (GridSelector.instance != null && GridSelector.instance.GetSelectedTower() != tower)
             {
-                hintText.text = tower.level == 0 ? "Click troop to upgrade (or 'X' to bench)" : "Click troop to upgrade";
+                hintText.text = "Click troop to upgrade (or 'X' to bench)";
             }
             else
             {
-                hintText.text = tower.level == 0 ? "Right click to deselect (or 'X' to bench)" : "Right click to deselect";
+                hintText.text = "Right click to deselect (or 'X' to bench)";
             }
         }
     }
@@ -251,8 +251,13 @@ public class TroopPanel : MonoBehaviour
         if (benchButton != null)
         {
             benchButton.onClick.AddListener(OnBenchButtonClicked);
-            fuseButton = Instantiate(benchButton, benchButton.transform.parent);
+        }
+
+        if (physicalButton != null)
+        {
+            fuseButton = Instantiate(physicalButton, physicalButton.transform.parent);
             fuseButton.gameObject.name = "Fuse Button";
+            fuseButton.interactable = true;
             fuseButton.onClick = new Button.ButtonClickedEvent();
             fuseButton.onClick.AddListener(OnFuseButtonClicked);
             fuseButton.GetComponentInChildren<Text>().text = "Fuse";
@@ -268,7 +273,7 @@ public class TroopPanel : MonoBehaviour
         }
     }
 
-    // handle bench button click to send inspected recruit to reserve bench
+    // handle bench button click to send an inspected ordinary unit to the bench
     public void OnBenchButtonClicked()
     {
         Tower tower = null;
@@ -277,7 +282,7 @@ public class TroopPanel : MonoBehaviour
             tower = GridSelector.instance.GetInspectedTower();
         }
 
-        if (tower != null && tower.level == 0 && GridSelector.instance != null)
+        if (tower != null && !tower.isSuper && GridSelector.instance != null)
         {
             GridSelector.instance.BenchTower(tower);
         }

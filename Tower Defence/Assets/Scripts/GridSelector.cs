@@ -114,7 +114,7 @@ public class GridSelector : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.X))
         {
             Tower target = selectedTower != null ? selectedTower : hoveredTower;
-            if (target != null && target.level == 0)
+            if (target != null && !target.isSuper)
             {
                 BenchTower(target);
             }
@@ -676,10 +676,10 @@ public class GridSelector : MonoBehaviour
         CancelPlacement();
     }
 
-    // bench an active recruit from the battlefield back to reserve bench
+    // bench an ordinary unit; Super units need separate 2x2 footprint handling
     public bool BenchTower(Tower tower)
     {
-        if (tower == null || tower.level != 0)
+        if (tower == null || tower.isSuper || isSelectingFusion)
         {
             return false;
         }
