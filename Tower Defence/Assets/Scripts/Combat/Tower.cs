@@ -303,6 +303,14 @@ public class Tower : MonoBehaviour
                 + "\nThrow Duration: 1.5x";
         }
 
+        if (isSuper && branch == Branch.Magic && level == 3)
+        {
+            Projectile template = projectilePrefab != null ? projectilePrefab.GetComponent<Projectile>() : null;
+            float duration = template != null ? template.veteranFreezeTime * 6f : 15f;
+            return "Storm: " + GetCurrentDamage() + " | Interval: " + attackCooldown + "s"
+                + "\nRadius: 6 tiles | Freeze: " + duration + "s";
+        }
+
         string text = "Damage: " + GetCurrentDamage() + "\nFire Rate: " + attackCooldown + "s\nRange: " + attackRange;
 
         if (aoeRadius > 0f)

@@ -470,6 +470,13 @@ public class GridSelector : MonoBehaviour
                         + "\nRadius: " + displayUnit.attackRange + " | Pushback: " + throwCells + " tiles"
                         + "\nThrow Duration: 1.5x";
                 }
+                else if (unit.isSuper && unit.branch == Branch.Magic && unit.level == 3)
+                {
+                    Projectile template = displayUnit.projectilePrefab != null ? displayUnit.projectilePrefab.GetComponent<Projectile>() : null;
+                    float duration = template != null ? template.veteranFreezeTime * 6f : 15f;
+                    stats += "\nStorm: " + damage + " | Interval: " + displayUnit.attackCooldown + "s"
+                        + "\nRadius: 6 tiles | Freeze: " + duration + "s";
+                }
                 else
                 {
                     stats += "\nDamage: " + damage + "\nFire Rate: " + displayUnit.attackCooldown + "s\nRange: " + displayUnit.attackRange;
