@@ -147,7 +147,7 @@ public class TroopPanel : MonoBehaviour
 
         if (benchButton != null)
         {
-            if (!tower.isSuper && ReserveBench.instance != null && !GridSelector.instance.isSelectingFusion)
+            if (ReserveBench.instance != null && !GridSelector.instance.isSelectingFusion)
             {
                 benchButton.gameObject.SetActive(true);
                 bool canBench = ReserveBench.instance.HasCapacity();
@@ -176,7 +176,7 @@ public class TroopPanel : MonoBehaviour
             }
             else if (nextLevel > 3)
             {
-                hintText.text = tower.isSuper ? "Max level reached" : "Max level reached (or 'X' to bench)";
+                hintText.text = "Max level reached (or 'X' to bench)";
             }
             else if (GridSelector.instance != null && GridSelector.instance.GetSelectedTower() != tower)
             {
@@ -273,7 +273,7 @@ public class TroopPanel : MonoBehaviour
         }
     }
 
-    // handle bench button click to send an inspected ordinary unit to the bench
+    // handle bench button click to send the inspected unit to the bench
     public void OnBenchButtonClicked()
     {
         Tower tower = null;
@@ -282,7 +282,7 @@ public class TroopPanel : MonoBehaviour
             tower = GridSelector.instance.GetInspectedTower();
         }
 
-        if (tower != null && !tower.isSuper && GridSelector.instance != null)
+        if (tower != null && GridSelector.instance != null)
         {
             GridSelector.instance.BenchTower(tower);
         }

@@ -114,7 +114,7 @@ public class GridSelector : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.X))
         {
             Tower target = selectedTower != null ? selectedTower : hoveredTower;
-            if (target != null && !target.isSuper)
+            if (target != null)
             {
                 BenchTower(target);
             }
@@ -733,10 +733,10 @@ public class GridSelector : MonoBehaviour
         CancelPlacement();
     }
 
-    // bench an ordinary unit; Super units need separate 2x2 footprint handling
+    // save the unit before freeing its one-cell or 2x2 battlefield footprint
     public bool BenchTower(Tower tower)
     {
-        if (tower == null || tower.isSuper || isSelectingFusion)
+        if (tower == null || isSelectingFusion)
         {
             return false;
         }
@@ -751,8 +751,22 @@ public class GridSelector : MonoBehaviour
             return false;
         }
 
-        Vector2Int cell = grid.convertWorldPosToCell(tower.transform.position);
-        grid.SetCellType(cell, Grid.CellType.Free);
+        Vector3 originPosition = tower.transform.position;
+        int footprintSize = 1;
+        if (tower.isSuper)
+        {
+            originPosition -= new Vector3(grid.cellSize * 0.5f, 0f, grid.cellSize * 0.5f);
+            footprintSize = 2;
+        }
+
+        Vector2Int origin = grid.convertWorldPosToCell(originPosition);
+        for (int x = 0; x < footprintSize; x++)
+        {
+            for (int y = 0; y < footprintSize; y++)
+            {
+                grid.SetCellType(origin + new Vector2Int(x, y), Grid.CellType.Free);
+            }
+        }
 
         if (selectedTower == tower)
         {
