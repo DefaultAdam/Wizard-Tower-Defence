@@ -45,6 +45,7 @@ public class ImaginaryWall : MonoBehaviour
     //wall's done, get rid of it
     public void Break()
     {
+        gameObject.SetActive(false); // stop blocking immediately, before deferred destruction
         Destroy(gameObject);
 
     }

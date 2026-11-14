@@ -15,6 +15,7 @@ public class EnemyMovement : MonoBehaviour
     private float throwCooldownTimer = 0f; // time left before it can be thrown again
 
     public float throwDuration = 0.5f; // how long the enemy is in the air when thrown
+    private float currentThrowDuration; // duration for this throw, without changing the base setting
     public float throwHeight = 2f; // how high it goes at the top of the arc
     private bool isThrown = false; // true while its flying through the air
     private float throwTimer = 0f; // how far through the throw it is
@@ -228,7 +229,7 @@ public class EnemyMovement : MonoBehaviour
 
     // sends the enemy back down its path by a number of cells (for the mechanic throw)
     // it flies there in an arc, see UpdateThrow
-    public void PushBack(int cells)
+    public void PushBack(int cells, float durationMultiplier = 1f)
     {
         if (path == null || cells <= 0)
         {
@@ -257,6 +258,7 @@ public class EnemyMovement : MonoBehaviour
         throwStart = transform.position;
         throwEnd = grid.GetCellCenter(path[landingCell]);
         throwTimer = 0f;
+        currentThrowDuration = throwDuration * durationMultiplier;
         isThrown = true;
 
         nextGridNumber = landingCell + 1;
@@ -266,7 +268,7 @@ public class EnemyMovement : MonoBehaviour
     void UpdateThrow()
     {
         throwTimer += Time.deltaTime;
-        float progress = Mathf.Clamp01(throwTimer / throwDuration);
+        float progress = Mathf.Clamp01(throwTimer / currentThrowDuration);
 
         // straight line from start to landing spot, then lift it up with a sine so it goes up and back down
         Vector3 position = Vector3.Lerp(throwStart, throwEnd, progress);

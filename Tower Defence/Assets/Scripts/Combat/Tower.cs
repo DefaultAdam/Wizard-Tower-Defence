@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 // targeting priority options
 public enum TargetPriority
@@ -38,6 +39,7 @@ public class Tower : MonoBehaviour
 
     public Branch branch = Branch.None; // chosen specialisation branch
     public int level = 0; // troop level tier
+    public bool isSuper = false; // true when this unit has been created by fusion
 
     public float boltCooldown = 0.8f; // physical apprentice bolts fire this often, seperate to the normal attack
     public float veteranBoltCooldown = 0.5f; // veterans fire the same bolts but more often
@@ -56,6 +58,7 @@ public class Tower : MonoBehaviour
     public float wallLifetime = 8f; // walls disappear on their own after this if nobody breaks them
     public float veteranWallLifetime = 10f; // veteran walls stick around longer
     private float wallLifeTimer = 0f; // time left before the current wall vanishes
+    private float currentWallHeight = 1f; // preserve the height chosen when this wall was built
 
     private float cooldownTimer = 0f; // timer to track attack cooldown
     private GameObject currentTarget; // current target enemy
@@ -93,9 +96,9 @@ public class Tower : MonoBehaviour
     }
 
     // apply branch colour to all troop renderers
-    public void ApplyColour()
+    public void ApplyColour(bool fusionSelected = false)
     {
-        Color colour = GetBranchColour();
+        Color colour = fusionSelected ? Color.green : GetBranchColour();
 
         foreach (Renderer troopRenderer in GetComponentsInChildren<Renderer>())
         {
@@ -179,6 +182,44 @@ public class Tower : MonoBehaviour
         ApplyColour();
     }
 
+    // check three units without changing or consuming them
+    public static bool CanFuse(Tower first, Tower second, Tower third, out string reason)
+    {
+        reason = "";
+
+        if (first == null || second == null || third == null)
+        {
+            reason = "Select three units";
+            return false;
+        }
+
+        if (first == second || first == third || second == third)
+        {
+            reason = "Select three different units";
+            return false;
+        }
+
+        if (first.level != 3 || second.level != 3 || third.level != 3)
+        {
+            reason = "All three units must be Level 3";
+            return false;
+        }
+
+        if (first.isSuper || second.isSuper || third.isSuper)
+        {
+            reason = "Super Apprentices cannot fuse again";
+            return false;
+        }
+
+        if (first.branch == Branch.None || first.branch != second.branch || first.branch != third.branch)
+        {
+            reason = "All three units must have the same specialisation branch";
+            return false;
+        }
+
+        return true;
+    }
+
     // get display name for troop
     public string GetTroopName()
     {
@@ -219,6 +260,11 @@ public class Tower : MonoBehaviour
 
         if (level == 3)
         {
+            if (isSuper)
+            {
+                return "Super " + branch;
+            }
+
             return branch + " Master";
         }
 
@@ -241,6 +287,38 @@ public class Tower : MonoBehaviour
     // get combat stats text for display
     public string GetStatsText()
     {
+        if (isSuper && branch == Branch.Physical && level == 3)
+        {
+            float beamDamage = GetCurrentDamage() * 6f;
+            return "Rail-Blast: " + beamDamage + " | Interval: " + attackCooldown + "s"
+                + "\nRange: " + attackRange + " | Pierces: 2"
+                + "\nBlast: " + (beamDamage * 0.5f) + " | Radius: " + aoeRadius;
+        }
+
+        if (isSuper && branch == Branch.Mechanic && level == 3)
+        {
+            Projectile template = projectilePrefab != null ? projectilePrefab.GetComponent<Projectile>() : null;
+            int throwCells = template != null ? template.veteranThrowCells * 6 : 18;
+            return "Slam: " + GetCurrentDamage() + " | Interval: " + attackCooldown + "s"
+                + "\nRadius: " + attackRange + " | Pushback: " + throwCells + " tiles"
+                + "\nThrow Duration: 1.5x";
+        }
+
+        if (isSuper && branch == Branch.Magic && level == 3)
+        {
+            Projectile template = projectilePrefab != null ? projectilePrefab.GetComponent<Projectile>() : null;
+            float duration = template != null ? template.veteranFreezeTime * 6f : 15f;
+            return "Storm: " + GetCurrentDamage() + " | Interval: " + attackCooldown + "s"
+                + "\nRadius: 6 tiles | Freeze: " + duration + "s";
+        }
+
+        if (isSuper && branch == Branch.Imaginary && level == 3)
+        {
+            return "Fortified Wall HP: " + (veteranWallHealth * 6f)
+                + "\nCooldown: " + veteranWallCooldown + "s | Life: " + veteranWallLifetime + "s"
+                + "\nActive Limit: 1 | Path Cells: 1";
+        }
+
         string text = "Damage: " + GetCurrentDamage() + "\nFire Rate: " + attackCooldown + "s\nRange: " + attackRange;
 
         if (aoeRadius > 0f)
@@ -278,7 +356,7 @@ public class Tower : MonoBehaviour
 
 
         // physical troops also shoot energy bolts on their own timer
-        if (branch == Branch.Physical && level >= 1)
+        if (branch == Branch.Physical && level >= 1 && !isSuper)
         {
             UpdateBolts();
         }
@@ -340,8 +418,9 @@ public class Tower : MonoBehaviour
         Destroy(wallObject.GetComponent<Collider>());
 
         float cellSize = movement.grid.cellSize;
-        wallObject.transform.position = movement.grid.GetCellCenter(wallCell) + new Vector3(0f, 0.5f, 0f);
-        wallObject.transform.localScale = new Vector3(cellSize * 0.9f, 1f, cellSize * 0.9f);
+        currentWallHeight = isSuper && level == 3 ? 2f : 1f;
+        wallObject.transform.position = movement.grid.GetCellCenter(wallCell) + new Vector3(0f, currentWallHeight * 0.5f, 0f);
+        wallObject.transform.localScale = new Vector3(cellSize * 0.9f, currentWallHeight, cellSize * 0.9f);
         wallObject.GetComponent<Renderer>().material.color = GetBranchColour();
 
         float health = wallHealth;
@@ -353,6 +432,11 @@ public class Tower : MonoBehaviour
             wallTimer = veteranWallCooldown;
         }
 
+        if (isSuper && level == 3)
+        {
+            health *= 6f;
+        }
+
         currentWall = wallObject.AddComponent<ImaginaryWall>();
         currentWall.Setup(wallCell, health);
 
@@ -362,6 +446,18 @@ public class Tower : MonoBehaviour
         {
             wallLifeTimer = veteranWallLifetime;
         }
+    }
+
+    // called only after a bench transfer or battlefield fusion is confirmed
+    public void RemoveActiveWall()
+    {
+        if (currentWall != null)
+        {
+            currentWall.Break();
+            currentWall = null;
+        }
+
+        wallLifeTimer = 0f;
     }
 
     // shrinks the wall as it gets damaged and gets rid of it when its time is up
@@ -377,7 +473,7 @@ public class Tower : MonoBehaviour
 
         // squash it down to show how much health is left, never fully flat so you can still see it
         float healthLeft = currentWall.currentHealth / currentWall.maxHealth;
-        float height = Mathf.Max(0.2f, healthLeft);
+        float height = Mathf.Max(0.2f, healthLeft) * currentWallHeight;
 
         Vector3 scale = currentWall.transform.localScale;
         Vector3 position = currentWall.transform.position;
@@ -598,10 +694,125 @@ public class Tower : MonoBehaviour
         }
     }
 
+    private void FireRailBlast(GameObject target)
+    {
+        Vector3 spawnPosition = firePoint != null ? firePoint.position : transform.position;
+        spawnPosition.y = target.transform.position.y;
+        Vector3 direction = target.transform.position - spawnPosition;
+        if (direction.sqrMagnitude <= 0.0001f)
+        {
+            return;
+        }
+
+        float cellSize = 1f;
+        if (GridSelector.instance != null && GridSelector.instance.grid != null)
+        {
+            cellSize = GridSelector.instance.grid.cellSize;
+        }
+
+        GameObject blast = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        blast.name = "Piercing Rail-Blast";
+        Destroy(blast.GetComponent<Collider>());
+        blast.transform.position = spawnPosition;
+        blast.transform.rotation = Quaternion.LookRotation(direction);
+        blast.transform.localScale = new Vector3(cellSize * 0.5f, cellSize * 0.5f, cellSize);
+        blast.GetComponent<Renderer>().material.color = GetBranchColour();
+
+        RailBlastProjectile projectile = blast.AddComponent<RailBlastProjectile>();
+        projectile.damage = GetCurrentDamage() * 6f;
+        projectile.maxDistance = attackRange;
+        projectile.explosionRadius = aoeRadius;
+        projectile.beamWidth = cellSize * 0.5f;
+    }
+
+    private void GravitationalSlam()
+    {
+        int throwCells = 3;
+        if (projectilePrefab != null)
+        {
+            Projectile template = projectilePrefab.GetComponent<Projectile>();
+            if (template != null)
+            {
+                throwCells = template.veteranThrowCells;
+            }
+        }
+
+        List<Health> hitEnemies = new List<Health>();
+        foreach (Collider hit in Physics.OverlapSphere(transform.position, attackRange))
+        {
+            Health enemy = hit.GetComponentInParent<Health>();
+            if (enemy == null || enemy.isDead || !enemy.CompareTag("Enemy") || hitEnemies.Contains(enemy))
+            {
+                continue;
+            }
+
+            hitEnemies.Add(enemy);
+            enemy.TakeDamage(GetCurrentDamage());
+            EnemyMovement movement = enemy.GetComponent<EnemyMovement>();
+            if (!enemy.isDead && movement != null)
+            {
+                movement.PushBack(throwCells * 6, 1.5f);
+            }
+        }
+    }
+
+    private void StasisStorm()
+    {
+        Projectile template = projectilePrefab != null ? projectilePrefab.GetComponent<Projectile>() : null;
+        float duration = template != null ? template.veteranFreezeTime * 6f : 15f;
+        Material bubbleMaterial = template != null ? template.bubbleMaterial : null;
+        float radius = 6f; // 6x a one-tile baseline radius
+        if (GridSelector.instance != null && GridSelector.instance.grid != null)
+        {
+            radius *= GridSelector.instance.grid.cellSize;
+        }
+
+        List<Health> hitEnemies = new List<Health>();
+        foreach (Collider hit in Physics.OverlapSphere(transform.position, radius))
+        {
+            Health enemy = hit.GetComponentInParent<Health>();
+            if (enemy == null || enemy.isDead || !enemy.CompareTag("Enemy") || hitEnemies.Contains(enemy))
+            {
+                continue;
+            }
+
+            hitEnemies.Add(enemy);
+            enemy.TakeDamage(GetCurrentDamage());
+            EnemyMovement movement = enemy.GetComponent<EnemyMovement>();
+            if (!enemy.isDead && movement != null)
+            {
+                movement.Bubble(duration, bubbleMaterial);
+            }
+        }
+    }
+
     // attack target by spawning a projectile
     void Attack(GameObject target)
     {
         cooldownTimer = attackCooldown;
+
+        if (isSuper && branch == Branch.Imaginary && level == 3)
+        {
+            return; // walls are built by UpdateWalls on their own timer
+        }
+
+        if (isSuper && branch == Branch.Magic && level == 3)
+        {
+            StasisStorm();
+            return;
+        }
+
+        if (isSuper && branch == Branch.Mechanic && level == 3)
+        {
+            GravitationalSlam();
+            return;
+        }
+
+        if (isSuper && branch == Branch.Physical && level == 3)
+        {
+            FireRailBlast(target);
+            return;
+        }
 
         if (projectilePrefab != null)
         {

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class GridSelector : MonoBehaviour
 {
@@ -19,10 +20,15 @@ public class GridSelector : MonoBehaviour
     public int maxTowerLimit = 25; // absolute maximum tower limit
     public int placedTowers = 0;
     public bool isPlacing = false;
+    public bool isSelectingFusion = false; // true after pressing the inspector Fuse button
+    public bool isPlacingFusion = false; // preview the fused tower before consuming the originals
     public int deployingSlotIndex = -1; // bench slot currently being placed
 
     private Tower hoveredTower; // troop currently under the mouse
     private Tower selectedTower; // troop clicked for upgrades
+    private List<Tower> fusionTowers = new List<Tower>(); // units chosen for battlefield fusion
+    public int FusionSelectionCount => fusionTowers.Count;
+    public string FusionSelectionMessage { get; private set; } = "";
 
     // initialise instance on awake
     private void Awake()
@@ -108,7 +114,7 @@ public class GridSelector : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.X))
         {
             Tower target = selectedTower != null ? selectedTower : hoveredTower;
-            if (target != null && target.level == 0)
+            if (target != null)
             {
                 BenchTower(target);
             }
@@ -122,7 +128,7 @@ public class GridSelector : MonoBehaviour
 
         Ray ray = sceneCamera.ScreenPointToRay(Input.mousePosition);
 
-        if (!isPlacing)
+        if (!isPlacing && !isPlacingFusion)
         {
             UpdateTroopSelection(ray);
         }
@@ -155,6 +161,13 @@ public class GridSelector : MonoBehaviour
 
         Vector3 center = grid.GetCellCenter(cell);
         float halfSize = grid.cellSize * 0.49f;
+        bool deployingSuper = IsDeployingSuper();
+        if (isPlacingFusion || deployingSuper)
+        {
+            center += new Vector3(grid.cellSize * 0.5f, 0f, grid.cellSize * 0.5f);
+            halfSize = grid.cellSize * 0.99f;
+        }
+
         float y = center.y + 0.28f;
 
         if (highlight != null)
@@ -165,9 +178,13 @@ public class GridSelector : MonoBehaviour
             highlight.SetPosition(3, new Vector3(center.x + halfSize, y, center.z - halfSize));
             highlight.SetPosition(4, new Vector3(center.x - halfSize, y, center.z - halfSize));
 
-            if (isPlacing)
+            if (isPlacingFusion)
             {
-                if (grid.GetCellType(cell) == Grid.CellType.Free)
+                SetHighlightColour(CanPlaceFusedTower(cell) ? Color.green : Color.red);
+            }
+            else if (isPlacing)
+            {
+                if (CanPlaceTowerFootprint(cell, deployingSuper ? 2 : 1))
                 {
                     SetHighlightColour(Color.green);
                 }
@@ -184,14 +201,21 @@ public class GridSelector : MonoBehaviour
             highlight.enabled = true;
         }
 
-        if (isPlacing && Input.GetMouseButtonDown(0))
+        if ((isPlacing || isPlacingFusion) && Input.GetMouseButtonDown(0))
         {
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             {
                 return;
             }
 
-            TryPlaceTower(cell, center);
+            if (isPlacingFusion)
+            {
+                TryPlaceFusedTower(cell, center);
+            }
+            else
+            {
+                TryPlaceTower(cell, center);
+            }
         }
     }
 
@@ -207,7 +231,74 @@ public class GridSelector : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            if (isSelectingFusion)
+            {
+                ToggleFusionTower(hoveredTower);
+                return;
+            }
+
             selectedTower = hoveredTower;
+        }
+    }
+
+    // toggle a candidate while keeping all chosen units inside one 3x3 area
+    void ToggleFusionTower(Tower tower)
+    {
+        FusionSelectionMessage = "";
+        if (tower == null)
+        {
+            FusionSelectionMessage = "Click a tower to select it.";
+            return;
+        }
+
+        if (fusionTowers.Contains(tower))
+        {
+            fusionTowers.Remove(tower);
+            tower.ApplyColour();
+            return;
+        }
+
+        if (fusionTowers.Count >= 3)
+        {
+            FusionSelectionMessage = "Three towers selected. Deselect one to choose another.";
+            return;
+        }
+
+        if (tower.level != 3 || tower.branch == Branch.None)
+        {
+            FusionSelectionMessage = "Choose a Level 3 tower with a specialisation branch.";
+            return;
+        }
+
+        if (tower.isSuper)
+        {
+            FusionSelectionMessage = "Super Apprentices cannot fuse again.";
+            return;
+        }
+
+        Vector2Int minCell = grid.convertWorldPosToCell(tower.transform.position);
+        Vector2Int maxCell = minCell;
+        foreach (Tower selected in fusionTowers)
+        {
+            if (selected.branch != tower.branch)
+            {
+                FusionSelectionMessage = "Choose towers from the same specialisation branch.";
+                return;
+            }
+
+            Vector2Int cell = grid.convertWorldPosToCell(selected.transform.position);
+            minCell = Vector2Int.Min(minCell, cell);
+            maxCell = Vector2Int.Max(maxCell, cell);
+        }
+
+        if (maxCell.x - minCell.x <= 2 && maxCell.y - minCell.y <= 2)
+        {
+            fusionTowers.Add(tower);
+            tower.ApplyColour(true);
+        }
+        else
+        {
+            FusionSelectionMessage = "All three towers must fit inside one 3x3 area.";
         }
     }
 
@@ -252,8 +343,54 @@ public class GridSelector : MonoBehaviour
     // clear hovered and selected troop
     public void ClearSelection()
     {
+        foreach (Tower tower in fusionTowers)
+        {
+            if (tower != null)
+            {
+                tower.ApplyColour();
+            }
+        }
+
+        fusionTowers.Clear();
+        FusionSelectionMessage = "";
+        isSelectingFusion = false;
+        isPlacingFusion = false;
         hoveredTower = null;
         selectedTower = null;
+    }
+
+    // enter fusion selection from an eligible inspected Master
+    public void StartFusionSelection()
+    {
+        if (isSelectingFusion)
+        {
+            if (fusionTowers.Count != 3)
+            {
+                FusionSelectionMessage = "Select three towers, then press Fuse again.";
+                return;
+            }
+
+            if (!Tower.CanFuse(fusionTowers[0], fusionTowers[1], fusionTowers[2], out string reason))
+            {
+                FusionSelectionMessage = reason;
+                return;
+            }
+
+            isPlacingFusion = true;
+            FusionSelectionMessage = "";
+            return;
+        }
+
+        Tower tower = GetInspectedTower();
+        if (tower == null || tower.level != 3 || tower.isSuper || tower.branch == Branch.None)
+        {
+            return;
+        }
+
+        CancelPlacement();
+        ClearSelection();
+        selectedTower = tower;
+        isSelectingFusion = true;
     }
 
     // start tower placement mode and display recruit inspector
@@ -287,7 +424,7 @@ public class GridSelector : MonoBehaviour
         }
     }
 
-    // start placing recruit from chosen bench slot
+    // start placing the saved unit from the chosen bench slot
     public void StartBenchDeployment(int slotIndex)
     {
         if (placedTowers >= maxTowers)
@@ -295,6 +432,12 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
+        if (ReserveBench.instance == null || !ReserveBench.instance.IsSlotOccupied(slotIndex))
+        {
+            return;
+        }
+
+        BenchUnit unit = ReserveBench.instance.slots[slotIndex];
         deployingSlotIndex = slotIndex;
         selectedTroopIndex = 0;
         isPlacing = true;
@@ -302,7 +445,51 @@ public class GridSelector : MonoBehaviour
 
         if (HUD.instance != null)
         {
-            HUD.instance.ShowUnitInspector("Recruit", "Level 0 Recruit (Bench Slot " + (slotIndex + 1) + ")", "Deploying from bench slot " + (slotIndex + 1) + " (0 SP)\nDamage: 20\nRate: 0.8/s\nRange: 5");
+            BenchUnit displayUnit = unit;
+            if (!unit.hasCombatStats && towerPrefab != null)
+            {
+                displayUnit = BenchUnit.FromTower(towerPrefab.GetComponent<Tower>());
+            }
+
+            string stats = "Deploying from bench slot " + (slotIndex + 1) + " (0 SP)";
+            if (displayUnit.hasCombatStats)
+            {
+                float damage = displayUnit.damage + Mathf.Max(0, HUD.instance.currentWave - 1) * displayUnit.damagePerWave;
+                if (unit.isSuper && unit.branch == Branch.Physical && unit.level == 3)
+                {
+                    damage *= 6f;
+                    stats += "\nRail-Blast: " + damage + " | Interval: " + displayUnit.attackCooldown + "s"
+                        + "\nRange: " + displayUnit.attackRange + " | Pierces: 2"
+                        + "\nBlast: " + (damage * 0.5f) + " | Radius: " + displayUnit.aoeRadius;
+                }
+                else if (unit.isSuper && unit.branch == Branch.Mechanic && unit.level == 3)
+                {
+                    Projectile template = displayUnit.projectilePrefab != null ? displayUnit.projectilePrefab.GetComponent<Projectile>() : null;
+                    int throwCells = template != null ? template.veteranThrowCells * 6 : 18;
+                    stats += "\nSlam: " + damage + " | Interval: " + displayUnit.attackCooldown + "s"
+                        + "\nRadius: " + displayUnit.attackRange + " | Pushback: " + throwCells + " tiles"
+                        + "\nThrow Duration: 1.5x";
+                }
+                else if (unit.isSuper && unit.branch == Branch.Magic && unit.level == 3)
+                {
+                    Projectile template = displayUnit.projectilePrefab != null ? displayUnit.projectilePrefab.GetComponent<Projectile>() : null;
+                    float duration = template != null ? template.veteranFreezeTime * 6f : 15f;
+                    stats += "\nStorm: " + damage + " | Interval: " + displayUnit.attackCooldown + "s"
+                        + "\nRadius: 6 tiles | Freeze: " + duration + "s";
+                }
+                else if (unit.isSuper && unit.branch == Branch.Imaginary && unit.level == 3)
+                {
+                    stats += "\nFortified Wall HP: " + (displayUnit.veteranWallHealth * 6f)
+                        + "\nCooldown: " + displayUnit.veteranWallCooldown + "s | Life: " + displayUnit.veteranWallLifetime + "s"
+                        + "\nActive Limit: 1 | Path Cells: 1";
+                }
+                else
+                {
+                    stats += "\nDamage: " + damage + "\nFire Rate: " + displayUnit.attackCooldown + "s\nRange: " + displayUnit.attackRange;
+                }
+            }
+
+            HUD.instance.ShowUnitInspector(unit.GetTroopName(), SkillTree.GetLevelName(unit.level), stats);
         }
     }
 
@@ -375,9 +562,126 @@ public class GridSelector : MonoBehaviour
         }
     }
 
+    // origin is the lowest-x, lowest-y cell of the proposed 2x2 footprint
+    public bool CanPlaceFusedTower(Vector2Int origin)
+    {
+        if (grid == null || fusionTowers.Count != 3)
+        {
+            return false;
+        }
+
+        string reason;
+        if (!Tower.CanFuse(fusionTowers[0], fusionTowers[1], fusionTowers[2], out reason))
+        {
+            return false;
+        }
+
+        for (int x = 0; x < 2; x++)
+        {
+            for (int y = 0; y < 2; y++)
+            {
+                Vector2Int cell = origin + new Vector2Int(x, y);
+                if (!grid.IsInsideGrid(cell))
+                {
+                    return false;
+                }
+
+                Grid.CellType type = grid.GetCellType(cell);
+                if (type == Grid.CellType.Free)
+                {
+                    continue;
+                }
+
+                bool isOriginalTowerCell = false;
+                foreach (Tower tower in fusionTowers)
+                {
+                    if (grid.convertWorldPosToCell(tower.transform.position) == cell)
+                    {
+                        isOriginalTowerCell = true;
+                    }
+                }
+
+                if (type != Grid.CellType.Used || !isOriginalTowerCell)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    // keep the first selected unit and consume the other two only after valid confirmation
+    private void TryPlaceFusedTower(Vector2Int origin, Vector3 center)
+    {
+        if (!isPlacingFusion || !CanPlaceFusedTower(origin))
+        {
+            return;
+        }
+
+        Tower fusedTower = fusionTowers[0];
+        foreach (Tower tower in fusionTowers)
+        {
+            grid.SetCellType(grid.convertWorldPosToCell(tower.transform.position), Grid.CellType.Free);
+            tower.RemoveActiveWall();
+            if (tower != fusedTower)
+            {
+                tower.enabled = false;
+                Destroy(tower.gameObject);
+            }
+        }
+
+        fusedTower.isSuper = true;
+        ClearSelection();
+        fusedTower.transform.position = center;
+        fusedTower.transform.localScale = Vector3.Scale(fusedTower.transform.localScale, new Vector3(2f, 1f, 2f));
+        for (int x = 0; x < 2; x++)
+        {
+            for (int y = 0; y < 2; y++)
+            {
+                grid.SetCellType(origin + new Vector2Int(x, y), Grid.CellType.Used);
+            }
+        }
+
+        placedTowers -= 2;
+        if (HUD.instance != null)
+        {
+            HUD.instance.UpdateTowerCount(placedTowers, maxTowers);
+        }
+
+        CancelPlacement();
+        selectedTower = fusedTower;
+    }
+
+    private bool IsDeployingSuper()
+    {
+        return ReserveBench.instance != null
+            && ReserveBench.instance.IsSlotOccupied(deployingSlotIndex)
+            && ReserveBench.instance.slots[deployingSlotIndex].isSuper;
+    }
+
+    // ordinary units need one free cell; Super units need a free 2x2 square
+    private bool CanPlaceTowerFootprint(Vector2Int origin, int size)
+    {
+        for (int x = 0; x < size; x++)
+        {
+            for (int y = 0; y < size; y++)
+            {
+                Vector2Int cell = origin + new Vector2Int(x, y);
+                if (!grid.IsInsideGrid(cell) || grid.GetCellType(cell) != Grid.CellType.Free)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     private void TryPlaceTower(Vector2Int cell, Vector3 center)
     {
-        if (grid.GetCellType(cell) != Grid.CellType.Free)
+        int footprintSize = IsDeployingSuper() ? 2 : 1;
+        if (!CanPlaceTowerFootprint(cell, footprintSize))
         {
             return;
         }
@@ -393,6 +697,11 @@ public class GridSelector : MonoBehaviour
 
         if (deployingSlotIndex >= 0)
         {
+            if (ReserveBench.instance == null || !ReserveBench.instance.IsSlotOccupied(deployingSlotIndex))
+            {
+                return;
+            }
+
             cost = 0;
         }
         else if (selectedTroopIndex == 1)
@@ -418,6 +727,7 @@ public class GridSelector : MonoBehaviour
             return;
         }
 
+        GameObject placedTower = Instantiate(prefabToPlace, center, Quaternion.identity);
         if (cost > 0)
         {
             HUD.instance.DeductSP(cost);
@@ -425,23 +735,40 @@ public class GridSelector : MonoBehaviour
         }
         else if (deployingSlotIndex >= 0 && ReserveBench.instance != null)
         {
+            Tower deployedTower = placedTower.GetComponent<Tower>();
+            if (deployedTower == null)
+            {
+                Destroy(placedTower);
+                return;
+            }
+
+            ReserveBench.instance.slots[deployingSlotIndex].RestoreTo(deployedTower);
+            if (deployedTower.isSuper)
+            {
+                placedTower.transform.localScale = Vector3.Scale(placedTower.transform.localScale, new Vector3(2f, 1f, 2f));
+            }
+
             ReserveBench.instance.DeployFromSlot(deployingSlotIndex);
         }
         deployingSlotIndex = -1;
 
-        Instantiate(prefabToPlace, center, Quaternion.identity);
-        
-        grid.SetCellType(cell, Grid.CellType.Used);
+        for (int x = 0; x < footprintSize; x++)
+        {
+            for (int y = 0; y < footprintSize; y++)
+            {
+                grid.SetCellType(cell + new Vector2Int(x, y), Grid.CellType.Used);
+            }
+        }
         placedTowers++;
         HUD.instance.UpdateTowerCount(placedTowers, maxTowers);
 
         CancelPlacement();
     }
 
-    // bench an active recruit from the battlefield back to reserve bench
+    // save the unit before freeing its one-cell or 2x2 battlefield footprint
     public bool BenchTower(Tower tower)
     {
-        if (tower == null || tower.level != 0)
+        if (tower == null || isSelectingFusion)
         {
             return false;
         }
@@ -451,13 +778,28 @@ public class GridSelector : MonoBehaviour
             return false;
         }
 
-        if (ReserveBench.instance == null || !ReserveBench.instance.HasCapacity())
+        if (ReserveBench.instance == null || !ReserveBench.instance.BenchFromField(tower))
         {
             return false;
         }
 
-        Vector2Int cell = grid.convertWorldPosToCell(tower.transform.position);
-        grid.SetCellType(cell, Grid.CellType.Free);
+        tower.RemoveActiveWall();
+        Vector3 originPosition = tower.transform.position;
+        int footprintSize = 1;
+        if (tower.isSuper)
+        {
+            originPosition -= new Vector3(grid.cellSize * 0.5f, 0f, grid.cellSize * 0.5f);
+            footprintSize = 2;
+        }
+
+        Vector2Int origin = grid.convertWorldPosToCell(originPosition);
+        for (int x = 0; x < footprintSize; x++)
+        {
+            for (int y = 0; y < footprintSize; y++)
+            {
+                grid.SetCellType(origin + new Vector2Int(x, y), Grid.CellType.Free);
+            }
+        }
 
         if (selectedTower == tower)
         {
@@ -471,8 +813,6 @@ public class GridSelector : MonoBehaviour
         {
             placedTowers = 0;
         }
-
-        ReserveBench.instance.BenchFromField();
 
         if (HUD.instance != null)
         {
