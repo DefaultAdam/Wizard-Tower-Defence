@@ -97,7 +97,7 @@ public class SkillTree : MonoBehaviour
             return apprenticeUnlocked[(int)branch];
         }
 
-        if (level == 2)
+        if (level == 2 || level == 3)
         {
             return veteranUnlocked[(int)branch];
         }

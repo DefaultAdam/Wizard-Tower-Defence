@@ -1,5 +1,92 @@
 using UnityEngine;
 
+[System.Serializable]
+public struct BenchUnit
+{
+    public bool occupied;
+    public int level;
+    public Branch branch;
+    public bool isSuper;
+    public bool hasCombatStats; // newly recruited bench units still use prefab defaults
+    public float attackRange;
+    public float attackCooldown;
+    public float damage;
+    public float damagePerWave;
+    public float aoeRadius;
+    public float aoeDamagePercent;
+    public TargetPriority targetPriority;
+    public float rotationSpeed;
+    public GameObject projectilePrefab;
+    public float veteranWallHealth;
+    public float veteranWallCooldown;
+    public float veteranWallLifetime;
+
+    public string GetTroopName()
+    {
+        return isSuper ? "Super " + branch : SkillTree.GetTroopName(branch, level);
+    }
+
+    // restore saved values without charging upgrade fees again
+    public void RestoreTo(Tower tower)
+    {
+        if (!occupied || tower == null)
+        {
+            return;
+        }
+
+        tower.level = level;
+        tower.branch = branch;
+        tower.isSuper = isSuper;
+        if (hasCombatStats)
+        {
+            tower.attackRange = attackRange;
+            tower.attackCooldown = attackCooldown;
+            tower.damage = damage;
+            tower.damagePerWave = damagePerWave;
+            tower.aoeRadius = aoeRadius;
+            tower.aoeDamagePercent = aoeDamagePercent;
+            tower.targetPriority = targetPriority;
+            tower.rotationSpeed = rotationSpeed;
+            tower.projectilePrefab = projectilePrefab;
+            tower.veteranWallHealth = veteranWallHealth;
+            tower.veteranWallCooldown = veteranWallCooldown;
+            tower.veteranWallLifetime = veteranWallLifetime;
+        }
+
+        tower.ApplyColour();
+    }
+
+    // copy base stats, leaving wave bonuses to be calculated when the unit fights
+    public static BenchUnit FromTower(Tower tower)
+    {
+        if (tower == null)
+        {
+            return new BenchUnit();
+        }
+
+        return new BenchUnit
+        {
+            occupied = true,
+            level = tower.level,
+            branch = tower.branch,
+            isSuper = tower.isSuper,
+            hasCombatStats = true,
+            attackRange = tower.attackRange,
+            attackCooldown = tower.attackCooldown,
+            damage = tower.damage,
+            damagePerWave = tower.damagePerWave,
+            aoeRadius = tower.aoeRadius,
+            aoeDamagePercent = tower.aoeDamagePercent,
+            targetPriority = tower.targetPriority,
+            rotationSpeed = tower.rotationSpeed,
+            projectilePrefab = tower.projectilePrefab,
+            veteranWallHealth = tower.veteranWallHealth,
+            veteranWallCooldown = tower.veteranWallCooldown,
+            veteranWallLifetime = tower.veteranWallLifetime
+        };
+    }
+}
+
 // reserve bench manager for unplaced units and passive sp generation
 public class ReserveBench : MonoBehaviour
 {
@@ -11,7 +98,7 @@ public class ReserveBench : MonoBehaviour
     public float passiveMultiplier = 1.5f; // passive sp multiplier
     public int totalPassiveSPEarned = 0; // total passive sp earned
     public bool allowPassiveOutsideSpawner = false; // fallback for testing outside spawner
-    public bool[] slots = new bool[5]; // bench slots array
+    public BenchUnit[] slots = new BenchUnit[5]; // unit details for each bench slot
 
     // initialise instance on awake
     void Awake()
@@ -34,7 +121,7 @@ public class ReserveBench : MonoBehaviour
         {
             for (int i = 0; i < slots.Length; i++)
             {
-                if (slots[i])
+                if (slots[i].occupied)
                 {
                     count++;
                 }
@@ -50,7 +137,63 @@ public class ReserveBench : MonoBehaviour
         {
             return false;
         }
-        return slots[slotIndex];
+        return slots[slotIndex].occupied;
+    }
+
+    // bench fusion uses unit identity only; benched units have no grid positions
+    public bool CanFuseSlots(int firstIndex, int secondIndex, int thirdIndex, out string reason)
+    {
+        reason = "";
+        if (!IsSlotOccupied(firstIndex) || !IsSlotOccupied(secondIndex) || !IsSlotOccupied(thirdIndex))
+        {
+            reason = "Select three occupied bench slots";
+            return false;
+        }
+
+        if (firstIndex == secondIndex || firstIndex == thirdIndex || secondIndex == thirdIndex)
+        {
+            reason = "Select three different bench slots";
+            return false;
+        }
+
+        BenchUnit first = slots[firstIndex];
+        BenchUnit second = slots[secondIndex];
+        BenchUnit third = slots[thirdIndex];
+        if (first.level != 3 || second.level != 3 || third.level != 3)
+        {
+            reason = "All three units must be Level 3";
+            return false;
+        }
+
+        if (first.isSuper || second.isSuper || third.isSuper)
+        {
+            reason = "Super Apprentices cannot fuse again";
+            return false;
+        }
+
+        if (first.branch == Branch.None || first.branch != second.branch || first.branch != third.branch)
+        {
+            reason = "All three units must have the same specialisation branch";
+            return false;
+        }
+
+        return true;
+    }
+
+    // keep the first selected unit's saved stats, matching battlefield fusion
+    public bool TryFuseSlots(int firstIndex, int secondIndex, int thirdIndex, out string reason)
+    {
+        if (!CanFuseSlots(firstIndex, secondIndex, thirdIndex, out reason))
+        {
+            return false;
+        }
+
+        slots[firstIndex].isSuper = true;
+        slots[secondIndex] = new BenchUnit();
+        slots[thirdIndex] = new BenchUnit();
+        UpdateBenchedCount();
+        UpdateUI();
+        return true;
     }
 
     // check if player can afford to hire into slot
@@ -61,7 +204,7 @@ public class ReserveBench : MonoBehaviour
             return false;
         }
 
-        if (slots[slotIndex])
+        if (slots[slotIndex].occupied)
         {
             return false;
         }
@@ -88,7 +231,7 @@ public class ReserveBench : MonoBehaviour
             HUD.instance.ShowDeduction(recruitCost);
         }
 
-        slots[slotIndex] = true;
+        slots[slotIndex] = new BenchUnit { occupied = true };
         UpdateBenchedCount();
         UpdateUI();
         return true;
@@ -102,7 +245,7 @@ public class ReserveBench : MonoBehaviour
             return false;
         }
 
-        slots[slotIndex] = false;
+        slots[slotIndex] = new BenchUnit();
         UpdateBenchedCount();
         UpdateUI();
         return true;
@@ -152,7 +295,7 @@ public class ReserveBench : MonoBehaviour
 
         for (int i = 0; i < slots.Length; i++)
         {
-            if (!slots[i])
+            if (!slots[i].occupied)
             {
                 return RecruitToSlot(i);
             }
@@ -166,7 +309,7 @@ public class ReserveBench : MonoBehaviour
     {
         for (int i = 0; i < slots.Length; i++)
         {
-            if (slots[i])
+            if (slots[i].occupied)
             {
                 return DeployFromSlot(i);
             }
@@ -175,19 +318,19 @@ public class ReserveBench : MonoBehaviour
         return false;
     }
 
-    // bench recruit from battlefield to first free slot
-    public bool BenchFromField()
+    // save a battlefield unit in the first free slot before its object is removed
+    public bool BenchFromField(Tower tower)
     {
-        if (!HasCapacity())
+        if (tower == null || !HasCapacity())
         {
             return false;
         }
 
         for (int i = 0; i < slots.Length; i++)
         {
-            if (!slots[i])
+            if (!slots[i].occupied)
             {
-                slots[i] = true;
+                slots[i] = BenchUnit.FromTower(tower);
                 UpdateBenchedCount();
                 UpdateUI();
                 return true;

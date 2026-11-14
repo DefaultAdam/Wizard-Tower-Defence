@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 // sliding reserve bench menu controller and visual interface
 public class ReserveBenchUI : MonoBehaviour
@@ -18,8 +19,13 @@ public class ReserveBenchUI : MonoBehaviour
 
     public Button[] slotButtons = new Button[5]; // action buttons for five bench slots
     public Text[] slotButtonTexts = new Text[5]; // text labels on slot action buttons
+    private Text[] slotTitleTexts = new Text[5]; // unit names above the action buttons
     public Text capacityText; // text display for benched units count
     public Text passiveText; // text display for total passive sp gained
+    private bool isSelectingFusion;
+    private List<int> fusionSlots = new List<int>();
+    private Text fuseButtonText;
+    private string fusionMessage = "";
 
     private float currentX = 520f; // current animated position
     private float lastToggleTime = -1f; // debounce timer for toggling menu
@@ -41,6 +47,20 @@ public class ReserveBenchUI : MonoBehaviour
         if (closeMenuButton != null)
         {
             closeMenuButton.onClick.AddListener(Close);
+            Button fuseButton = Instantiate(closeMenuButton, closeMenuButton.transform.parent);
+            fuseButton.gameObject.name = "Bench Fuse Button";
+            fuseButton.onClick = new Button.ButtonClickedEvent();
+            fuseButton.onClick.AddListener(StartFusionSelection);
+            RectTransform rect = fuseButton.GetComponent<RectTransform>();
+            rect.anchoredPosition = new Vector2(-60f, -12f);
+            rect.sizeDelta = new Vector2(125f, 36f);
+            fuseButtonText = fuseButton.GetComponentInChildren<Text>();
+            fuseButtonText.fontSize = 18;
+            Transform title = closeMenuButton.transform.parent.Find("TitleText");
+            if (title != null)
+            {
+                title.GetComponent<RectTransform>().sizeDelta = new Vector2(-200f, 42f);
+            }
         }
 
         currentX = panelWidth + 60f;
@@ -93,6 +113,12 @@ public class ReserveBenchUI : MonoBehaviour
                 Transform slot = container.Find("Slot_" + i);
                 if (slot != null)
                 {
+                    Transform title = slot.Find("TitleText");
+                    if (title != null)
+                    {
+                        slotTitleTexts[i] = title.GetComponent<Text>();
+                    }
+
                     if (slotButtons[i] == null)
                     {
                         Transform btn = slot.Find("ActionButton");
@@ -215,12 +241,49 @@ public class ReserveBenchUI : MonoBehaviour
     // slide closed reserve bench menu drawer
     public void Close()
     {
+        fusionSlots.Clear();
+        fusionMessage = "";
+        isSelectingFusion = false;
         isOpen = false;
 
         if (openMenuButton != null)
         {
             openMenuButton.gameObject.SetActive(true);
         }
+    }
+
+    private void StartFusionSelection()
+    {
+        if (ReserveBench.instance == null)
+        {
+            return;
+        }
+
+        if (!isSelectingFusion)
+        {
+            isSelectingFusion = true;
+            fusionMessage = "Choose 3 matching Level 3 units.";
+        }
+        else if (fusionSlots.Count != 3)
+        {
+            fusionMessage = "Select three units before confirming fusion.";
+        }
+        else
+        {
+            string reason;
+            if (ReserveBench.instance.TryFuseSlots(fusionSlots[0], fusionSlots[1], fusionSlots[2], out reason))
+            {
+                fusionSlots.Clear();
+                isSelectingFusion = false;
+                fusionMessage = "Fusion complete.";
+            }
+            else
+            {
+                fusionMessage = reason;
+            }
+        }
+
+        Refresh();
     }
 
     // refresh drawer counters and slot buttons
@@ -249,7 +312,12 @@ public class ReserveBenchUI : MonoBehaviour
 
         if (passiveText != null)
         {
-            passiveText.text = "Total Passive: +" + totalPassive + " SP";
+            passiveText.text = fusionMessage != "" ? fusionMessage : "Total Passive: +" + totalPassive + " SP";
+        }
+
+        if (fuseButtonText != null)
+        {
+            fuseButtonText.text = isSelectingFusion ? "Fuse (" + fusionSlots.Count + "/3)" : "Fuse";
         }
 
         for (int i = 0; i < 5; i++)
@@ -268,17 +336,22 @@ public class ReserveBenchUI : MonoBehaviour
                 canAfford = ReserveBench.instance.CanRecruitToSlot(i);
             }
 
+            if (slotTitleTexts[i] != null)
+            {
+                slotTitleTexts[i].text = isOccupied ? ReserveBench.instance.slots[i].GetTroopName() : "EMPTY BENCH SLOT";
+            }
+
             if (isOccupied)
             {
                 slotButtons[i].interactable = true;
                 if (slotButtonTexts[i] != null)
                 {
-                    slotButtonTexts[i].text = "DEPLOY";
+                    slotButtonTexts[i].text = isSelectingFusion ? (fusionSlots.Contains(i) ? "DESELECT" : "SELECT") : "DEPLOY";
                 }
             }
             else
             {
-                slotButtons[i].interactable = canAfford;
+                slotButtons[i].interactable = canAfford && !isSelectingFusion;
                 if (slotButtonTexts[i] != null)
                 {
                     slotButtonTexts[i].text = "+ HIRE (20 SP)";
@@ -322,6 +395,49 @@ public class ReserveBenchUI : MonoBehaviour
     {
         if (ReserveBench.instance == null)
         {
+            return;
+        }
+
+        fusionMessage = "";
+        if (isSelectingFusion)
+        {
+            if (!ReserveBench.instance.IsSlotOccupied(slotIndex))
+            {
+                fusionMessage = "Choose an occupied slot.";
+                Refresh();
+                return;
+            }
+
+            BenchUnit unit = ReserveBench.instance.slots[slotIndex];
+            if (fusionSlots.Contains(slotIndex))
+            {
+                fusionSlots.Remove(slotIndex);
+            }
+            else if (fusionSlots.Count >= 3)
+            {
+                fusionMessage = "Too many selected units";
+            }
+            else if (unit.level != 3)
+            {
+                fusionMessage = "Can only select level 3 units for fusion.";
+            }
+            else if (unit.isSuper)
+            {
+                fusionMessage = "Super units cannot fuse again.";
+            }
+            else if (unit.branch == Branch.None)
+            {
+                fusionMessage = "Choose a unit with a branch.";
+            }
+            else if (fusionSlots.Count > 0 && unit.branch != ReserveBench.instance.slots[fusionSlots[0]].branch)
+            {
+                fusionMessage = "Choose units from same branch.";
+            }
+            else
+            {
+                fusionSlots.Add(slotIndex);
+            }
+            Refresh();
             return;
         }
 
