@@ -285,6 +285,14 @@ public class Tower : MonoBehaviour
     // get combat stats text for display
     public string GetStatsText()
     {
+        if (isSuper && branch == Branch.Physical && level == 3)
+        {
+            float beamDamage = GetCurrentDamage() * 6f;
+            return "Rail-Blast: " + beamDamage + " | Interval: " + attackCooldown + "s"
+                + "\nRange: " + attackRange + " | Pierces: 2"
+                + "\nBlast: " + (beamDamage * 0.5f) + " | Radius: " + aoeRadius;
+        }
+
         string text = "Damage: " + GetCurrentDamage() + "\nFire Rate: " + attackCooldown + "s\nRange: " + attackRange;
 
         if (aoeRadius > 0f)

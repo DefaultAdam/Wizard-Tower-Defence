@@ -455,7 +455,17 @@ public class GridSelector : MonoBehaviour
             if (displayUnit.hasCombatStats)
             {
                 float damage = displayUnit.damage + Mathf.Max(0, HUD.instance.currentWave - 1) * displayUnit.damagePerWave;
-                stats += "\nDamage: " + damage + "\nFire Rate: " + displayUnit.attackCooldown + "s\nRange: " + displayUnit.attackRange;
+                if (unit.isSuper && unit.branch == Branch.Physical && unit.level == 3)
+                {
+                    damage *= 6f;
+                    stats += "\nRail-Blast: " + damage + " | Interval: " + displayUnit.attackCooldown + "s"
+                        + "\nRange: " + displayUnit.attackRange + " | Pierces: 2"
+                        + "\nBlast: " + (damage * 0.5f) + " | Radius: " + displayUnit.aoeRadius;
+                }
+                else
+                {
+                    stats += "\nDamage: " + damage + "\nFire Rate: " + displayUnit.attackCooldown + "s\nRange: " + displayUnit.attackRange;
+                }
             }
 
             HUD.instance.ShowUnitInspector(unit.GetTroopName(), SkillTree.GetLevelName(unit.level), stats);
