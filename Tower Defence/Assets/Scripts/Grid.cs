@@ -102,6 +102,9 @@ public class Grid : MonoBehaviour
     // small map layout: shorter paths and faster pressure
     private void BuildSmallPaths()
     {
+        int topSpawnY = height - 1;
+        int rightSpawnX = width - 1;
+
         Vector2Int[] smallLeftTurns = new Vector2Int[]
         {
             new Vector2Int(0, 5), new Vector2Int(5, 5), new Vector2Int(5, 2),
@@ -111,13 +114,13 @@ public class Grid : MonoBehaviour
 
         Vector2Int[] smallTopTurns = new Vector2Int[]
         {
-            new Vector2Int(25, 26), new Vector2Int(20, 26), new Vector2Int(20, 20),
+            new Vector2Int(25, topSpawnY), new Vector2Int(20, topSpawnY), new Vector2Int(20, 20),
             new Vector2Int(25, 20), new Vector2Int(25, 17)
         };
 
         Vector2Int[] smallRightTurns = new Vector2Int[]
         {
-            new Vector2Int(44, 4), new Vector2Int(35, 4), new Vector2Int(35, 10),
+            new Vector2Int(rightSpawnX, 4), new Vector2Int(35, 4), new Vector2Int(35, 10),
             new Vector2Int(35, 14), new Vector2Int(27, 14)
         };
 
