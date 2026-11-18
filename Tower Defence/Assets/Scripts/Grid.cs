@@ -18,15 +18,16 @@ public class Grid : MonoBehaviour
 
     private CellType[,] cells;
 
-        // active path coordinate arrays
+    // active path coordinate arrays
     private Vector2Int[] leftPath;
     private Vector2Int[] topPath;
     private Vector2Int[] rightPath;
 
     public Material pathMaterial; // material for path tiles
     public Material groundMaterial; // material for ground tiles
-public Vector2Int fortressMin = new Vector2Int(23, 13);
-    public Vector2Int fortressMax = new Vector2Int(26, 16);
+
+    public Vector2Int fortressMin = new Vector2Int(23, 13); // fortress lower left corner
+    public Vector2Int fortressMax = new Vector2Int(26, 16); // fortress upper right corner
 
     private void Awake()
     {
@@ -50,8 +51,8 @@ public Vector2Int fortressMin = new Vector2Int(23, 13);
         fortressMin = new Vector2Int(fcx - 2, fcy - 2);
         fortressMax = new Vector2Int(fcx + 1, fcy + 1);
 
-        // build paths for current grid size
-        BuildPathPresets();
+        // build paths scaled to current grid boundaries
+        BuildScaledPaths();
 
         cells = new CellType[width, height];
 
@@ -80,7 +81,7 @@ public Vector2Int fortressMin = new Vector2Int(23, 13);
     }
 
     // select dedicated path layout based on grid size
-    private void BuildPathPresets()
+    private void BuildScaledPaths()
     {
         if (width <= 45)
         {
@@ -94,6 +95,8 @@ public Vector2Int fortressMin = new Vector2Int(23, 13);
         {
             BuildLargePaths();
         }
+
+        UpdateTileVisuals();
     }
 
     // small map layout: shorter paths and faster pressure
@@ -217,6 +220,57 @@ public Vector2Int fortressMin = new Vector2Int(23, 13);
         return pathCells.ToArray();
     }
 
+    // update visual dungeon tile materials to align with active paths
+    public void UpdateTileVisuals()
+    {
+        GameObject dungeonTiles = GameObject.Find("DungeonTiles");
+        if (dungeonTiles == null) return;
+
+        // cache materials from existing tiles if inspector references are not set
+        if (pathMaterial == null || groundMaterial == null)
+        {
+            foreach (Transform child in dungeonTiles.transform)
+            {
+                MeshRenderer r = child.GetComponent<MeshRenderer>();
+                if (r == null || r.sharedMaterial == null) continue;
+
+                if (pathMaterial == null && child.name.Contains("PathTile"))
+                {
+                    pathMaterial = r.sharedMaterial;
+                }
+                else if (groundMaterial == null && child.name.Contains("GroundTile"))
+                {
+                    groundMaterial = r.sharedMaterial;
+                }
+
+                if (pathMaterial != null && groundMaterial != null)
+                {
+                    break;
+                }
+            }
+        }
+
+        foreach (Transform child in dungeonTiles.transform)
+        {
+            Vector2Int cell = convertWorldPosToCell(child.position);
+            MeshRenderer renderer = child.GetComponent<MeshRenderer>();
+            if (renderer == null) continue;
+
+            bool isPathCell = ContainsCell(leftPath, cell) ||
+                             ContainsCell(topPath, cell) ||
+                             ContainsCell(rightPath, cell);
+
+            if (isPathCell && pathMaterial != null)
+            {
+                renderer.sharedMaterial = pathMaterial;
+            }
+            else if (!isPathCell && groundMaterial != null && !IsFortressCell(cell))
+            {
+                renderer.sharedMaterial = groundMaterial;
+            }
+        }
+    }
+
     // mark path cells inside grid bounds
     private void markPath(Vector2Int[] path)
     {
@@ -229,21 +283,13 @@ public Vector2Int fortressMin = new Vector2Int(23, 13);
         }
     }
 
-    public bool IsCellFree(Vector2Int position)
+    public Vector3 GetCellCenter(Vector2Int position)
     {
-        if (!IsInsideGrid(position))
-            return false;
-
-        return cells[position.x, position.y] == CellType.Free;
-    }
-
-    public bool SetCellType(Vector2Int position, CellType type)
-    {
-        if (!IsInsideGrid(position))
-            return false;
-
-        cells[position.x, position.y] = type;
-        return true;
+        return transform.position + new Vector3(
+            (position.x + 0.5f) * cellSize,
+            0f,
+            (position.y + 0.5f) * cellSize
+        );
     }
 
     public CellType GetCellType(Vector2Int position)
@@ -254,13 +300,21 @@ public Vector2Int fortressMin = new Vector2Int(23, 13);
         return cells[position.x, position.y];
     }
 
-    public bool IsInsideGrid(Vector2Int position)
+    public void SetCellType(Vector2Int position, CellType cellType)
     {
-        return position.x >= 0 && position.x < width &&
-               position.y >= 0 && position.y < height;
+        if (IsInsideGrid(position))
+        {
+            cells[position.x, position.y] = cellType;
+        }
     }
 
-    bool ContainsCell(Vector2Int[] path, Vector2Int position)
+    public bool IsInsideGrid(Vector2Int position)
+    {
+        return position.x >= 0 && position.x < width
+            && position.y >= 0 && position.y < height;
+    }
+
+    private bool ContainsCell(Vector2Int[] path, Vector2Int position)
     {
         foreach (Vector2Int pathPosition in path)
         {
@@ -303,43 +357,36 @@ public Vector2Int fortressMin = new Vector2Int(23, 13);
             && position.y <= fortressMax.y;
     }
 
-    public Vector3 GetCellCenter(Vector2Int cell)
-    {
-        return new Vector3(
-            (cell.x + 0.5f) * cellSize,
-            0f,
-            (cell.y + 0.5f) * cellSize
-        );
-    }
-
     private void OnDrawGizmos()
     {
-        if (cells == null)
-            return;
-
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                Vector2Int pos = new Vector2Int(x, y);
-                Vector3 center = GetCellCenter(pos);
+                Vector2Int position = new Vector2Int(x, y);
 
-                Color pathColor;
-                if (GetPathColor(pos, out pathColor))
+                if (IsFortressCell(position))
                 {
-                    Gizmos.color = pathColor;
-                }
-                else if (IsFortressCell(pos))
-                {
-                    Gizmos.color = new Color(0.25f, 0.85f, 0.40f);
+                    Gizmos.color = Color.gray;
                 }
                 else
                 {
-                    Gizmos.color = new Color(0.25f, 0.25f, 0.25f);
+                    Color pathColour;
+
+                    if (GetPathColor(position, out pathColour))
+                    {
+                        Gizmos.color = pathColour;
+                    }
+
+                    else
+                    {
+                        Gizmos.color =
+                            new Color(0.30f, 0.70f, 0.35f);
+                    }
                 }
 
-                Gizmos.DrawWireCube(
-                    center,
+                Gizmos.DrawCube(
+                    GetCellCenter(position),
                     new Vector3(
                         cellSize * 0.96f,
                         0.05f,
