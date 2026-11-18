@@ -288,14 +288,52 @@ public class DifficultySelectionHUD : MonoBehaviour
     }
 
     // confirm difficulty and map size and start battle
-        // confirm selection placeholder
+        // confirm difficulty and map size and start battle
     public void ConfirmSelection()
     {
         isConfigured = true;
+        MapSizePreset preset = GetActivePreset();
+
+        // resize playable grid
+        Grid grid = FindObjectOfType<Grid>();
+        if (grid != null)
+        {
+            grid.SetDimensions(preset.width, preset.height);
+        }
+
+        // clip environment tiles to fit chosen grid dimensions
+        GameObject dungeonTiles = GameObject.Find("DungeonTiles");
+        if (dungeonTiles != null && grid != null)
+        {
+            foreach (Transform child in dungeonTiles.transform)
+            {
+                Vector2Int cell = grid.convertWorldPosToCell(child.position);
+                bool inside = cell.x >= 0 && cell.x < preset.width &&
+                              cell.y >= 0 && cell.y < preset.height;
+                child.gameObject.SetActive(inside);
+            }
+        }
+
+        // frame main camera to view selected map boundaries
+        Camera cam = Camera.main;
+        if (cam != null)
+        {
+            float centerX = preset.width * 0.5f;
+            float centerZ = preset.height * 0.5f;
+            float heightRatio = (float)preset.height / 30f;
+            float widthRatio = (float)preset.width / 50f;
+            float scale = Mathf.Max(heightRatio, widthRatio);
+
+            float targetCamY = 36.2f * scale;
+            float targetCamZ = centerZ - (centerZ + 1.2f) * scale;
+            cam.transform.position = new Vector3(centerX, targetCamY, targetCamZ);
+        }
 
         if (selectionPanel != null)
         {
             selectionPanel.SetActive(false);
         }
+
+        Time.timeScale = 1f;
     }
 }
