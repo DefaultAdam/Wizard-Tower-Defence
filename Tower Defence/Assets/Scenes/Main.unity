@@ -72693,6 +72693,8 @@ MonoBehaviour:
   width: 50
   height: 30
   cellSize: 1
+  pathMaterial: {fileID: 2100000, guid: d2a1b2c3d4e5f60718293a4b5c6d7e02, type: 2}
+  groundMaterial: {fileID: 2100000, guid: d1a1b2c3d4e5f60718293a4b5c6d7e01, type: 2}
   fortressMin: {x: 23, y: 13}
   fortressMax: {x: 26, y: 16}
 --- !u!1 &1300867288
