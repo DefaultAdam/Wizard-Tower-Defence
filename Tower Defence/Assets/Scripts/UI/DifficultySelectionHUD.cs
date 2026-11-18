@@ -288,7 +288,6 @@ public class DifficultySelectionHUD : MonoBehaviour
     }
 
     // confirm difficulty and map size and start battle
-        // confirm difficulty and map size and start battle
     public void ConfirmSelection()
     {
         isConfigured = true;
@@ -327,6 +326,53 @@ public class DifficultySelectionHUD : MonoBehaviour
             float targetCamY = 36.2f * scale;
             float targetCamZ = centerZ - (centerZ + 1.2f) * scale;
             cam.transform.position = new Vector3(centerX, targetCamY, targetCamZ);
+        }
+
+        // apply starting sp according to difficulty
+        if (HUD.instance != null)
+        {
+            int startingEnergy = 100;
+            if (selectedDifficulty == DifficultyLevel.Easy)
+            {
+                startingEnergy = 150;
+            }
+            else if (selectedDifficulty == DifficultyLevel.Hard)
+            {
+                startingEnergy = 60;
+            }
+
+            HUD.instance.startingSP = startingEnergy;
+            HUD.instance.currentSP = startingEnergy;
+
+            if (HUD.instance.spSlider != null)
+            {
+                HUD.instance.spSlider.value = startingEnergy;
+            }
+
+            if (HUD.instance.spText != null)
+            {
+                HUD.instance.spText.text = "SP: " + startingEnergy;
+            }
+        }
+
+        // apply enemy health and wave pacing to spawner
+        if (EnemySpawner.instance != null)
+        {
+            if (selectedDifficulty == DifficultyLevel.Easy)
+            {
+                EnemySpawner.instance.enemyBaseHealth = 80f;
+                EnemySpawner.instance.timeBetweenWaves = 4f;
+            }
+            else if (selectedDifficulty == DifficultyLevel.Hard)
+            {
+                EnemySpawner.instance.enemyBaseHealth = 130f;
+                EnemySpawner.instance.timeBetweenWaves = 2f;
+            }
+            else
+            {
+                EnemySpawner.instance.enemyBaseHealth = 100f;
+                EnemySpawner.instance.timeBetweenWaves = 3f;
+            }
         }
 
         if (selectionPanel != null)
