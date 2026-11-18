@@ -21,7 +21,16 @@ public class GameManager : MonoBehaviour
     // initialise pause panel reference and ensure unpaused on start
     void Start()
     {
-        Time.timeScale = 1f;
+        // keep paused until difficulty is confirmed
+        if (DifficultySelectionHUD.instance == null || DifficultySelectionHUD.instance.isConfigured)
+        {
+            Time.timeScale = 1f;
+        }
+        else
+        {
+            Time.timeScale = 0f;
+        }
+
         isPaused = false;
 
         if (pausePanel == null && HUD.instance != null)

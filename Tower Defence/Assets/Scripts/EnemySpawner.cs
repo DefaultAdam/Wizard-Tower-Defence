@@ -69,6 +69,12 @@ public class EnemySpawner : MonoBehaviour
     // handle wave timers and enemy spawning
     void Update()
     {
+        // pause wave logic until difficulty is confirmed
+        if (DifficultySelectionHUD.instance != null && !DifficultySelectionHUD.instance.isConfigured)
+        {
+            return;
+        }
+
         if (isWaveInProgress)
         {
             if (enemiesLeftToSpawn > 0)
