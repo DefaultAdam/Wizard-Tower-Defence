@@ -204,7 +204,16 @@ public class Grid : MonoBehaviour
         GenerateGrid();
     }
 
-    private void GenerateGrid()
+    // resize grid and regenerate cells
+    public void SetDimensions(int newWidth, int newHeight)
+    {
+        width = newWidth;
+        height = newHeight;
+        GenerateGrid();
+    }
+
+    // create grid array and mark fortress and paths
+    public void GenerateGrid()
     {
         cells = new CellType[width, height];
 
@@ -220,7 +229,10 @@ public class Grid : MonoBehaviour
         {
             for (int y = fortressMin.y; y <= fortressMax.y; y++)
             {
-                cells[x, y] = CellType.Fortress;
+                if (IsInsideGrid(new Vector2Int(x, y)))
+                {
+                    cells[x, y] = CellType.Fortress;
+                }
             }
         }
 
@@ -229,21 +241,33 @@ public class Grid : MonoBehaviour
         markPath(rightPath);
     }
 
+    // mark path cells inside grid bounds
     private void markPath(Vector2Int[] path)
     {
         foreach (Vector2Int position in path)
         {
-            cells[position.x, position.y] = CellType.Path;
+            if (IsInsideGrid(position))
+            {
+                cells[position.x, position.y] = CellType.Path;
+            }
         }
     }
 
-    public Vector3 GetCellCenter(Vector2Int position)
+    public bool IsCellFree(Vector2Int position)
     {
-        return transform.position + new Vector3(
-            (position.x + 0.5f) * cellSize,
-            0f,
-            (position.y + 0.5f) * cellSize
-        );
+        if (!IsInsideGrid(position))
+            return false;
+
+        return cells[position.x, position.y] == CellType.Free;
+    }
+
+    public bool SetCellType(Vector2Int position, CellType type)
+    {
+        if (!IsInsideGrid(position))
+            return false;
+
+        cells[position.x, position.y] = type;
+        return true;
     }
 
     public CellType GetCellType(Vector2Int position)
@@ -254,21 +278,13 @@ public class Grid : MonoBehaviour
         return cells[position.x, position.y];
     }
 
-    public void SetCellType(Vector2Int position, CellType cellType)
-    {
-        if (IsInsideGrid(position))
-        {
-            cells[position.x, position.y] = cellType;
-        }
-    }
-
     public bool IsInsideGrid(Vector2Int position)
     {
-        return position.x >= 0 && position.x < width
-            && position.y >= 0 && position.y < height;
+        return position.x >= 0 && position.x < width &&
+               position.y >= 0 && position.y < height;
     }
 
-    private bool ContainsCell(Vector2Int[] path, Vector2Int position)
+    bool ContainsCell(Vector2Int[] path, Vector2Int position)
     {
         foreach (Vector2Int pathPosition in path)
         {
@@ -311,36 +327,43 @@ public class Grid : MonoBehaviour
             && position.y <= fortressMax.y;
     }
 
+    public Vector3 GetCellCenter(Vector2Int cell)
+    {
+        return new Vector3(
+            (cell.x + 0.5f) * cellSize,
+            0f,
+            (cell.y + 0.5f) * cellSize
+        );
+    }
+
     private void OnDrawGizmos()
     {
+        if (cells == null)
+            return;
+
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                Vector2Int position = new Vector2Int(x, y);
+                Vector2Int pos = new Vector2Int(x, y);
+                Vector3 center = GetCellCenter(pos);
 
-                if (IsFortressCell(position))
+                Color pathColor;
+                if (GetPathColor(pos, out pathColor))
                 {
-                    Gizmos.color = Color.gray;
+                    Gizmos.color = pathColor;
+                }
+                else if (IsFortressCell(pos))
+                {
+                    Gizmos.color = new Color(0.25f, 0.85f, 0.40f);
                 }
                 else
                 {
-                    Color pathColour;
-
-                    if (GetPathColor(position, out pathColour))
-                    {
-                        Gizmos.color = pathColour;
-                    }
-
-                    else
-                    {
-                        Gizmos.color =
-                            new Color(0.30f, 0.70f, 0.35f);
-                    }
+                    Gizmos.color = new Color(0.25f, 0.25f, 0.25f);
                 }
 
-                Gizmos.DrawCube(
-                    GetCellCenter(position),
+                Gizmos.DrawWireCube(
+                    center,
                     new Vector3(
                         cellSize * 0.96f,
                         0.05f,
