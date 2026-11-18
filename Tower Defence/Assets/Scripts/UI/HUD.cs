@@ -52,13 +52,27 @@ public class HUD : MonoBehaviour
             gameObject.AddComponent<ReserveBenchUI>();
         }
 
+        if (GetComponent<DifficultySelectionHUD>() == null)
+        {
+            gameObject.AddComponent<DifficultySelectionHUD>();
+        }
+
         Time.timeScale = 1f;
     }
 
     // initialise hud on start
     void Start()
     {
-        Time.timeScale = 1f;
+        // keep paused until difficulty is confirmed
+        if (DifficultySelectionHUD.instance == null || DifficultySelectionHUD.instance.isConfigured)
+        {
+            Time.timeScale = 1f;
+        }
+        else
+        {
+            Time.timeScale = 0f;
+        }
+
         currentSP = startingSP;
 
         if (spSlider != null)

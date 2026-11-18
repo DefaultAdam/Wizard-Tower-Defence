@@ -95,6 +95,16 @@ public class GridSelector : MonoBehaviour
 
     private void Update()
     {
+        // block selection and placement until difficulty is confirmed
+        if (DifficultySelectionHUD.instance != null && !DifficultySelectionHUD.instance.isConfigured)
+        {
+            if (highlight != null)
+            {
+                highlight.enabled = false;
+            }
+            return;
+        }
+
         if (grid == null || sceneCamera == null)
         {
             return;

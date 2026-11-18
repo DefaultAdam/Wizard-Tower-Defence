@@ -18,194 +18,42 @@ public class Grid : MonoBehaviour
 
     private CellType[,] cells;
 
-    private readonly Vector2Int[] leftPath =
-    {
-        new Vector2Int(0, 5),
-        new Vector2Int(1, 5),
-        new Vector2Int(2, 5),
-        new Vector2Int(3, 5),
-        new Vector2Int(4, 5),
-        new Vector2Int(5, 5),
-        new Vector2Int(5, 4),
-        new Vector2Int(5, 3),
-        new Vector2Int(5, 2),
-        new Vector2Int(6, 2),
-        new Vector2Int(7, 2),
-        new Vector2Int(8, 2),
-        new Vector2Int(9, 2),
-        new Vector2Int(10, 2),
-        new Vector2Int(11, 2),
-        new Vector2Int(12, 2),
-        new Vector2Int(12, 3),
-        new Vector2Int(12, 4),
-        new Vector2Int(12, 5),
-        new Vector2Int(12, 6),
-        new Vector2Int(12, 7),
-        new Vector2Int(12, 8),
-        new Vector2Int(11, 8),
-        new Vector2Int(10, 8),
-        new Vector2Int(9, 8),
-        new Vector2Int(8, 8),
-        new Vector2Int(8, 9),
-        new Vector2Int(8, 10),
-        new Vector2Int(8, 11),
-        new Vector2Int(8, 12),
-        new Vector2Int(9, 12),
-        new Vector2Int(10, 12),
-        new Vector2Int(11, 12),
-        new Vector2Int(12, 12),
-        new Vector2Int(13, 12),
-        new Vector2Int(14, 12),
-        new Vector2Int(15, 12),
-        new Vector2Int(16, 12),
-        new Vector2Int(16, 11),
-        new Vector2Int(16, 10),
-        new Vector2Int(16, 9),
-        new Vector2Int(16, 8),
-        new Vector2Int(17, 8),
-        new Vector2Int(18, 8),
-        new Vector2Int(19, 8),
-        new Vector2Int(20, 8),
-        new Vector2Int(20, 9),
-        new Vector2Int(20, 10),
-        new Vector2Int(20, 11),
-        new Vector2Int(20, 12),
-        new Vector2Int(20, 13),
-        new Vector2Int(20, 14),
-        new Vector2Int(21, 14),
-        new Vector2Int(22, 14)
-    };
+    // active path coordinate arrays
+    private Vector2Int[] leftPath;
+    private Vector2Int[] topPath;
+    private Vector2Int[] rightPath;
 
-    private readonly Vector2Int[] topPath =
-    {
-        new Vector2Int(25, 29),
-        new Vector2Int(25, 28),
-        new Vector2Int(25, 27),
-        new Vector2Int(25, 26),
-        new Vector2Int(24, 26),
-        new Vector2Int(23, 26),
-        new Vector2Int(22, 26),
-        new Vector2Int(21, 26),
-        new Vector2Int(20, 26),
-        new Vector2Int(19, 26),
-        new Vector2Int(18, 26),
-        new Vector2Int(17, 26),
-        new Vector2Int(16, 26),
-        new Vector2Int(15, 26),
-        new Vector2Int(15, 25),
-        new Vector2Int(15, 24),
-        new Vector2Int(15, 23),
-        new Vector2Int(15, 22),
-        new Vector2Int(15, 21),
-        new Vector2Int(15, 20),
-        new Vector2Int(16, 20),
-        new Vector2Int(17, 20),
-        new Vector2Int(18, 20),
-        new Vector2Int(19, 20),
-        new Vector2Int(20, 20),
-        new Vector2Int(21, 20),
-        new Vector2Int(22, 20),
-        new Vector2Int(23, 20),
-        new Vector2Int(24, 20),
-        new Vector2Int(25, 20),
-        new Vector2Int(26, 20),
-        new Vector2Int(27, 20),
-        new Vector2Int(28, 20),
-        new Vector2Int(29, 20),
-        new Vector2Int(30, 20),
-        new Vector2Int(31, 20),
-        new Vector2Int(32, 20),
-        new Vector2Int(32, 21),
-        new Vector2Int(32, 22),
-        new Vector2Int(32, 23),
-        new Vector2Int(32, 24),
-        new Vector2Int(33, 24),
-        new Vector2Int(34, 24),
-        new Vector2Int(35, 24),
-        new Vector2Int(36, 24),
-        new Vector2Int(36, 23),
-        new Vector2Int(36, 22),
-        new Vector2Int(36, 21),
-        new Vector2Int(36, 20),
-        new Vector2Int(36, 19),
-        new Vector2Int(36, 18),
-        new Vector2Int(35, 18),
-        new Vector2Int(34, 18),
-        new Vector2Int(33, 18),
-        new Vector2Int(32, 18),
-        new Vector2Int(31, 18),
-        new Vector2Int(30, 18),
-        new Vector2Int(29, 18),
-        new Vector2Int(28, 18),
-        new Vector2Int(27, 18),
-        new Vector2Int(26, 18),
-        new Vector2Int(25, 18),
-        new Vector2Int(25, 17)
-    };
+    public Material pathMaterial; // material for path tiles
+    public Material groundMaterial; // material for ground tiles
 
-    private readonly Vector2Int[] rightPath =
-    {
-        new Vector2Int(49, 10),
-        new Vector2Int(48, 10),
-        new Vector2Int(47, 10),
-        new Vector2Int(46, 10),
-        new Vector2Int(45, 10),
-        new Vector2Int(44, 10),
-        new Vector2Int(44, 9),
-        new Vector2Int(44, 8),
-        new Vector2Int(44, 7),
-        new Vector2Int(44, 6),
-        new Vector2Int(44, 5),
-        new Vector2Int(44, 4),
-        new Vector2Int(43, 4),
-        new Vector2Int(42, 4),
-        new Vector2Int(41, 4),
-        new Vector2Int(40, 4),
-        new Vector2Int(39, 4),
-        new Vector2Int(38, 4),
-        new Vector2Int(37, 4),
-        new Vector2Int(36, 4),
-        new Vector2Int(35, 4),
-        new Vector2Int(35, 5),
-        new Vector2Int(35, 6),
-        new Vector2Int(35, 7),
-        new Vector2Int(35, 8),
-        new Vector2Int(35, 9),
-        new Vector2Int(35, 10),
-        new Vector2Int(36, 10),
-        new Vector2Int(37, 10),
-        new Vector2Int(38, 10),
-        new Vector2Int(39, 10),
-        new Vector2Int(40, 10),
-        new Vector2Int(40, 11),
-        new Vector2Int(40, 12),
-        new Vector2Int(40, 13),
-        new Vector2Int(40, 14),
-        new Vector2Int(39, 14),
-        new Vector2Int(38, 14),
-        new Vector2Int(37, 14),
-        new Vector2Int(36, 14),
-        new Vector2Int(35, 14),
-        new Vector2Int(34, 14),
-        new Vector2Int(33, 14),
-        new Vector2Int(32, 14),
-        new Vector2Int(31, 14),
-        new Vector2Int(30, 14),
-        new Vector2Int(29, 14),
-        new Vector2Int(28, 14),
-        new Vector2Int(27, 14)
-    };
-
-    public Vector2Int fortressMin = new Vector2Int(23, 13);
-    public Vector2Int fortressMax = new Vector2Int(26, 16);
+    public Vector2Int fortressMin = new Vector2Int(23, 13); // fortress lower left corner
+    public Vector2Int fortressMax = new Vector2Int(26, 16); // fortress upper right corner
 
     private void Awake()
     {
         GenerateGrid();
     }
 
-    private void GenerateGrid()
+    // resize grid and regenerate cells
+    public void SetDimensions(int newWidth, int newHeight)
     {
+        width = newWidth;
+        height = newHeight;
+        GenerateGrid();
+    }
+
+    // create grid array and mark fortress and paths
+    public void GenerateGrid()
+    {
+        // recalculate fortress center for current grid size
+        int fcx = width / 2;
+        int fcy = height / 2;
+        fortressMin = new Vector2Int(fcx - 2, fcy - 2);
+        fortressMax = new Vector2Int(fcx + 1, fcy + 1);
+
+        // build paths scaled to current grid boundaries
+        BuildScaledPaths();
+
         cells = new CellType[width, height];
 
         for (int x = 0; x < width; x++)
@@ -220,20 +68,221 @@ public class Grid : MonoBehaviour
         {
             for (int y = fortressMin.y; y <= fortressMax.y; y++)
             {
-                cells[x, y] = CellType.Fortress;
+                if (IsInsideGrid(new Vector2Int(x, y)))
+                {
+                    cells[x, y] = CellType.Fortress;
+                }
             }
         }
 
-        markPath(leftPath);
-        markPath(topPath);
-        markPath(rightPath);
+        if (leftPath != null) markPath(leftPath);
+        if (topPath != null) markPath(topPath);
+        if (rightPath != null) markPath(rightPath);
     }
 
+    // select dedicated path layout based on grid size
+    private void BuildScaledPaths()
+    {
+        if (width <= 45)
+        {
+            BuildSmallPaths();
+        }
+        else if (width <= 50)
+        {
+            BuildMediumPaths();
+        }
+        else
+        {
+            BuildLargePaths();
+        }
+
+        UpdateTileVisuals();
+    }
+
+    // small map layout: shorter paths and faster pressure
+    private void BuildSmallPaths()
+    {
+        int topSpawnY = height - 1;
+        int rightSpawnX = width - 1;
+
+        Vector2Int[] smallLeftTurns = new Vector2Int[]
+        {
+            new Vector2Int(0, 5), new Vector2Int(5, 5), new Vector2Int(5, 2),
+            new Vector2Int(12, 2), new Vector2Int(12, 8), new Vector2Int(16, 8),
+            new Vector2Int(20, 8), new Vector2Int(20, 14), new Vector2Int(22, 14)
+        };
+
+        Vector2Int[] smallTopTurns = new Vector2Int[]
+        {
+            new Vector2Int(25, topSpawnY), new Vector2Int(20, topSpawnY), new Vector2Int(20, 20),
+            new Vector2Int(25, 20), new Vector2Int(25, 17)
+        };
+
+        Vector2Int[] smallRightTurns = new Vector2Int[]
+        {
+            new Vector2Int(rightSpawnX, 4), new Vector2Int(35, 4), new Vector2Int(35, 10),
+            new Vector2Int(35, 14), new Vector2Int(27, 14)
+        };
+
+        leftPath = ConnectTurns(smallLeftTurns);
+        topPath = ConnectTurns(smallTopTurns);
+        rightPath = ConnectTurns(smallRightTurns);
+    }
+
+    // medium map layout: balanced classic routes
+    private void BuildMediumPaths()
+    {
+        Vector2Int[] medLeftTurns = new Vector2Int[]
+        {
+            new Vector2Int(0, 5), new Vector2Int(5, 5), new Vector2Int(5, 2),
+            new Vector2Int(12, 2), new Vector2Int(12, 8), new Vector2Int(8, 8),
+            new Vector2Int(8, 12), new Vector2Int(16, 12), new Vector2Int(16, 8),
+            new Vector2Int(20, 8), new Vector2Int(20, 14), new Vector2Int(22, 14)
+        };
+
+        Vector2Int[] medTopTurns = new Vector2Int[]
+        {
+            new Vector2Int(25, 29), new Vector2Int(25, 26), new Vector2Int(15, 26),
+            new Vector2Int(15, 20), new Vector2Int(32, 20), new Vector2Int(32, 24),
+            new Vector2Int(36, 24), new Vector2Int(36, 18), new Vector2Int(25, 18),
+            new Vector2Int(25, 17)
+        };
+
+        Vector2Int[] medRightTurns = new Vector2Int[]
+        {
+            new Vector2Int(49, 10), new Vector2Int(44, 10), new Vector2Int(44, 4),
+            new Vector2Int(35, 4), new Vector2Int(35, 10), new Vector2Int(40, 10),
+            new Vector2Int(40, 14), new Vector2Int(27, 14)
+        };
+
+        leftPath = ConnectTurns(medLeftTurns);
+        topPath = ConnectTurns(medTopTurns);
+        rightPath = ConnectTurns(medRightTurns);
+    }
+
+    // large map layout: long sweeping marathon paths
+    private void BuildLargePaths()
+    {
+        Vector2Int[] largeLeftTurns = new Vector2Int[]
+        {
+            new Vector2Int(0, 5), new Vector2Int(5, 5), new Vector2Int(5, 2),
+            new Vector2Int(12, 2), new Vector2Int(12, 8), new Vector2Int(8, 8),
+            new Vector2Int(8, 15), new Vector2Int(12, 15), new Vector2Int(12, 12),
+            new Vector2Int(16, 12), new Vector2Int(16, 8), new Vector2Int(20, 8),
+            new Vector2Int(20, 14), new Vector2Int(22, 14)
+        };
+
+        Vector2Int[] largeTopTurns = new Vector2Int[]
+        {
+            new Vector2Int(25, 29), new Vector2Int(25, 26), new Vector2Int(15, 26),
+            new Vector2Int(15, 20), new Vector2Int(20, 20), new Vector2Int(20, 24),
+            new Vector2Int(24, 24), new Vector2Int(24, 20), new Vector2Int(32, 20),
+            new Vector2Int(32, 24), new Vector2Int(36, 24), new Vector2Int(36, 18),
+            new Vector2Int(25, 18), new Vector2Int(25, 17)
+        };
+
+        Vector2Int[] largeRightTurns = new Vector2Int[]
+        {
+            new Vector2Int(49, 10), new Vector2Int(44, 10), new Vector2Int(44, 4),
+            new Vector2Int(35, 4), new Vector2Int(35, 10), new Vector2Int(40, 10),
+            new Vector2Int(40, 12), new Vector2Int(44, 12), new Vector2Int(44, 14),
+            new Vector2Int(27, 14)
+        };
+
+        leftPath = ConnectTurns(largeLeftTurns);
+        topPath = ConnectTurns(largeTopTurns);
+        rightPath = ConnectTurns(largeRightTurns);
+    }
+
+    // connect turning points into contiguous cells
+    private Vector2Int[] ConnectTurns(Vector2Int[] turns)
+    {
+        List<Vector2Int> pathCells = new List<Vector2Int>();
+
+        for (int i = 0; i < turns.Length - 1; i++)
+        {
+            Vector2Int current = turns[i];
+            Vector2Int target = turns[i + 1];
+
+            while (current.x != target.x)
+            {
+                if (!pathCells.Contains(current)) pathCells.Add(current);
+                current.x += (target.x > current.x) ? 1 : -1;
+            }
+
+            while (current.y != target.y)
+            {
+                if (!pathCells.Contains(current)) pathCells.Add(current);
+                current.y += (target.y > current.y) ? 1 : -1;
+            }
+        }
+
+        Vector2Int finalPoint = turns[turns.Length - 1];
+        if (!pathCells.Contains(finalPoint)) pathCells.Add(finalPoint);
+
+        return pathCells.ToArray();
+    }
+
+    // update visual dungeon tile materials to align with active paths
+    public void UpdateTileVisuals()
+    {
+        GameObject dungeonTiles = GameObject.Find("DungeonTiles");
+        if (dungeonTiles == null) return;
+
+        // cache materials from existing tiles if inspector references are not set
+        if (pathMaterial == null || groundMaterial == null)
+        {
+            foreach (Transform child in dungeonTiles.transform)
+            {
+                MeshRenderer r = child.GetComponent<MeshRenderer>();
+                if (r == null || r.sharedMaterial == null) continue;
+
+                if (pathMaterial == null && child.name.Contains("PathTile"))
+                {
+                    pathMaterial = r.sharedMaterial;
+                }
+                else if (groundMaterial == null && child.name.Contains("GroundTile"))
+                {
+                    groundMaterial = r.sharedMaterial;
+                }
+
+                if (pathMaterial != null && groundMaterial != null)
+                {
+                    break;
+                }
+            }
+        }
+
+        foreach (Transform child in dungeonTiles.transform)
+        {
+            Vector2Int cell = convertWorldPosToCell(child.position);
+            MeshRenderer renderer = child.GetComponent<MeshRenderer>();
+            if (renderer == null) continue;
+
+            bool isPathCell = ContainsCell(leftPath, cell) ||
+                             ContainsCell(topPath, cell) ||
+                             ContainsCell(rightPath, cell);
+
+            if (isPathCell && pathMaterial != null)
+            {
+                renderer.sharedMaterial = pathMaterial;
+            }
+            else if (!isPathCell && groundMaterial != null && !IsFortressCell(cell))
+            {
+                renderer.sharedMaterial = groundMaterial;
+            }
+        }
+    }
+
+    // mark path cells inside grid bounds
     private void markPath(Vector2Int[] path)
     {
         foreach (Vector2Int position in path)
         {
-            cells[position.x, position.y] = CellType.Path;
+            if (IsInsideGrid(position))
+            {
+                cells[position.x, position.y] = CellType.Path;
+            }
         }
     }
 
