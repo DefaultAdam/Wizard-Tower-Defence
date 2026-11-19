@@ -306,10 +306,14 @@ public class DifficultySelectionHUD : MonoBehaviour
         {
             foreach (Transform child in dungeonTiles.transform)
             {
-                Vector2Int cell = grid.convertWorldPosToCell(child.position);
-                bool inside = cell.x >= 0 && cell.x < preset.width &&
-                              cell.y >= 0 && cell.y < preset.height;
-                child.gameObject.SetActive(inside);
+                // Only clip ground and path tiles to the grid bounds, preserve perimeter walls, towers, and props
+                if (child.name.Contains("GroundTile") || child.name.Contains("PathTile"))
+                {
+                    Vector2Int cell = grid.convertWorldPosToCell(child.position);
+                    bool inside = cell.x >= 0 && cell.x < preset.width &&
+                                  cell.y >= 0 && cell.y < preset.height;
+                    child.gameObject.SetActive(inside);
+                }
             }
         }
 

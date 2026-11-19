@@ -255,6 +255,9 @@ public class Grid : MonoBehaviour
 
         foreach (Transform child in dungeonTiles.transform)
         {
+            if (!child.name.Contains("GroundTile") && !child.name.Contains("PathTile"))
+                continue;
+
             Vector2Int cell = convertWorldPosToCell(child.position);
             MeshRenderer renderer = child.GetComponent<MeshRenderer>();
             if (renderer == null) continue;
