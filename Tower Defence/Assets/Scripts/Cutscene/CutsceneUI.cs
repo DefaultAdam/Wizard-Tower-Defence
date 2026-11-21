@@ -5,6 +5,8 @@ using UnityEngine.UI;
 public class CutsceneUI : MonoBehaviour
 {
     private GameObject panel; // the dark screen that covers everything
+    private Text speakerText; // who is talking
+    private Text bodyText; // what they say
 
     void Awake()
     {
@@ -25,7 +27,44 @@ public class CutsceneUI : MonoBehaviour
         panel.transform.SetParent(canvasObject.transform, false);
         Stretch(panel, Vector2.zero, Vector2.one);
         panel.GetComponent<Image>().color = new Color(0.03f, 0.03f, 0.06f, 1f);
+
+        speakerText = CreateText("Speaker", 44, new Vector2(0.1f, 0.6f), new Vector2(0.9f, 0.75f));
+        bodyText = CreateText("Body", 32, new Vector2(0.1f, 0.25f), new Vector2(0.9f, 0.6f));
         panel.SetActive(false);
+    }
+
+    // show the panel while a cutscene is playing and keep the text on the current slide
+    void Update()
+    {
+        CutsceneSlide slide = null;
+
+        if (CutscenePlayer.instance != null)
+        {
+            slide = CutscenePlayer.instance.GetCurrentSlide();
+        }
+
+        panel.SetActive(slide != null);
+
+        if (slide != null)
+        {
+            speakerText.text = slide.speaker;
+            bodyText.text = slide.text;
+        }
+    }
+
+    // makes a white text box inside the panel
+    Text CreateText(string name, int size, Vector2 min, Vector2 max)
+    {
+        GameObject textObject = new GameObject(name, typeof(RectTransform));
+        textObject.transform.SetParent(panel.transform, false);
+        Stretch(textObject, min, max);
+
+        Text text = textObject.AddComponent<Text>();
+        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.fontSize = size;
+        text.color = Color.white;
+        text.alignment = TextAnchor.MiddleCenter;
+        return text;
     }
 
     // stretches a ui object between two anchor points (0 to 1 across the screen)
