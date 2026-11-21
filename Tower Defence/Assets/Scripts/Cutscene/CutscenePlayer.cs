@@ -43,4 +43,15 @@ public class CutscenePlayer : MonoBehaviour
             isPlaying = false;
         }
     }
+
+    // the slide that should be on screen right now, null if nothing is playing
+    public CutsceneSlide GetCurrentSlide()
+    {
+        if (!isPlaying || slideIndex >= slides.Count)
+        {
+            return null;
+        }
+
+        return slides[slideIndex];
+    }
 }
