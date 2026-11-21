@@ -452,6 +452,9 @@ public class Tower : MonoBehaviour
         {
             wallLifeTimer = veteranWallLifetime;
         }
+
+        // squash it flat straight away so it doesnt show at full height for a frame before rising
+        UpdateCurrentWall();
     }
 
     // called only after a bench transfer or battlefield fusion is confirmed
@@ -480,6 +483,9 @@ public class Tower : MonoBehaviour
         // squash it down to show how much health is left, never fully flat so you can still see it
         float healthLeft = currentWall.currentHealth / currentWall.maxHealth;
         float height = Mathf.Max(0.2f, healthLeft) * currentWallHeight;
+
+        // still rising out of the ground when its new
+        height *= currentWall.riseProgress;
 
         Vector3 scale = currentWall.transform.localScale;
         Vector3 position = currentWall.transform.position;
