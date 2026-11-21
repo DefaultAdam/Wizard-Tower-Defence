@@ -131,6 +131,14 @@ public class TroopPanel : MonoBehaviour
         if (statsText != null)
         {
             statsText.text = tower.GetStatsText();
+
+            // say what the troops power does, supers already list their spell in the stats so skip them
+            string power = SkillTree.GetPowerDescription(tower.branch, tower.level);
+
+            if (!tower.isSuper && tower.level >= 1 && power != "")
+            {
+                statsText.text += "\n" + power;
+            }
         }
 
         int nextLevel = tower.level + 1;

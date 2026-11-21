@@ -319,11 +319,12 @@ public class Tower : MonoBehaviour
                 + "\nActive Limit: 1 | Path Cells: 1";
         }
 
-        string text = "Damage: " + GetCurrentDamage() + "\nFire Rate: " + attackCooldown + "s\nRange: " + attackRange;
+        // two stats per line (same style as the supers) so theres room for the power line under it
+        string text = "Damage: " + GetCurrentDamage() + " | Fire Rate: " + attackCooldown + "s\nRange: " + attackRange;
 
         if (aoeRadius > 0f)
         {
-            text += "\nSplash: " + aoeRadius;
+            text += " | Splash: " + aoeRadius;
         }
 
         return text;
