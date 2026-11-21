@@ -9,6 +9,8 @@ public class Projectile : MonoBehaviour
     public float aoeDamagePercent = 0.5f;
     public Branch branch = Branch.None; // specialisation branch of the troop that fired
     public int level = 0; // level of the troop that fired
+    public bool showBoltImpact = false; // physical bolts burst into shards when they hit
+    public Color hitEffectColour = Color.white; // colour of that burst
     public int splashStoneCount = 8;
     public float splashEffectDuration = 0.35f;
 
@@ -65,6 +67,11 @@ public class Projectile : MonoBehaviour
     {
         Vector3 hitPosition = target.position;
         Health targetHealth = target.GetComponent<Health>();
+
+        if (showBoltImpact)
+        {
+            BoltImpact.Spawn(hitPosition, hitEffectColour);
+        }
 
         if (targetHealth != null)
         {
