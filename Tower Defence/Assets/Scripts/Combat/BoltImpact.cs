@@ -1,26 +1,31 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-// little burst of glowing shards where a physical bolt hits, they fly out and shrink away
+// little burst of glowing shards, they fly out and shrink away (physical bolt hits and mechanic landings)
 public class BoltImpact : MonoBehaviour
 {
     private const int shardCount = 6; // how many bits fly out
     private const float radius = 0.8f; // how far they get
     private const float duration = 0.3f; // how long the burst lasts
 
-    private static Material shardMaterial; // one shared material so we dont make a new one every hit
+    // one shared material per colour, so we dont make a new one every hit
+    // (and a brown bolt burst and a grey mechanic landing at the same time keep their own colours)
+    private static Dictionary<Color, Material> shardMaterials = new Dictionary<Color, Material>();
     private float timer = 0f;
 
-    // makes a burst at a position, call this when a bolt hits
+    // makes a burst at a position, used for bolt hits and mechanic landings
     public static void Spawn(Vector3 position, Color colour)
     {
-        if (shardMaterial == null)
+        Material shardMaterial;
+
+        if (!shardMaterials.TryGetValue(colour, out shardMaterial))
         {
             shardMaterial = new Material(Shader.Find("Standard"));
+            shardMaterial.color = colour;
             shardMaterial.EnableKeyword("_EMISSION");
+            shardMaterial.SetColor("_EmissionColor", colour * 2f);
+            shardMaterials[colour] = shardMaterial;
         }
-
-        shardMaterial.color = colour;
-        shardMaterial.SetColor("_EmissionColor", colour * 2f);
 
         GameObject burst = new GameObject("Bolt Impact");
         burst.transform.position = position;
