@@ -10,9 +10,29 @@ public class CutscenePlayer : MonoBehaviour
     private List<CutsceneSlide> slides = new List<CutsceneSlide>(); // slides in the current cutscene
     private int slideIndex = 0; // which slide we're on
 
+    public float slideDuration = 10f; // each slide moves on by itself after this many seconds
+    private float slideTimer = 0f; // how long the current slide has been showing
+
     void Awake()
     {
         instance = this;
+    }
+
+    // count how long the slide has been up and move on when its been there long enough
+    void Update()
+    {
+        if (!isPlaying)
+        {
+            return;
+        }
+
+        // unscaled time so it still counts when the game is paused behind the cutscene
+        slideTimer += Time.unscaledDeltaTime;
+
+        if (slideTimer >= slideDuration)
+        {
+            NextSlide();
+        }
     }
 
     // start a cutscene from the first slide
@@ -25,6 +45,7 @@ public class CutscenePlayer : MonoBehaviour
 
         slides = newSlides;
         slideIndex = 0;
+        slideTimer = 0f;
         isPlaying = true;
     }
 
@@ -37,6 +58,7 @@ public class CutscenePlayer : MonoBehaviour
         }
 
         slideIndex++;
+        slideTimer = 0f; // new slide gets the full 10 seconds, whether it was tapped or timed out
 
         if (slideIndex >= slides.Count)
         {
