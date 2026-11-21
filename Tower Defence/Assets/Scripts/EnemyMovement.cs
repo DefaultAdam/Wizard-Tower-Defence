@@ -21,6 +21,9 @@ public class EnemyMovement : MonoBehaviour
     private float throwTimer = 0f; // how far through the throw it is
     private Vector3 throwStart; // where the throw started from
     private Vector3 throwEnd; // the cell its going to land on
+    public float throwSpinSpeed = 720f; // how fast it tumbles in the air, degrees a second (2 flips a second)
+    public Color landingDustColour = new Color(0.45f, 0.56f, 0.68f); // grey blue puff when it lands, same as the mechanic colour
+    private Quaternion rotationBeforeThrow; // so it lands facing the way it was before the tumble
 
     public float floatHeight = 1f; // how high a bubbled enemy floats up
     public float floatSpeed = 3f; // how fast it rises into the air
@@ -259,6 +262,13 @@ public class EnemyMovement : MonoBehaviour
         throwEnd = grid.GetCellCenter(path[landingCell]);
         throwTimer = 0f;
         currentThrowDuration = throwDuration * durationMultiplier;
+
+        // only save the rotation if it wasnt already mid tumble, otherwise it'd land sideways
+        if (!isThrown)
+        {
+            rotationBeforeThrow = transform.rotation;
+        }
+
         isThrown = true;
 
         nextGridNumber = landingCell + 1;
@@ -275,9 +285,20 @@ public class EnemyMovement : MonoBehaviour
         position.y += Mathf.Sin(progress * Mathf.PI) * throwHeight;
         transform.position = position;
 
+        // tumble backwards end over end, spinning round the axis side on to the way its flying
+        Vector3 spinAxis = Vector3.Cross(Vector3.up, throwEnd - throwStart);
+
+        if (spinAxis != Vector3.zero)
+        {
+            transform.Rotate(spinAxis.normalized, throwSpinSpeed * Time.deltaTime, Space.World);
+        }
+
+        // landed, stand back up and kick up some dust
         if (progress >= 1f)
         {
             isThrown = false;
+            transform.rotation = rotationBeforeThrow;
+            BoltImpact.Spawn(transform.position, landingDustColour);
         }
     }
 
