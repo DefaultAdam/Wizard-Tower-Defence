@@ -12,6 +12,7 @@ public class CutscenePlayer : MonoBehaviour
 
     public float slideDuration = 10f; // each slide moves on by itself after this many seconds
     private float slideTimer = 0f; // how long the current slide has been showing
+    private float timeScaleBefore = 1f; // game speed before the cutscene so we can put it back after
 
     void Awake()
     {
@@ -25,6 +26,9 @@ public class CutscenePlayer : MonoBehaviour
         {
             return;
         }
+
+        // keep the game frozen, in case something like unpausing tries to start it again mid cutscene
+        Time.timeScale = 0f;
 
         // unscaled time so it still counts when the game is paused behind the cutscene
         slideTimer += Time.unscaledDeltaTime;
@@ -43,6 +47,16 @@ public class CutscenePlayer : MonoBehaviour
             return;
         }
 
+        // remember the speed the game was running at, but only if a cutscene isnt already going
+        // (otherwise we'd save 0 and the game would stay frozen after)
+        if (!isPlaying)
+        {
+            timeScaleBefore = Time.timeScale;
+        }
+
+        // pause the game so nothing moves or spawns behind the cutscene
+        Time.timeScale = 0f;
+
         slides = newSlides;
         slideIndex = 0;
         slideTimer = 0f;
@@ -60,9 +74,11 @@ public class CutscenePlayer : MonoBehaviour
         slideIndex++;
         slideTimer = 0f; // new slide gets the full 10 seconds, whether it was tapped or timed out
 
+        // last slide done, unpause back to whatever speed it was before
         if (slideIndex >= slides.Count)
         {
             isPlaying = false;
+            Time.timeScale = timeScaleBefore;
         }
     }
 
