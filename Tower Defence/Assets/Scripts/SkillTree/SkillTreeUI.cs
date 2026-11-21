@@ -199,12 +199,15 @@ public class SkillTreeUI : MonoBehaviour
         string reason;
         bool canUnlock = skillTree.CanUnlockPath(branch, level, out reason);
 
+        // small power line under the name so players know what theyre unlocking
+        string power = "\n<size=13>" + SkillTree.GetPowerDescription(branch, level) + "</size>";
+
         if (unlocked)
         {
             button.interactable = false;
             if (label != null)
             {
-                label.text = SkillTree.GetTroopName(branch, level) + "\n(UNLOCKED)";
+                label.text = SkillTree.GetTroopName(branch, level) + "\n(UNLOCKED)" + power;
             }
         }
         else
@@ -212,7 +215,7 @@ public class SkillTreeUI : MonoBehaviour
             button.interactable = canUnlock;
             if (label != null)
             {
-                label.text = SkillTree.GetTroopName(branch, level) + "\n(" + reason + ")";
+                label.text = SkillTree.GetTroopName(branch, level) + "\n(" + reason + ")" + power;
             }
         }
     }
