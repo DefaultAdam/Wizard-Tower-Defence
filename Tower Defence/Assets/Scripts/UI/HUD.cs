@@ -47,6 +47,14 @@ public class HUD : MonoBehaviour
             benchObj.AddComponent<ReserveBench>();
         }
 
+        // the skill tree object went missing from the scene, so make one if theres none
+        // search the scene instead of checking instance, its awake might not have run yet
+        if (FindFirstObjectByType<SkillTree>() == null)
+        {
+            GameObject skillTreeObj = new GameObject("Skill Tree");
+            skillTreeObj.AddComponent<SkillTree>();
+        }
+
         if (GetComponent<ReserveBenchUI>() == null)
         {
             gameObject.AddComponent<ReserveBenchUI>();
