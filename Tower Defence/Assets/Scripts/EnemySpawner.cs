@@ -148,6 +148,12 @@ public class EnemySpawner : MonoBehaviour
     {
         currentWave++;
         isWaveInProgress = true;
+
+        // round cutscene first, it pauses the game so the wave only starts once its finished
+        if (CutscenePlayer.instance != null)
+        {
+            CutscenePlayer.instance.Play(CutsceneLibrary.GetRoundCutscene(currentWave));
+        }
         int totalEnemies = CalculateWaveEnemyCount(currentWave);
 
         if (totalEnemies < 1)
