@@ -28,6 +28,10 @@ public class CutsceneUI : MonoBehaviour
         Stretch(panel, Vector2.zero, Vector2.one);
         panel.GetComponent<Image>().color = new Color(0.03f, 0.03f, 0.06f, 1f);
 
+        // whole panel is a button so tapping or clicking anywhere goes to the next slide
+        // also stops the click going through to the game behind it
+        panel.AddComponent<Button>().onClick.AddListener(NextSlide);
+
         speakerText = CreateText("Speaker", 44, new Vector2(0.1f, 0.6f), new Vector2(0.9f, 0.75f));
         bodyText = CreateText("Body", 32, new Vector2(0.1f, 0.25f), new Vector2(0.9f, 0.6f));
         panel.SetActive(false);
@@ -49,6 +53,21 @@ public class CutsceneUI : MonoBehaviour
         {
             speakerText.text = slide.speaker;
             bodyText.text = slide.text;
+
+            // space works too for people using the keyboard
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                NextSlide();
+            }
+        }
+    }
+
+    // go to the next slide in the cutscene
+    void NextSlide()
+    {
+        if (CutscenePlayer.instance != null)
+        {
+            CutscenePlayer.instance.NextSlide();
         }
     }
 
