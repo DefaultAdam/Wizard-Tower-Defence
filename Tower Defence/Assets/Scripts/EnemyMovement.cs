@@ -21,12 +21,19 @@ public class EnemyMovement : MonoBehaviour
     private float throwTimer = 0f; // how far through the throw it is
     private Vector3 throwStart; // where the throw started from
     private Vector3 throwEnd; // the cell its going to land on
+    public float throwSpinSpeed = 720f; // how fast it tumbles in the air, degrees a second (2 flips a second)
+    public Color landingDustColour = new Color(0.45f, 0.56f, 0.68f); // grey blue puff when it lands, same as the mechanic colour
+    private Quaternion rotationBeforeThrow; // so it lands facing the way it was before the tumble
 
     public float floatHeight = 1f; // how high a bubbled enemy floats up
     public float floatSpeed = 3f; // how fast it rises into the air
     private bool isFloating = false; // true while its stuck in a magic bubble
     public float bubbleSize = 1.8f; // bubble size compared to the enemy, a bit bigger so it fits round it
     private GameObject bubble; // the bubble sphere, only exists while its bubbled
+    public float bubblePulse = 0.08f; // how much the bubble wobbles in size, 0.08 = 8% bigger and smaller
+    public float bubblePulseSpeed = 6f; // how fast it wobbles
+    public Color bubblePopColour = new Color(0.6f, 0.3f, 0.85f); // purple shards when it pops, same as magic
+    private float bubbleTime = 0f; // how long the current bubble has been up
     public float bubbleImmunity = 2f; // after a bubble pops it cant be bubbled again for this long
     private float bubbleImmunityTimer = 0f; // time left before it can be bubbled again
 
@@ -83,6 +90,7 @@ public class EnemyMovement : MonoBehaviour
             if (isFloating)
             {
                 FloatUp();
+                UpdateBubbleLook();
             }
 
             // bubble's done, once it starts walking again it'll drift back down to the path
@@ -194,15 +202,34 @@ public class EnemyMovement : MonoBehaviour
         // child of the enemy so it moves with it and gets destroyed with it if it dies
         bubble.transform.SetParent(transform, false);
         bubble.transform.localPosition = Vector3.zero;
-        bubble.transform.localScale = Vector3.one * bubbleSize;
+        bubble.transform.localScale = Vector3.zero; // starts tiny and grows in, see UpdateBubbleLook
         bubble.GetComponent<Renderer>().sharedMaterial = bubbleMaterial;
+        bubbleTime = 0f;
     }
 
-    // removes the bubble when the freeze runs out
+    // grows the bubble in quickly then makes it wobble a bit so it looks alive
+    void UpdateBubbleLook()
+    {
+        if (bubble == null)
+        {
+            return;
+        }
+
+        bubbleTime += Time.deltaTime;
+
+        // 0 to full size in 0.15 seconds
+        float grow = Mathf.Clamp01(bubbleTime / 0.15f);
+        float pulse = 1f + Mathf.Sin(bubbleTime * bubblePulseSpeed) * bubblePulse;
+
+        bubble.transform.localScale = Vector3.one * bubbleSize * grow * pulse;
+    }
+
+    // removes the bubble when the freeze runs out, with a purple burst so it looks like it popped
     void PopBubble()
     {
         if (bubble != null)
         {
+            BoltImpact.Spawn(bubble.transform.position, bubblePopColour);
             Destroy(bubble);
             bubble = null;
         }
@@ -259,6 +286,13 @@ public class EnemyMovement : MonoBehaviour
         throwEnd = grid.GetCellCenter(path[landingCell]);
         throwTimer = 0f;
         currentThrowDuration = throwDuration * durationMultiplier;
+
+        // only save the rotation if it wasnt already mid tumble, otherwise it'd land sideways
+        if (!isThrown)
+        {
+            rotationBeforeThrow = transform.rotation;
+        }
+
         isThrown = true;
 
         nextGridNumber = landingCell + 1;
@@ -275,9 +309,20 @@ public class EnemyMovement : MonoBehaviour
         position.y += Mathf.Sin(progress * Mathf.PI) * throwHeight;
         transform.position = position;
 
+        // tumble backwards end over end, spinning round the axis side on to the way its flying
+        Vector3 spinAxis = Vector3.Cross(Vector3.up, throwEnd - throwStart);
+
+        if (spinAxis != Vector3.zero)
+        {
+            transform.Rotate(spinAxis.normalized, throwSpinSpeed * Time.deltaTime, Space.World);
+        }
+
+        // landed, stand back up and kick up some dust
         if (progress >= 1f)
         {
             isThrown = false;
+            transform.rotation = rotationBeforeThrow;
+            BoltImpact.Spawn(transform.position, landingDustColour);
         }
     }
 
