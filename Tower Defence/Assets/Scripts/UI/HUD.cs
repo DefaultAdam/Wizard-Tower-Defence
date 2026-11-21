@@ -57,6 +57,14 @@ public class HUD : MonoBehaviour
             gameObject.AddComponent<DifficultySelectionHUD>();
         }
 
+        // cutscenes get their own object, not on the hud, so their canvas can sit on top of everything
+        if (CutscenePlayer.instance == null)
+        {
+            GameObject cutsceneObj = new GameObject("Cutscenes");
+            cutsceneObj.AddComponent<CutscenePlayer>();
+            cutsceneObj.AddComponent<CutsceneUI>();
+        }
+
         Time.timeScale = 1f;
     }
 
