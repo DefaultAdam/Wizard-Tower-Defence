@@ -68,7 +68,7 @@ public class Projectile : MonoBehaviour
 
         if (targetHealth != null)
         {
-            targetHealth.TakeDamage(damage);
+            targetHealth.TakeDamage(damage * GetWeaknessMultiplier(target));
         }
 
         // path power goes on top of the normal hit and splash
@@ -249,6 +249,18 @@ public class Projectile : MonoBehaviour
         }
     }
 
+    float GetWeaknessMultiplier(Transform enemy)
+    {
+        Enemy enemyScript = enemy.GetComponent<Enemy>();
+
+        if (enemyScript == null)
+        {
+            return 1f;
+        }
+
+        return CounterMatrix.GetDamageMultiplier(branch, enemyScript.enemyType);
+    }
+
     void DealAreaDamage(Vector3 center)
     {
         Collider[] colliders = Physics.OverlapSphere(center, aoeRadius);
@@ -269,7 +281,7 @@ public class Projectile : MonoBehaviour
 
             if (enemyHealth != null)
             {
-                enemyHealth.TakeDamage(damage * aoeDamagePercent);
+                enemyHealth.TakeDamage(damage * aoeDamagePercent * GetWeaknessMultiplier(hitCollider.transform));
             }
         }
     }
