@@ -178,6 +178,13 @@ public class Projectile : MonoBehaviour
             freezeTime = veteranFreezeTime;
         }
 
+        Enemy enemyScript = target.GetComponent<Enemy>();
+
+        if (enemyScript != null)
+        {
+            freezeTime *= CounterMatrix.GetBubbleMultiplier(branch, enemyScript.enemyType);
+        }
+
         // just the enemy that got hit, splash ones keep walking
         movement.Bubble(freezeTime, bubbleMaterial);
     }
