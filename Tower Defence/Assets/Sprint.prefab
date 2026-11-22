@@ -143,6 +143,7 @@ MonoBehaviour:
   startWave: 3
   spReward: 2
   healthMultiplier: 0.5
+  enemyType: 2
   onKilled:
     m_PersistentCalls:
       m_Calls: []
