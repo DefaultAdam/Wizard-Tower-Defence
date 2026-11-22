@@ -142,6 +142,13 @@ public class Projectile : MonoBehaviour
             cells = veteranThrowCells;
         }
 
+        Enemy enemyScript = target.GetComponent<Enemy>();
+
+        if (enemyScript != null)
+        {
+            cells = Mathf.RoundToInt(cells * CounterMatrix.GetThrowMultiplier(branch, enemyScript.enemyType));
+        }
+
         // only the enemy that got hit gets thrown, not the ones in the splash
         movement.PushBack(cells);
     }
