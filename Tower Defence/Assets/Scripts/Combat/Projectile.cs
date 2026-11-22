@@ -68,7 +68,13 @@ public class Projectile : MonoBehaviour
 
         if (targetHealth != null)
         {
-            targetHealth.TakeDamage(damage * GetWeaknessMultiplier(target));
+            float weaknessMultiplier = GetWeaknessMultiplier(target);
+            targetHealth.TakeDamage(damage * weaknessMultiplier);
+
+            if (weaknessMultiplier > 1f)
+            {
+                CritPopup.Show(hitPosition);
+            }
         }
 
         // path power goes on top of the normal hit and splash
