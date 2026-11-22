@@ -364,4 +364,34 @@ public class SkillTree : MonoBehaviour
 
         return "Level 0 Recruit";
     }
+
+    // short line saying what a paths power does, shown on the troop panel and skill tree
+    // veterans and masters get the stronger version so they share a line
+    public static string GetPowerDescription(Branch branch, int level)
+    {
+        bool veteran = level >= 2;
+
+        if (branch == Branch.Physical)
+        {
+            return veteran ? "Fires big energy bolts, faster" : "Fires big energy bolts between attacks";
+        }
+
+        if (branch == Branch.Mechanic)
+        {
+            return veteran ? "Throws enemies 3 tiles back" : "Throws enemies 2 tiles back down the path";
+        }
+
+        if (branch == Branch.Magic)
+        {
+            return veteran ? "Traps enemies in a bubble for 2.5s" : "Traps enemies in a bubble for 1.5s";
+        }
+
+        if (branch == Branch.Imaginary)
+        {
+            return veteran ? "Builds tougher walls, more often" : "Builds a wall on the path in front of enemies";
+        }
+
+        // recruits dont have a power
+        return "";
+    }
 }

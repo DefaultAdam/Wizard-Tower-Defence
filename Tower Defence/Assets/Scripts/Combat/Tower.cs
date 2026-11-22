@@ -46,7 +46,12 @@ public class Tower : MonoBehaviour
     public float boltDamagePercent = 0.5f; // each bolt does half the troops damage since theres loads of them
     public float boltSpeedMultiplier = 1.75f; // bolts fly 75% faster than normal stones
     public float boltSizeMultiplier = 1.8f; // and theyre bigger so you can tell them apart
+    public float boltLength = 2.5f; // stretches the bolt forward so it looks like a streak not a ball
+    public float boltGlow = 1.5f; // how bright the bolt glows
+    public float boltTrailTime = 0.2f; // how long the trail behind a bolt lasts before fading out
     private float boltTimer = 0f; // countdown till the next physical bolt
+    private static Material boltMaterial; // shared by every bolt so we dont make a new material each shot
+    private static Material boltTrailMaterial; // same for the trail
 
     public float wallCooldown = 6f; // imaginary apprentices build a wall this often
     public float veteranWallCooldown = 4f; // veterans rebuild quicker
@@ -319,11 +324,12 @@ public class Tower : MonoBehaviour
                 + "\nActive Limit: 1 | Path Cells: 1";
         }
 
-        string text = "Damage: " + GetCurrentDamage() + "\nFire Rate: " + attackCooldown + "s\nRange: " + attackRange;
+        // two stats per line (same style as the supers) so theres room for the power line under it
+        string text = "Damage: " + GetCurrentDamage() + " | Fire Rate: " + attackCooldown + "s\nRange: " + attackRange;
 
         if (aoeRadius > 0f)
         {
-            text += "\nSplash: " + aoeRadius;
+            text += " | Splash: " + aoeRadius;
         }
 
         return text;
@@ -446,6 +452,9 @@ public class Tower : MonoBehaviour
         {
             wallLifeTimer = veteranWallLifetime;
         }
+
+        // squash it flat straight away so it doesnt show at full height for a frame before rising
+        UpdateCurrentWall();
     }
 
     // called only after a bench transfer or battlefield fusion is confirmed
@@ -474,6 +483,9 @@ public class Tower : MonoBehaviour
         // squash it down to show how much health is left, never fully flat so you can still see it
         float healthLeft = currentWall.currentHealth / currentWall.maxHealth;
         float height = Mathf.Max(0.2f, healthLeft) * currentWallHeight;
+
+        // still rising out of the ground when its new
+        height *= currentWall.riseProgress;
 
         Vector3 scale = currentWall.transform.localScale;
         Vector3 position = currentWall.transform.position;
@@ -534,15 +546,53 @@ public class Tower : MonoBehaviour
             bolt.aoeRadius = 0f;
             bolt.speed *= boltSpeedMultiplier;
             bolt.SetTarget(target.transform);
+
+            // shards burst out in the bolts colour when it hits
+            bolt.hitEffectColour = GetBranchColour();
+            bolt.showBoltImpact = true;
         }
 
         // making it big and brown so it looks like a physical energy bolt, different from regular
         boltObject.transform.localScale *= boltSizeMultiplier;
 
+        // stretch it along its forward direction, the projectile always faces its target so it points where its going
+        Vector3 boltScale = boltObject.transform.localScale;
+        boltScale.z *= boltLength;
+        boltObject.transform.localScale = boltScale;
+
         foreach (Renderer boltRenderer in boltObject.GetComponentsInChildren<Renderer>())
         {
-            boltRenderer.material.color = GetBranchColour();
+            // first bolt makes a glowing brown copy of the stone material, every bolt after reuses it
+            if (boltMaterial == null)
+            {
+                boltMaterial = new Material(boltRenderer.sharedMaterial);
+                boltMaterial.color = GetBranchColour();
+                boltMaterial.EnableKeyword("_EMISSION");
+                boltMaterial.SetColor("_EmissionColor", GetBranchColour() * boltGlow);
+            }
+
+            boltRenderer.sharedMaterial = boltMaterial;
         }
+
+        AddBoltTrail(boltObject);
+    }
+
+    // brown streak behind the bolt that fades out
+    void AddBoltTrail(GameObject boltObject)
+    {
+        if (boltTrailMaterial == null)
+        {
+            boltTrailMaterial = new Material(Shader.Find("Sprites/Default"));
+        }
+
+        Color colour = GetBranchColour();
+        TrailRenderer trail = boltObject.AddComponent<TrailRenderer>();
+        trail.sharedMaterial = boltTrailMaterial;
+        trail.time = boltTrailTime;
+        trail.startWidth = boltObject.transform.localScale.x * 0.8f;
+        trail.endWidth = 0f;
+        trail.startColor = colour;
+        trail.endColor = new Color(colour.r, colour.g, colour.b, 0f); // fades to see through at the end
 
 
 
