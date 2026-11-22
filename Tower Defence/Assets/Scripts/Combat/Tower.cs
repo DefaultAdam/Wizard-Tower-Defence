@@ -327,7 +327,7 @@ public class Tower : MonoBehaviour
         // two stats per line (same style as the supers) so theres room for the power line under it
         string text = "Damage: " + GetCurrentDamage() + " | Fire Rate: " + attackCooldown + "s\nRange: " + attackRange;
 
-        if (aoeRadius > 0f)
+        if (Projectile.splashEnabled && aoeRadius > 0f)
         {
             text += " | Splash: " + aoeRadius;
         }

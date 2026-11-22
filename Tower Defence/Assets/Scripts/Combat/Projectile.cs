@@ -5,6 +5,7 @@ public class Projectile : MonoBehaviour
 {
     public float speed = 10f; // projectile movement speed
     public float damage = 20f; // damage dealt on hit
+    public static bool splashEnabled = false;
     public float aoeRadius = 0f;
     public float aoeDamagePercent = 0.5f;
     public Branch branch = Branch.None; // specialisation branch of the troop that fired
@@ -81,7 +82,7 @@ public class Projectile : MonoBehaviour
         // path power goes on top of the normal hit and splash
         ApplyPower();
 
-        if (aoeRadius > 0f)
+        if (splashEnabled && aoeRadius > 0f)
         {
             DealAreaDamage(hitPosition);
             ShowSplashEffect(hitPosition);
