@@ -7,10 +7,12 @@ public class MainMenu : MonoBehaviour
 {
     public string gameSceneName = "Main";
     public string backgroundResource = "MenuBackground";
+    public string[] creditNames = { "Adam", "Aiden", "Dennis", "Badr" };
 
     private Font font;
     private GameObject mainPanel;
     private GameObject settingsPanel;
+    private GameObject creditsPanel;
 
     void Awake()
     {
@@ -23,9 +25,11 @@ public class MainMenu : MonoBehaviour
 
         mainPanel = CreatePanel(canvas, "MainPanel");
         settingsPanel = CreatePanel(canvas, "SettingsPanel");
+        creditsPanel = CreatePanel(canvas, "CreditsPanel");
 
         BuildMainPanel();
         BuildSettingsPanel();
+        BuildCreditsPanel();
 
         ShowPanel(mainPanel);
     }
@@ -36,6 +40,7 @@ public class MainMenu : MonoBehaviour
         CreateText(mainPanel.transform, "Defend your fortress", 36, new Vector2(0f, 170f), new Color(0.85f, 0.85f, 0.9f));
         CreateButton(mainPanel.transform, "Play", new Vector2(0f, 20f), PlayGame);
         CreateButton(mainPanel.transform, "Settings", new Vector2(0f, -90f), OpenSettings);
+        CreateButton(mainPanel.transform, "Credits", new Vector2(0f, -200f), OpenCredits);
     }
 
     void BuildSettingsPanel()
@@ -43,6 +48,18 @@ public class MainMenu : MonoBehaviour
         CreateText(settingsPanel.transform, "Settings", 80, new Vector2(0f, 250f), Color.white);
         CreateText(settingsPanel.transform, "Work in progress", 48, new Vector2(0f, 40f), new Color(0.85f, 0.85f, 0.9f));
         CreateButton(settingsPanel.transform, "Back", new Vector2(0f, -200f), OpenMain);
+    }
+
+    void BuildCreditsPanel()
+    {
+        CreateText(creditsPanel.transform, "Credits", 80, new Vector2(0f, 300f), Color.white);
+
+        for (int i = 0; i < creditNames.Length; i++)
+        {
+            CreateText(creditsPanel.transform, creditNames[i], 48, new Vector2(0f, 150f - i * 80f), Color.white);
+        }
+
+        CreateButton(creditsPanel.transform, "Back", new Vector2(0f, -250f), OpenMain);
     }
 
     void PlayGame()
@@ -60,10 +77,16 @@ public class MainMenu : MonoBehaviour
         ShowPanel(settingsPanel);
     }
 
+    void OpenCredits()
+    {
+        ShowPanel(creditsPanel);
+    }
+
     void ShowPanel(GameObject panel)
     {
         mainPanel.SetActive(panel == mainPanel);
         settingsPanel.SetActive(panel == settingsPanel);
+        creditsPanel.SetActive(panel == creditsPanel);
     }
 
     void EnsureEventSystem()
