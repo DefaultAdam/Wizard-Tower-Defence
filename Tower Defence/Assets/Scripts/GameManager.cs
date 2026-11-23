@@ -47,6 +47,16 @@ public class GameManager : MonoBehaviour
     // handle pause and restart key input
     void Update()
     {
+        if (IsGameEnded())
+        {
+            if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Escape))
+            {
+                ReturnToMenu();
+            }
+
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             TogglePause();
@@ -54,8 +64,20 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.R))
         {
-            RestartGame();
+            ReturnToMenu();
         }
+    }
+
+    bool IsGameEnded()
+    {
+        if (HUD.instance == null)
+        {
+            return false;
+        }
+
+        bool lost = HUD.instance.gameOverPanel != null && HUD.instance.gameOverPanel.activeSelf;
+        bool won = HUD.instance.victoryPanel != null && HUD.instance.victoryPanel.activeSelf;
+        return lost || won;
     }
 
     // toggle pause state and game speed
