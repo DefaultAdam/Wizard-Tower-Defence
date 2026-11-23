@@ -81,9 +81,44 @@ public class DifficultySelectionHUD : MonoBehaviour
         if (startButton != null)
         {
             startButton.onClick.AddListener(ConfirmSelection);
+            CreateBackButton();
         }
 
         UpdateDisplay();
+    }
+
+    void CreateBackButton()
+    {
+        Button backButton = Instantiate(startButton, startButton.transform.parent);
+        backButton.name = "BackBtn";
+        backButton.onClick.RemoveAllListeners();
+        backButton.onClick.AddListener(BackToMenu);
+
+        RectTransform rect = backButton.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(200f, 50f);
+        rect.anchoredPosition = new Vector2(0f, -300f);
+
+        Image image = backButton.GetComponent<Image>();
+
+        if (image != null)
+        {
+            image.color = new Color(0.38f, 0.37f, 0.38f, 0.95f);
+        }
+
+        Text label = backButton.GetComponentInChildren<Text>();
+
+        if (label != null)
+        {
+            label.text = "BACK";
+        }
+    }
+
+    void BackToMenu()
+    {
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.ReturnToMenu();
+        }
     }
 
     // choose easy difficulty
