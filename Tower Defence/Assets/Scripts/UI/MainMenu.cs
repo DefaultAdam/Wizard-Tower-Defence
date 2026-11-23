@@ -10,6 +10,7 @@ public class MainMenu : MonoBehaviour
 
     private Font font;
     private GameObject mainPanel;
+    private GameObject settingsPanel;
 
     void Awake()
     {
@@ -21,8 +22,12 @@ public class MainMenu : MonoBehaviour
         CreateBackground(canvas);
 
         mainPanel = CreatePanel(canvas, "MainPanel");
+        settingsPanel = CreatePanel(canvas, "SettingsPanel");
 
         BuildMainPanel();
+        BuildSettingsPanel();
+
+        ShowPanel(mainPanel);
     }
 
     void BuildMainPanel()
@@ -30,11 +35,35 @@ public class MainMenu : MonoBehaviour
         CreateText(mainPanel.transform, "Wizard Tower Defence", 96, new Vector2(0f, 260f), Color.white);
         CreateText(mainPanel.transform, "Defend your fortress", 36, new Vector2(0f, 170f), new Color(0.85f, 0.85f, 0.9f));
         CreateButton(mainPanel.transform, "Play", new Vector2(0f, 20f), PlayGame);
+        CreateButton(mainPanel.transform, "Settings", new Vector2(0f, -90f), OpenSettings);
+    }
+
+    void BuildSettingsPanel()
+    {
+        CreateText(settingsPanel.transform, "Settings", 80, new Vector2(0f, 250f), Color.white);
+        CreateText(settingsPanel.transform, "Work in progress", 48, new Vector2(0f, 40f), new Color(0.85f, 0.85f, 0.9f));
+        CreateButton(settingsPanel.transform, "Back", new Vector2(0f, -200f), OpenMain);
     }
 
     void PlayGame()
     {
         SceneManager.LoadScene(gameSceneName);
+    }
+
+    void OpenMain()
+    {
+        ShowPanel(mainPanel);
+    }
+
+    void OpenSettings()
+    {
+        ShowPanel(settingsPanel);
+    }
+
+    void ShowPanel(GameObject panel)
+    {
+        mainPanel.SetActive(panel == mainPanel);
+        settingsPanel.SetActive(panel == settingsPanel);
     }
 
     void EnsureEventSystem()
