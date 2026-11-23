@@ -4437,7 +4437,7 @@ MonoBehaviour:
   m_Text: 'GAME OVER
 
 
-    <size=24>Press R to Restart</size>'
+    <size=24>Press R or ESC for the main menu</size>'
 --- !u!1 &6952180014030440501
 GameObject:
   m_ObjectHideFlags: 0
@@ -4519,7 +4519,7 @@ MonoBehaviour:
   m_Text: 'VICTORY!
 
 
-    <size=24>Press R to Restart</size>'
+    <size=24>Press R or ESC for the main menu</size>'
 --- !u!1 &6952180014030440502
 GameObject:
   m_ObjectHideFlags: 0
@@ -4677,7 +4677,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Press ESC to Resume   |   Press R to Restart
+  m_Text: Press ESC to Resume   |   Press R for the main menu
 --- !u!1 &6952180014030440504
 GameObject:
   m_ObjectHideFlags: 0
