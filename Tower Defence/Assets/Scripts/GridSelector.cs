@@ -526,7 +526,7 @@ public class GridSelector : MonoBehaviour
 
         if (HUD.instance != null)
         {
-            HUD.instance.ShowUnitInspector("Veteran", "Level 1 Veteran", "Role: Energy Caster\nDamage: 35\nRate: 0.5/s\nRange: 7\nSplash: 2");
+            HUD.instance.ShowUnitInspector("Veteran", "Level 1 Veteran", "Role: Energy Caster\nDamage: 35\nRate: 0.5/s\nRange: 7" + (Projectile.splashEnabled ? "\nSplash: 2" : ""));
         }
     }
 
