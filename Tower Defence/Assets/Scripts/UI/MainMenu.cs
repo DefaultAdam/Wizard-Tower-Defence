@@ -8,13 +8,33 @@ public class MainMenu : MonoBehaviour
     public string gameSceneName = "Main";
     public string backgroundResource = "MenuBackground";
 
+    private Font font;
+    private GameObject mainPanel;
+
     void Awake()
     {
         Time.timeScale = 1f;
+        font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
         EnsureEventSystem();
         Transform canvas = CreateCanvas();
         CreateBackground(canvas);
+
+        mainPanel = CreatePanel(canvas, "MainPanel");
+
+        BuildMainPanel();
+    }
+
+    void BuildMainPanel()
+    {
+        CreateText(mainPanel.transform, "Wizard Tower Defence", 96, new Vector2(0f, 260f), Color.white);
+        CreateText(mainPanel.transform, "Defend your fortress", 36, new Vector2(0f, 170f), new Color(0.85f, 0.85f, 0.9f));
+        CreateButton(mainPanel.transform, "Play", new Vector2(0f, 20f), PlayGame);
+    }
+
+    void PlayGame()
+    {
+        SceneManager.LoadScene(gameSceneName);
     }
 
     void EnsureEventSystem()
@@ -70,11 +90,57 @@ public class MainMenu : MonoBehaviour
         Stretch(shadeObject.GetComponent<RectTransform>());
     }
 
+    GameObject CreatePanel(Transform parent, string panelName)
+    {
+        GameObject panel = new GameObject(panelName, typeof(RectTransform));
+        panel.transform.SetParent(parent, false);
+        Stretch(panel.GetComponent<RectTransform>());
+        return panel;
+    }
+
     void Stretch(RectTransform rect)
     {
         rect.anchorMin = Vector2.zero;
         rect.anchorMax = Vector2.one;
         rect.offsetMin = Vector2.zero;
         rect.offsetMax = Vector2.zero;
+    }
+
+    Text CreateText(Transform parent, string content, int size, Vector2 position, Color colour)
+    {
+        GameObject textObject = new GameObject(content, typeof(RectTransform));
+        textObject.transform.SetParent(parent, false);
+
+        RectTransform rect = textObject.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(1400f, size * 1.4f);
+        rect.anchoredPosition = position;
+
+        Text text = textObject.AddComponent<Text>();
+        text.font = font;
+        text.text = content;
+        text.fontSize = size;
+        text.alignment = TextAnchor.MiddleCenter;
+        text.color = colour;
+        text.raycastTarget = false;
+        return text;
+    }
+
+    void CreateButton(Transform parent, string label, Vector2 position, UnityEngine.Events.UnityAction onClick)
+    {
+        GameObject buttonObject = new GameObject(label + "Button", typeof(RectTransform));
+        buttonObject.transform.SetParent(parent, false);
+
+        RectTransform rect = buttonObject.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(420f, 80f);
+        rect.anchoredPosition = position;
+
+        Image image = buttonObject.AddComponent<Image>();
+        image.color = new Color(0.38f, 0.37f, 0.38f, 0.95f);
+
+        Button button = buttonObject.AddComponent<Button>();
+        button.targetGraphic = image;
+        button.onClick.AddListener(onClick);
+
+        CreateText(buttonObject.transform, label, 40, Vector2.zero, Color.white);
     }
 }
